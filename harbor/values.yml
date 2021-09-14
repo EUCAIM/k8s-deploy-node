@@ -1,0 +1,116 @@
+# expose:
+#   type: ingress
+#   tls: 
+#     enabled: true
+#     certSource: none
+#   ingress:
+#     hosts:
+#       core: chaimeleon-eu.i3m.upv.es
+#       #core: chaimeleon-eu.i3m.upv.es
+# #      notary: chaimeleon-eu.i3m.upv.es
+expose:
+   type: nodePort 
+   tls: 
+     enabled: true
+     certSource: secret
+     secret:
+      secretName: chaimeleon-eu.i3m.upv.es
+   nodePort:
+    name: harbor
+    ports:
+      https:
+        port: 443
+        nodePort: 10443      
+      notary:
+        port: 4443
+        nodePort: 14443 
+
+externalURL: https://chaimeleon-eu.i3m.upv.es:10443/
+#externalURL: https://chaimeleon-eu.i3m.upv.es/
+
+internalTLS:
+  enabled	: true
+  certSource: auto
+
+persistence:
+    enabled	: false
+    persistentVolumeClaim:
+      registry:
+        existingClaim: harbor-registry-pvc	
+      chartmuseum:
+        existingClaim: harbor-chartmuseum-pvc	
+      jobservice:
+        existingClaim: harbor-jobservice-pvc
+      database:
+        #existingClaim: harbor-database-pvc
+        storageClass: cephfs
+      redis:
+        existingClaim: harbor-redis-pvc
+      trivy:
+        existingClaim: harbor-trivy-pvc
+
+
+harborAdminPassword: 6gf62a6562e-8bf4g595299
+
+# Docker mages
+portal:
+  image:
+    repository: goharbor/harbor-portal
+    tag: v2.2.0
+core:
+  image:
+    repository: goharbor/harbor-core
+    tag: v2.2.0
+jobservice:
+  image:
+    repository: goharbor/harbor-jobservice
+    tag: v2.2.0
+registry:
+  image:
+    repository: goharbor/registry-photon
+    tag: v2.2.0
+  credentials:
+    username: admin
+    password: 5df312fg1asd26+gh0
+    htpasswd: admin:$2y$10$sXE4EqlW9Qg4wUcjjZn.eOAaE3NkBxweCLlHgjdaywb4MvOduDNvW
+chartmuseum:
+  enabled	: true
+  image:
+    repository: goharbor/chartmuseum-photon
+    tag: v2.2.0
+trivy:
+  enabled	: true
+  image:
+    repository: goharbor/trivy-adapter-photon
+    tag: v2.2.0
+notary:
+  enabled	: true
+  image:
+    repository: goharbor/notary-server-photon
+    tag: v2.2.0
+database:
+  type: internal
+  internal:
+    password: xweCLlHgjda
+    image:
+      repository: goharbor/harbor-db
+      tag: v2.2.0
+redis:
+  type: internal
+  internal:
+    image:
+      repository: goharbor/redis-photon
+      tag: v2.2.0
+exporter:
+  image:
+    repository: goharbor/harbor-exporter
+    tag: v2.2.0
+
+
+nginx:
+  image:
+    repository: goharbor/nginx-photon
+    tag: v2.2.0
+
+metrics:
+  enabled: false	

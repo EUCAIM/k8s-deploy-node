@@ -18,7 +18,7 @@ helm install --name postgresql --namespace guacamole  -f postgresql-values.yaml 
 helm install --name guacamole --namespace guacamole  -f guacamole-values.yaml halkeye/guacamole
 
 
-#https://avi-covid19.datahub.egi.eu:10443/guacamole/#/
-# Create admin user
+#https://chaimeleon-eu.i3m.upv.es/guacamole/#/
 
+# Create admin user
 # https://stackoverflow.com/questions/59862016/apache-guacamole-create-user-using-postgres
