@@ -26,7 +26,7 @@ You must launch a pod to initialize the permissions and contents of the volumes:
 ```console
 kubectl apply -f dep1_init_volumes.yaml
 ```
-Once initialized the volume with the original files from the official image, you can copy the _chaimeleon_ theme into the volume for themes (named _themes-data_). That volume will be mounted on _themes_ directory of the keycloak working directory in the main service container, by default: ``/opt/jboss/keycloak/themes/``. The result is like that:
+Once initialized the volume with the original files from the official image, you can copy the _chaimeleon_ theme into the volume for themes (named _themes-data_). That volume will be mounted on _themes_ directory of the keycloak working directory in the main service container, by default: ``/opt/jboss/keycloak/themes/``. The result should be like that:
 ```console
 bash-4.4$ ls /opt/jboss/keycloak/themes/
 base/        chaimeleon/  keycloak/    keycloak.v2/ README.txt

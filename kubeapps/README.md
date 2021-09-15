@@ -1,10 +1,11 @@
 # Enable Kubernetes plugin for OIDC authentication:
 Kubeapps is a dashboard to deploy charts with Helm over Kubernetes, so if you want to use OIDC authentication in Kubeapps you need first enable the Kubernetes plugin for that.
+
 Doc: 
  - OIDC in Kubeapps: https://github.com/kubeapps/kubeapps/blob/master/docs/user/using-an-OIDC-provider.md
  - OIDC in Kubernetes: https://kubernetes.io/docs/reference/access-authn-authz/authentication/#openid-connect-tokens
 
-Basically you must edit ``/etc/kubernetes/manifests/kube-apiserver.yaml`` to add the following parameters to the command:
+Basically you must edit ``/etc/kubernetes/manifests/kube-apiserver.yaml`` to add the following parameters to the command (kube-apiserver) of the container:
 ```
    - --oidc-issuer-url=https://chaimeleon-eu.i3m.upv.es/auth/realms/CHAIMELEON
    - --oidc-client-id=kubernetes
@@ -13,35 +14,31 @@ Basically you must edit ``/etc/kubernetes/manifests/kube-apiserver.yaml`` to add
    - --oidc-groups-claim=groups
    - '--oidc-groups-prefix=oidc:'
 ```
-On saving, a new pod for kube-apiserver should be automatically deployed with the new configuration, 
-but to ensure the changes, better restart kubelet service
+On saving, a new pod for kube-apiserver should be automatically deployed with the new configuration, but to ensure the changes, better restart kubelet service:
 ```console 
 service kubelet restart
 ```
 After that, the params should appear in the current pod manifest:
 ```console 
-kubectl -n kube-system get pod -l component=kube-apiserver -o yaml | grep oidc
-```
-showing:
-```
-#   - --oidc-issuer-url=https://chaimeleon-eu.i3m.upv.es/auth/realms/CHAIMELEON
-#   - --oidc-client-id=kubernetes
-#   - --oidc-username-claim=username
-#   - '--oidc-username-prefix=oidc:'
-#   - --oidc-groups-claim=groups
-#   - '--oidc-groups-prefix=oidc:'
+bash# kubectl -n kube-system get pod -l component=kube-apiserver -o yaml | grep oidc
+   - --oidc-issuer-url=https://chaimeleon-eu.i3m.upv.es/auth/realms/CHAIMELEON
+   - --oidc-client-id=kubernetes
+   - --oidc-username-claim=username
+   - '--oidc-username-prefix=oidc:'
+   - --oidc-groups-claim=groups
+   - '--oidc-groups-prefix=oidc:'
 ```
 
 # Create a client in Keycloak for kubernetes
-   Client ID: ``kubernetes``
-   Protocol: ``openid-conect``
-   Access Type: ``confidential``  (after save, "Credentials" tab appears, go on and anotate the secret for kubeapps configuration)
-   Valid Redirect URIs: ``https://chaimeleon-eu.i3m.upv.es/*``
+The parameters for the client should be:
+ - Client ID: ``kubernetes``
+ - Protocol: ``openid-conect``
+ - Access Type: ``confidential``  (after save, "Credentials" tab appears, go on and anotate the secret for kubeapps configuration)
+ - Valid Redirect URIs: ``https://chaimeleon-eu.i3m.upv.es/*``
 
 
 # Configuration of the helm chart
-Documentation:
-https://github.com/kubeapps/kubeapps/tree/master/chart/kubeapps#parameters
+Doc: https://github.com/kubeapps/kubeapps/tree/master/chart/kubeapps#parameters
 
 ## __kubeapps-values.yaml:__
 
@@ -56,10 +53,10 @@ https://github.com/kubeapps/kubeapps/tree/master/chart/kubeapps#parameters
 - Line 43: ``clientSecret``: _XXXXXXXXXXXXXXXXXXXXX_. The client secret generated previously in Keycloak.
 - Line 44: ``cookieSecret``: _XXXXXXXXXXXXXXXXXX_. You can generate a random secret with: ```python -c 'import os,base64; print base64.urlsafe_b64encode(os.urandom(16))'```
 - Line 46: ``additionalFlags``: 
-    - ``oidc-issuer-url`` _https://chaimeleon-eu.i3m.upv.es/auth/realms/CHAIMELEON_. Base url of the CHAIMELEON realm.
-    - ``proxy-prefix`` _/apps/oauth2_. Use the same path that in line 5.
+    - ``--oidc-issuer-url=https://chaimeleon-eu.i3m.upv.es/auth/realms/CHAIMELEON``. Base url of the CHAIMELEON realm.
+    - ``--proxy-prefix=/apps/oauth2``. Use the same path that in line 5.
 
-- Line 63: ``initialRepos``: You can add initial repositories which will be visible for all namespaces, like this:
+- Line 63: ``initialRepos``: You can add initial repositories which will be visible for all namespaces, like this from our Harbor service:
 ```
     - name: chaimeleon-library
       url: "https://chaimeleon-eu.i3m.upv.es:10443/chartrepo/chaimeleon-library"
@@ -84,7 +81,6 @@ kubectl apply -f prepare-postgresql-pvc.yaml
 Now, you can deploy the chart:
 ```console
 helm repo add bitnami https://charts.bitnami.com/bitnami
-
 helm install kubeapps --namespace kubeapps -f kubeapps-values.yaml bitnami/kubeapps
 ```
 
@@ -92,7 +88,7 @@ As soon as all components are running, Kubeapps portal should be available at ht
 
 # Authorization management
 
-DOC: https://github.com/kubeapps/kubeapps/blob/master/docs/user/access-control.md
+Doc: https://github.com/kubeapps/kubeapps/blob/master/docs/user/access-control.md
 ```console
 kubectl apply -f rolebindings.yml
 ```
