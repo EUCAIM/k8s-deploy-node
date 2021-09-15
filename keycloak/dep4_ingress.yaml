@@ -1,0 +1,26 @@
+apiVersion: extensions/v1beta1
+#apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: proxy-keycloak
+  namespace: keycloak
+  annotations:
+    kubernetes.io/ingress.class: nginx
+#   nginx.ingress.kubernetes.io/rewrite-target: /$1
+    nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
+#   nginx.ingress.kubernetes.io/ssl-redirect: "false"
+spec:
+  tls:
+  - hosts:
+    - chaimeleon-eu.i3m.upv.es
+#     secretName:  chaimeleon-eu.i3m.upv.es     # letsencryp-cert-tls, comment to use the default, which is set in the ingress controller param --default-ssl-certificate
+  rules:
+    - host: chaimeleon-eu.i3m.upv.es
+      http:
+        paths:
+#         - path: /
+          - path: /auth/?(.*)
+            backend:
+              serviceName: keycloak
+              servicePort: 8080
+

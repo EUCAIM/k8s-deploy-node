@@ -1,0 +1,54 @@
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: db
+  namespace: keycloak
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: db
+  template:
+    metadata:
+      labels:
+        app: db
+    spec:
+      volumes:
+        - name: task-pv-postgres-data
+          persistentVolumeClaim:
+            claimName: postgres-data
+      containers:
+      - name: db
+        image: "postgres:12"
+        env:
+        - name: POSTGRES_DB
+          value: keycloak
+        - name: POSTGRES_USER
+          value: keycloak-user
+        - name: POSTGRES_PASSWORD
+          value: XXXXXXXXXXXXXX
+        resources: {}
+        ports:
+          - containerPort: 5432
+            # standard postgres DB port
+            name: dbport
+        volumeMounts:
+          - mountPath: "/var/lib/postgresql/data"
+            name: task-pv-postgres-data
+      restartPolicy: Always
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: db
+  namespace: keycloak
+spec:
+  selector:
+    app: db
+  ports:
+  - protocol: TCP
+    port: 5432
+    targetPort: dbport
+
