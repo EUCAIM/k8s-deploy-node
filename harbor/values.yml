@@ -71,8 +71,8 @@ registry:
     tag: v2.2.0
   credentials:
     username: admin
-    password: 5df312fg1asd26+gh0
-    htpasswd: admin:$2y$10$sXE4EqlW9Qg4wUcjjZn.eOAaE3NkBxweCLlHgjdaywb4MvOduDNvW
+    password: XXXXXXXX
+    htpasswd: admin:XXXXXXXXX
 chartmuseum:
   enabled	: true
   image:
@@ -91,7 +91,7 @@ notary:
 database:
   type: internal
   internal:
-    password: xweCLlHgjda
+    password: XXXXXXXXXXXX
     image:
       repository: goharbor/harbor-db
       tag: v2.2.0

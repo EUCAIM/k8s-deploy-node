@@ -55,7 +55,7 @@ persistence:
         subPath: trivy
 
 
-harborAdminPassword: 6gf62a6565fdbf4g595299
+harborAdminPassword: XXXXXXXXXXX
 
 # Docker mages
 portal:
@@ -76,8 +76,8 @@ registry:
     tag: v2.2.0
   credentials:
     username: admin
-    password: 5df312fg1asd26+gh0
-    htpasswd: admin:$2y$10$sXE4EqlW9Qg4wUcjjZn.eOAaE3NkBxweCLlHgjdaywb4MvOduDNvW
+    password: XXXXXXXXXXXXXX
+    htpasswd: admin:XXXXXXXX
 chartmuseum:
   enabled	: true
   image:
@@ -96,7 +96,7 @@ notary:
 database:
   type: internal
   internal:
-    password: xweCLlHgjda
+    password: XXXXXXXXXX
     image:
       repository: goharbor/harbor-db
       tag: v2.2.0
