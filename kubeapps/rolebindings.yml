@@ -1,0 +1,55 @@
+# https://github.com/kubeapps/kubeapps/blob/master/docs/user/access-control.md
+
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: chaimeleon-oidc-admins-cluster-binding-cluster-admin
+subjects:
+- kind: Group
+  name: "oidc:admins"
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-admin
+
+---
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: chaimeleon-oidc-biomedical-data-engineers-binding-view
+  namespace: "chaimeleon"
+subjects:
+- kind: Group
+  name: "oidc:biomedical-data-engineers"
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: view
+---
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: chaimeleon-oidc-biomedical-data-engineers-binding-edit
+  namespace: "chaimeleon"
+subjects:
+- kind: Group
+  name: "oidc:biomedical-data-engineers"
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: edit
+
+
+---
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: chaimeleon-oidc-palollo-cluster-binding-cluster-admin
+subjects:
+- kind: User
+  name: "oidc:palollo"
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-admin
+

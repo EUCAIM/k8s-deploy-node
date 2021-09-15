@@ -1,0 +1,69 @@
+
+ingress:
+  enabled: true
+  hostname: "chaimeleon-eu.i3m.upv.es"
+  path: "/apps/?(.*)"
+# tls: true
+# extraHosts:
+# - name: "chaimeleon-eu.i3m.upv.es"
+#   path: "/apps/?(.*)"
+  extraTls:
+  - hosts:
+    - "chaimeleon-eu.i3m.upv.es"
+#   secretName: "chaimeleon-eu.i3m.upv.es"
+# secrets:
+# - name: "chaimeleon-eu.i3m.upv.es"
+  annotations:
+    # The following line is needed when the proxy returns "502 - bad gateway" 
+    # and in the proxy log apears: ERROR upstream sent too big header while reading response header from upstream
+    nginx.ingress.kubernetes.io/proxy-buffer-size: 128k
+
+postgresql:
+  enabled: true
+  postgresqlPassword: XXXXXXXXXXXXX
+  replication:
+    enabled: false
+  persistence:
+    enabled: true
+    size: 1Gi
+    storageClass: cephfs
+
+## https://github.com/kubeapps/kubeapps/blob/master/docs/user/using-an-OIDC-provider.md
+authProxy:
+  enabled: true
+  external: false
+  oauthLoginURI: "/apps/oauth2/start?rd=%2Fapps%2F"
+  oauthLogoutURI: "/apps/oauth2/sign_out?rd=%2Fapps%2F"
+# oauthLoginURI: "/apps/oauth2/login"
+# oauthLogoutURI: "/apps/oauth2/logout"
+  skipKubeappsLoginPage: false
+  provider: oidc
+# clientID: "kubeapps"
+  clientID: "kubernetes"
+  clientSecret: XXXXXXXXXXXXXXXXXXXXX
+  ## python -c 'import os,base64; print base64.urlsafe_b64encode(os.urandom(16))'
+  cookieSecret: XXXXXXXXXXXXXXXXXX
+  additionalFlags:
+    - "--oidc-issuer-url=https://chaimeleon-eu.i3m.upv.es/auth/realms/CHAIMELEON"
+    - "--proxy-prefix=/apps/oauth2"
+    - "--scope=openid email"
+    - "--set-authorization-header=true"
+
+
+frontend:
+  replicaCount: 1
+dashboard:
+  replicaCount: 1
+kubeops:
+  replicaCount: 1
+assetsvc:
+  replicaCount: 1
+  
+apprepository:
+  initialRepos:
+    - name: bitnami
+      url: "https://charts.bitnami.com/bitnami"
+    - name: chaimeleon-library
+      url: "https://chaimeleon-eu.i3m.upv.es:10443/chartrepo/chaimeleon-library"
+
+

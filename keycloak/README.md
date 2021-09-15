@@ -26,6 +26,11 @@ You must launch a pod to initialize the permissions and contents of the volumes:
 ```console
 kubectl apply -f dep1_init_volumes.yaml
 ```
+Once initialized the volume with the original files from the official image, you can copy the _chaimeleon_ theme into the volume for themes (named _themes-data_). That volume will be mounted on _themes_ directory of the keycloak working directory in the main service container, by default: ``/opt/jboss/keycloak/themes/``. The result is like that:
+```console
+bash-4.4$ ls /opt/jboss/keycloak/themes/
+base/        chaimeleon/  keycloak/    keycloak.v2/ README.txt
+```
 Now, you are able to deploy the database:
 ```console
 kubectl apply -f dep2_database.yaml
@@ -41,6 +46,7 @@ kubectl apply -f dep4_ingress.yaml
 As soon as Keycloak is running, some web sites should be available...
  - Main access at https://chaimeleon-eu.i3m.upv.es/auth/
  - Keycloak Admin Console at https://chaimeleon-eu.i3m.upv.es/auth/admin
+ 
 And when CHAIMELEON realm is created...
  - Keycloak User Account Console at https://chaimeleon-eu.i3m.upv.es/auth/realms/CHAIMELEON/account
  
