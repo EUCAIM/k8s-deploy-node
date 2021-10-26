@@ -62,7 +62,7 @@ data:
             }
           ],
           "oidc": {
-              "user_prefix": "\"oidc:\""
+              "user_prefix": "oidc:"
           },
           "generic_resources": {
               "docker_image": "primage/console_ub18:latest",
