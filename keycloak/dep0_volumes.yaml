@@ -26,3 +26,16 @@ spec:
     requests:
       storage: 1Gi
 
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: standalone-deployments
+  namespace: keycloak
+spec:
+  storageClassName: cephfs
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 1Gi

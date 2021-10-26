@@ -1,0 +1,285 @@
+
+kind: Namespace
+apiVersion: v1
+metadata:
+  labels:
+    name: kube-authorizer
+  name: kube-authorizer
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: "XXXXXXXXXXXXXXXXXXX"
+  namespace: kube-authorizer
+type: Opaque
+stringData:
+  key: "XXXXXXXXXXXXXXXXXXX"
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: logs
+  namespace: kube-authorizer
+spec:
+  storageClassName: cephfs
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kube-authorizer
+  namespace: kube-authorizer
+data:
+  kube-authorizer.yaml: |
+    {
+        "kubernetes": {
+          "auth_token":  "XXXXXXXXXXXXXXXXXXX",
+          "endpoint": "https://XXXXXXXXXXXXXXXXXXX",
+          "RoleBindings" : {
+              "own_namespace": [
+                {
+                  "kind": "ClusterRole",
+                  "name": "chaimeleon-users-role-namespace"
+               }
+              ],
+              "other": [
+                {
+                  "namespace": "chaimeleon-shared",
+                  "kind": "ClusterRole",
+                  "name": "chaimeleon-users-role-namespace"
+                }
+              ]
+          },
+          "ClusterRoleBindings" : [
+            {
+              "kind": "ClusterRole",
+              "name": "chaimeleon-users-role-cluster"
+            }
+          ],
+          "oidc": {
+              "user_prefix": "\"oidc:\""
+          },
+          "generic_resources": {
+              "docker_image": "primage/console_ub18:latest",
+              "admin_namespace": "kube-authorizer",
+              "replace_variables_json": [ 
+                '{ "replace_in_json": "__SUB__", "my_var_name": "user"}',
+                '{ "replace_in_json": "__EMAIL__", "my_var_name": "email"}'
+              ],
+              "jsons_user_namespace": [ 
+                ],
+              "jsons_admin_namespace": [
+                '{ 
+                    "apiVersion": "batch/v1",
+                    "kind": "Job",
+                    "metadata": {
+                      "name": "__EMAIL__"
+                    },
+                    "spec": {
+                      "template": {
+                        "spec": {
+                          "restartPolicy": "Never",
+                          "containers": [
+                            { 
+                              "name": "chaimeleon-__EMAIL__",
+                              "image": "chaimeleon-eu.i3m.upv.es:10443/chaimeleon-services/user-creation:0.0.1",
+                              "imagePullPolicy": "Always",
+                              "command": [ "/home/ubuntu/run.sh" ],
+                              "args": [],
+                              "volumeMounts": [
+                                {
+                                  "mountPath": "/mnt/users",
+                                  "name": "persistent-homes",
+                                  "readOnly": false
+                                }
+                              ], 
+                              "env": [
+                                  {
+                                    "name": "NEW_USER",
+                                    "value": "__EMAIL__"
+                                  },
+                                  {
+                                    "name": "MOUNTED_DIR_PERSISTENT_HOMES",
+                                    "value": "/mnt/users"
+                                  },
+                                  {
+                                    "name": "CEPH_HOST",
+                                    "value": "XXXXXXXXXXXXXXXXXXX"
+                                  },
+                                  {
+                                    "name": "CEPH_PREFIX_ACCOUNT",
+                                    "value": "chaimeleon-user"
+                                  },
+                                  {
+                                    "name": "CEPH_ADMIN_USER",
+                                    "value": "XXXXXXXXXXXXXXXXXXX"
+                                  },
+                                  {
+                                    "name": "CEPH_ADMIN_KEY",
+                                    "value": "XXXXXXXXXXXXXXXXXXX"
+                                  },
+                                  {
+                                    "name": "CEPH_POOL_DATA",
+                                    "value": "cephfs_data"
+                                  },
+                                  {
+                                    "name": "DIR_PERSISTENT_HOMES",
+                                    "value": "/chaimeleon-users"
+                                  },
+                                  {
+                                    "name": "DIR_DATASETS",
+                                    "value": "/datasets"
+                                  },
+                                  {
+                                    "name": "DIR_DATA",
+                                    "value": "/data"
+                                  },
+                                  {
+                                    "name": "K8S_ENDPOINT",
+                                    "value": "https://XXXXXXXXXXXXXXXXXXX"
+                                  },
+                                  {
+                                    "name": "K8S_TOKEN",
+                                    "value": "XXXXXXXXXXXXXXXXXXX"
+                                  },
+                                  {
+                                    "name": "K8S_NAMESPACE_NEW_USER",
+                                    "value": "__EMAIL__"
+                                  }                      
+                              ]
+                            }
+                          ],
+                          "volumes": [
+                            {
+                              "name": "persistent-homes",
+                              "cephfs": {
+                                "path": "/chaimeleon-users",
+                                "monitors": [
+                                  "XXXXXXXXXXXXXXXXXXX"
+                                ],
+                                "user": "XXXXXXXXXXXXXXXXXXX",
+                                "secretRef": {
+                                  "name": "XXXXXXXXXXXXXXXXXXX"
+                                },
+                                "readOnly": false
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    }
+                }'
+              ]
+          }
+        },
+        "self": {
+          "name": "kube-authorizer",
+          "host": "0.0.0.0",
+          "port": 10000,
+          "token_rest_api_secret": "XXXXXXXXXXXXXXXXXXX",
+          "always_check_rbac": false,
+          "log": {
+            "config_file": "/etc/kube-authorizer/logging.cfg",
+            "level": "DEBUG",
+            "file": "/var/log/kube-authorizer/kube-authorizer.log",
+            "file_max_size": 10485760
+          },
+          "ssl": {
+            "enabled": false
+          }      
+        }
+    }
+  logging.cfg: |
+    [loggers]
+    keys=root,kube-authorizer
+
+    [handlers]
+    keys=fileHandler
+
+    [formatters]
+    keys=simpleFormatter
+
+    [logger_root]
+    level=INFO
+    qualname=root
+    handlers=fileHandler
+
+    [logger_kube-authorizer]
+    level=INFO
+    handlers=fileHandler
+    qualname=kube-authorizer
+    propagate=0
+
+    [handler_fileHandler]
+    class=logging.handlers.RotatingFileHandler
+    level=DEBUG
+    formatter=simpleFormatter
+    args=('/var/log/kube-authorizer/kube-authorizer.log', 'w', 10485760, 3)
+
+    [formatter_simpleFormatter]
+    format=%(asctime)s - %(name)s - %(levelname)s - %(message)s
+    datefmt=%m/%d/%Y %I:%M:%S
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kube-authorizer
+  namespace: kube-authorizer
+  labels:
+    app: kube-authorizer
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kube-authorizer
+  template:
+    metadata:
+      labels:
+        app: kube-authorizer
+    spec:
+      containers:
+      - name: kube-authorizer
+        image: registry.gitlab.com/primageproject/kube-authorizer:1.0.3
+        imagePullPolicy: Always
+        ports:
+          - containerPort: 10000
+            name: rest-api
+        volumeMounts:
+         - name: kube-authorizer
+           mountPath: /etc/kube-authorizer/kube-authorizer.yaml
+           subPath: kube-authorizer.yaml
+         - name: kube-authorizer
+           mountPath: /etc/kube-authorizer/logging.cfg
+           subPath: logging.cfg
+         - name: vol-logs
+           mountPath: /var/log/kube-authorizer/
+           readOnly: false
+        env:
+         - name: PYTHONWARNINGS
+           value: "ignore:Unverified HTTPS request"
+      volumes:
+        - name: kube-authorizer
+          configMap:
+            name: kube-authorizer
+        - name: vol-logs
+          persistentVolumeClaim:
+            claimName: logs
+---
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: kube-authorizer
+  name: kube-authorizer
+spec:
+  type: ClusterIP
+  ports:
+  - name: rest-api
+    port: 10000
+    targetPort: 10000
+  selector:
+    app: kube-authorizer

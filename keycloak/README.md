@@ -3,7 +3,7 @@
 ## __dep2_database.yaml:__
 - Line 30: ``POSTGRES_PASSWORD``: _XXXXXXXXXX_. The password for the user in the database.
 
-## __dep3_keycloak.yaml:__
+## __dep3_keycloak_v2.yaml:__
 - Line 48: ``KEYCLOAK_USER``: _admin_. The name of the admin user.
 - Line 50: ``KEYCLOAK_PASSWORD``: _XXXXXXXXXXXX_. The password of the admin user.
 - Line 60: ``DB_PASSWORD``: _XXXXXXXXXX_. The password of the user in the database (same as line 30 of __dep2_database.yaml__).
@@ -35,9 +35,9 @@ Now, you are able to deploy the database:
 ```console
 kubectl apply -f dep2_database.yaml
 ```
-Once the database is running, you can deploy the main service:
+Once the database is running and you copied the [event listeners](https://github.com/chaimeleon-eu/event-listener-kubeauthorizer) at the PVC  ``standalone-deployments``, you can deploy the main service. But 
 ```console
-kubectl apply -f dep3_keycloak.yaml
+kubectl apply -f dep3_keycloak_v2.yaml
 ```
 And finally you can create an ingress to access the main service:
 ```console
