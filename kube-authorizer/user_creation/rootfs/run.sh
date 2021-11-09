@@ -1,6 +1,7 @@
 #!/bin/bash 
 
 #set -x
+
 # Environmental variables required:
 #   NEW_USER=
 #   MOUNTED_DIR_PERSISTENT_HOMES= # Mount only at the container only the persistent homes directory from CephFS 
@@ -15,7 +16,11 @@
 #   K8S_ENDPOINT= 
 #   K8S_TOKEN=
 #   K8S_NAMESPACE_NEW_USER=
-
+#   KEYCLOAK_ENDPOINT= 
+#   KEYCLOAK_REALM= 
+#   DATASET_SERVICE_ENDPOINT=
+#   KEYCLOAK_CLIENT=
+#   KEYCLOAK_CLIENT_SECRET=
 
 # Create PERSISTENT HOME for the user
 echo "Creating directory: ${MOUNTED_DIR_PERSISTENT_HOMES}/${NEW_USER}"
@@ -25,8 +30,7 @@ mkdir -p ${MOUNTED_DIR_PERSISTENT_HOMES}/${NEW_USER}
 tpl -e templates/ceph.conf.tpl > /etc/ceph/ceph.conf
 tpl -e templates/ceph.key.tpl > /etc/ceph/ceph.client.${CEPH_ADMIN_USER}.keyring
 
-
-CEPH_NEW_USER=${CEPH_PREFIX_ACCOUNT}-${NEW_USER}
+export CEPH_NEW_USER=${CEPH_PREFIX_ACCOUNT}-${NEW_USER}
 echo "Creating new ceph user: client.${CEPH_NEW_USER}"
 # Create the ceph account for the user
 ceph --user ${CEPH_ADMIN_USER} auth get-or-create client.${CEPH_NEW_USER} mon "allow r" mds "allow rw path="${DIR_PERSISTENT_HOMES}/${NEW_USER}", allow r path="${DIR_DATASETS}", allow r path="${DIR_DATA} osd "allow rw pool="${CEPH_POOL_DATA}""
@@ -39,8 +43,21 @@ export _NEW_USER_CEPH_KEY=$(ceph --user ${CEPH_ADMIN_USER} auth get-key client.$
 
 # Create k8s objects
 tpl -e templates/ceph-secret.yml.tpl > /tmp/${CEPH_NEW_USER}-secret.yml
-echo "Creating the ceph-secret: "
+echo "Creating the ceph-auth: "
 cat /tmp/${CEPH_NEW_USER}-secret.yml
 kubectl --server ${K8S_ENDPOINT} --insecure-skip-tls-verify=true --token=${K8S_TOKEN} apply -f /tmp/${CEPH_NEW_USER}-secret.yml
 
-# Create Guacamole 
+# Obtain AUTH token from keycloak
+export _DATASET_AUTH_TOKEN=$(curl -i -d "client_id=${KEYCLOAK_CLIENT}" -d "client_secret=${KEYCLOAK_CLIENT_SECRET}" "${KEYCLOAK_ENDPOINT}/auth/realms/${KEYCLOAK_REALM}/protocol/openid-connect/token")
+
+# Obtain the new UID for the user from dataset service
+export _NEW_USER_GID=$(curl -i -X GET -H "Authorization: bearer ${_DATASET_AUTH_TOKEN}" -H "Content-Type: application/json" -d "{\"id\": \"${NEW_USER_SUB}\"}" "${DATASET_SERVICE_ENDPOINT}/api/user")
+
+tpl -e templates/chaimeleon-configmap.yml.tpl > /tmp/user-${_NEW_USER_GID}-chaimeleon-configmap.yml
+echo "Creating the chaimeleon-configmap secret: "
+cat /tmp/user-${_NEW_USER_GID}-chaimeleon-configmap.yml
+kubectl --server ${K8S_ENDPOINT} --insecure-skip-tls-verify=true --token=${K8S_TOKEN} apply -f /tmp/user-${_NEW_USER_GID}-chaimeleon-configmap.yml
+
+# Create kyverno-policies
+
+# Create Guacamole connections

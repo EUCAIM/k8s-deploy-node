@@ -69,7 +69,7 @@ data:
               "admin_namespace": "kube-authorizer",
               "replace_variables_json": [ 
                 '{ "replace_in_json": "__SUB__", "my_var_name": "user"}',
-                '{ "replace_in_json": "__EMAIL__", "my_var_name": "email"}'
+                '{ "replace_in_json": "__EMAIL__", "my_var_name": "email"}',
               ],
               "jsons_user_namespace": [ 
                 ],
@@ -87,7 +87,7 @@ data:
                           "containers": [
                             { 
                               "name": "chaimeleon-__EMAIL__",
-                              "image": "chaimeleon-eu.i3m.upv.es:10443/chaimeleon-services/user-creation:0.0.1",
+                              "image": "chaimeleon-eu.i3m.upv.es:10443/chaimeleon-services/user-creation:0.0.2",
                               "imagePullPolicy": "Always",
                               "command": [ "/home/ubuntu/run.sh" ],
                               "args": [],
@@ -102,6 +102,10 @@ data:
                                   {
                                     "name": "NEW_USER",
                                     "value": "__EMAIL__"
+                                  },
+                                  {
+                                    "name": "NEW_USER_SUB",
+                                    "value": "__SUB__"
                                   },
                                   {
                                     "name": "MOUNTED_DIR_PERSISTENT_HOMES",
@@ -150,7 +154,27 @@ data:
                                   {
                                     "name": "K8S_NAMESPACE_NEW_USER",
                                     "value": "__EMAIL__"
-                                  }                      
+                                  },
+                                  {
+                                    "name": "KEYCLOAK_ENDPOINT",
+                                    "value": "https://chaimeleon-eu.i3m.upv.es"
+                                  } ,
+                                  {
+                                    "name": "KEYCLOAK_REALM",
+                                    "value": "CHAIMELEON"
+                                  } ,
+                                  {
+                                    "name": "DATASET_SERVICE_ENDPOINT",
+                                    "value": "http://dataset-service-backend-service.dataset-service.svc.cluster.local:11000"
+                                  } ,
+                                  {
+                                    "name": "KEYCLOAK_CLIENT",
+                                    "value": "kubeauthorizer-pod"
+                                  } ,
+                                  {
+                                    "name": "KEYCLOAK_CLIENT_SECRET",
+                                    "value": "XXXXXXXX"
+                                  }                       
                               ]
                             }
                           ],
