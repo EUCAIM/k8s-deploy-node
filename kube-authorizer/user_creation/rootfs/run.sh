@@ -21,6 +21,9 @@
 #   DATASET_SERVICE_ENDPOINT=
 #   KEYCLOAK_CLIENT=
 #   KEYCLOAK_CLIENT_SECRET=
+#   GUACAMOLE_ENDPOINT=
+#   GUACAMOLE_ADMIN_USER=
+#   GUACAMOLE_ADMIN_PASSWORD=
 
 # Create PERSISTENT HOME for the user
 echo "Creating directory: ${MOUNTED_DIR_PERSISTENT_HOMES}/${NEW_USER}"
@@ -60,4 +63,15 @@ kubectl --server ${K8S_ENDPOINT} --insecure-skip-tls-verify=true --token=${K8S_T
 
 # Create kyverno-policies
 
-# Create Guacamole connections
+# Create Guacamole user to access to the REST API and a private connections group for the user
+export GUACAMOLE_PASSWORD=$(< /dev/urandom tr -dc _A-Z-a-z-0-9 | head -c${1:-16};echo;)
+echo "Creating the guacamole user and connections group."
+python createGuacamoleUserAndConnectionsGroup.py --url "${GUACAMOLE_ENDPOINT}" \
+                                                 --admin-user ${GUACAMOLE_ADMIN_USER} --admin-password "${GUACAMOLE_ADMIN_PASSWORD}" \
+                                                 --user "${NEW_USER}" --password "${GUACAMOLE_PASSWORD}"
+# Store the credentials in a secret
+tpl -e templates/guacamole-secret.yml.tpl > /tmp/guacamole-api-user-${NEW_USER}-secret.yml
+echo "Creating the guacamole-secret: "
+cat /tmp/guacamole-api-user-${NEW_USER}-secret.yml
+kubectl --server ${K8S_ENDPOINT} --insecure-skip-tls-verify=true --token=${K8S_TOKEN} apply -f /tmp/guacamole-api-user-${NEW_USER}-secret.yml
+
