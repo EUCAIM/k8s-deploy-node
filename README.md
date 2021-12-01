@@ -8,3 +8,4 @@
 - PACS: deployed using [plain YAMLs](https://gitlab.com/primageproject/k8s_quibimprecision/-/tree/master/without_chart/pacs). URL: https://chaimeleon-eu.i3m.upv.es/dcm4chee-arc/ui2/
 - Dataset-service: deployed using [plain YAMLs](https://github.com/chaimeleon-eu/dataset-service#deploy-with-kubernetes). URL: https://chaimeleon-eu.i3m.upv.es/dataset-service/
 - [Kube-authorizer](https://gitlab.com/primageproject/kube-authorizer): deployed using plain YAMLs.
+- [Chaimeleon-operator](https://github.com/chaimeleon-eu/k8s-chaimeleon-operator): deployed using the Helm Chart.
