@@ -1,0 +1,28 @@
+apiVersion : kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: restrict-image-registries
+spec:
+  validationFailureAction: enforce
+  background: false
+  rules:
+  - name: validate-registries
+    match:
+      resources:
+        kinds:
+        - "Pod"
+      subjects:
+      - kind: Group
+        name: "oidc:data-scientists"
+      - kind: Group
+        name: "oidc:external-researcher"
+      - kind: Group
+        name: "oidc:application-developer"
+      - kind: Group
+        name: "oidc:cloud-services-and-security-management"
+    validate:
+      message: "Images may only come from CHAIMELEON container image repository."
+      pattern:
+        spec:
+          containers:
+          - image: "chaimeleon-eu.i3m.upv.es:10443/*"

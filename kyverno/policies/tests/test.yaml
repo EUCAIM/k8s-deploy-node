@@ -1,0 +1,148 @@
+name: chaimeleon-tests
+policies:
+  - "../restrict-image-registry.yml"
+  - "../security-context.yml"
+  - "../deny-privilege-escalation.yml"
+  - "../restrict-volume-types.yml"
+  - "../restrict-external-ips.yml"
+  - "../restrict-nodeport.yml"
+resources:
+  - "resources/registries.yml"
+  - "resources/security-context.yml"
+  - "resources/escalation.yml"
+  - "resources/volumes.yml"
+  - "resources/services.yml"
+  
+results:
+# restrict-image-registries
+- policy: restrict-image-registries
+  rule: validate-registries
+  resource: pod-chaimeleon
+  kind: Pod
+  status: pass
+- policy: restrict-image-registries
+  rule: validate-registries
+  resource: pod-external
+  kind: Pod
+  status: fail
+
+# validate-security-context-users
+- policy: validate-security-context-users
+  rule: validate-userid
+  resource: pod-securitycontext-ok
+  kind: Pod
+  status: pass
+- policy: validate-security-context-users
+  rule: validate-groupid
+  resource: pod-securitycontext-ok
+  kind: Pod
+  status: pass
+- policy: validate-security-context-users
+  rule: validate-fsgroup
+  resource: pod-securitycontext-ok
+  kind: Pod
+  status: pass
+- policy: validate-security-context-users
+  rule: validate-userid
+  resource: pod-securitycontext-fail
+  kind: Pod
+  status: fail
+- policy: validate-security-context-users
+  rule: validate-groupid
+  resource: pod-securitycontext-fail
+  kind: Pod
+  status: fail
+- policy: validate-security-context-users
+  rule: validate-fsgroup
+  resource: pod-securitycontext-fail
+  kind: Pod
+  status: fail
+- policy: validate-security-context-users
+  rule: validate-groupid
+  resource: pod-securitycontext-initcontainer-fail
+  kind: Pod
+  status: fail
+- policy: validate-security-context-users
+  rule: validate-groupid
+  resource: pod-securitycontext-container-fail
+  kind: Pod
+  status: fail
+- policy: validate-security-context-users
+  rule: validate-groupid
+  resource: pod-securitycontext-onlyinspec-ok
+  kind: Pod
+  status: pass
+- policy: validate-security-context-users
+  rule: validate-userid
+  resource: pod-notsecuritycontext-fail
+  kind: Pod
+  status: fail
+- policy: validate-security-context-users
+  rule: validate-groupid
+  resource: pod-notsecuritycontext-fail
+  kind: Pod
+  status: fail
+- policy: validate-security-context-users
+  rule: validate-fsgroup
+  resource: pod-notsecuritycontext-fail
+  kind: Pod
+  status: fail  
+
+# deny-privilege-escalation
+- policy: deny-privilege-escalation
+  rule: deny-privilege-escalation
+  resource: pod-escalation-ok
+  kind: Pod
+  status: pass  
+- policy: deny-privilege-escalation
+  rule: deny-privilege-escalation
+  resource: pod-escalation-notappear
+  kind: Pod
+  status: pass  
+- policy: deny-privilege-escalation
+  rule: deny-privilege-escalation
+  resource: pod-escalation-initcontainer-fail
+  kind: Pod
+  status: fail  
+- policy: deny-privilege-escalation
+  rule: deny-privilege-escalation
+  resource: pod-escalation-container-fail
+  kind: Pod
+  status: fail  
+
+# restrict-volume-types
+# Testing only with glusterfs for not allowed volumes
+- policy: restrict-volume-types
+  rule: restricted-vol-glusterfs
+  resource: pod-cephs
+  kind: Pod
+  status: pass  
+- policy: restrict-volume-types
+  rule: restricted-vol-glusterfs
+  resource: pod-without-vol
+  kind: Pod
+  status: pass  
+- policy: restrict-volume-types
+  rule: restricted-vol-glusterfs
+  resource: pod-glusterfs
+  kind: Pod
+  status: fail  
+
+# restrict-external-ips
+- policy: restrict-external-ips
+  rule: restrict-external-ips
+  resource: service-ok
+  kind: Service
+  status: pass  
+- policy: restrict-external-ips
+  rule: restrict-external-ips
+  resource: service-externalIP
+  kind: Service
+  status: fail  
+
+# restrict-nodeport
+- policy: restrict-nodeport
+  rule: restrict-nodeport
+  resource: service-nodeport
+  kind: Service
+  status: fail  

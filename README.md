@@ -7,7 +7,7 @@ Authorization:
 - [Kube-authorizer](https://gitlab.com/primageproject/kube-authorizer): deployed using plain YAMLs.
 
 Security Policy Management System:
-- [Kyverno](https://kyverno.github.io/kyverno/): deployed using the Helm Chart. Pod Security Standard Policy: _baseline_.
+- [Kyverno](https://kyverno.github.io/kyverno/): deployed using the Helm Chart. Pod Security Standard Policy: _baseline_. Other applied policies availables [here](https://github.com/chaimeleon-eu/k8s-deployments/tree/master/kyverno/policies).
 
 Container image and Helm Chart repository:
 - Harbor: deployed using the helm chart. URL: https://chaimeleon-eu.i3m.upv.es:10443/

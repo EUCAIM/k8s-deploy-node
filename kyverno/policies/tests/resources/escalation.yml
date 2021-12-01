@@ -1,0 +1,63 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pod-escalation-ok
+  labels:
+    app: ubuntu
+spec: 
+  initContainers:
+  - name: install
+    image: chaimeleon-eu.i3m.upv.es:10443/chaimeleon-library/base-vol:latest
+    securityContext:
+      allowPrivilegeEscalation: false
+  containers:
+  - name: ubuntu
+    image: chaimeleon-eu.i3m.upv.es:10443/chaimeleon-library/base-vol:latest
+    securityContext:
+      allowPrivilegeEscalation: false
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pod-escalation-notappear
+  labels:
+    app: ubuntu
+spec: 
+  initContainers:
+  - name: install
+    image: chaimeleon-eu.i3m.upv.es:10443/chaimeleon-library/base-vol:latest
+  containers:
+  - name: ubuntu
+    image: chaimeleon-eu.i3m.upv.es:10443/chaimeleon-library/base-vol:latest
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pod-escalation-initcontainer-fail
+  labels:
+    app: ubuntu
+spec: 
+  initContainers:
+  - name: install
+    image: chaimeleon-eu.i3m.upv.es:10443/chaimeleon-library/base-vol:latest
+    securityContext:
+      allowPrivilegeEscalation: true
+  containers:
+  - name: ubuntu
+    image: chaimeleon-eu.i3m.upv.es:10443/chaimeleon-library/base-vol:latest
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pod-escalation-container-fail
+  labels:
+    app: ubuntu
+spec: 
+  initContainers:
+  - name: install
+    image: chaimeleon-eu.i3m.upv.es:10443/chaimeleon-library/base-vol:latest
+  containers:
+  - name: ubuntu
+    image: chaimeleon-eu.i3m.upv.es:10443/chaimeleon-library/base-vol:latest
+    securityContext:
+      allowPrivilegeEscalation: true

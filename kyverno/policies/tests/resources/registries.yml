@@ -1,0 +1,90 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pod-external
+  labels:
+    app: ubuntu
+spec: 
+  containers:
+  - name: ubuntu
+    image: ubuntu:20.04
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pod-chaimeleon
+  labels:
+    app: ubuntu
+spec: 
+  containers:
+  - name: ubuntu
+    image: chaimeleon-eu.i3m.upv.es:10443/chaimeleon-library/base-vol:latest
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: deployment-external
+  labels:
+    app: ubuntu
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ubuntu
+  template:
+    metadata:
+      labels:
+       app: ubuntu
+    spec:
+      containers:
+      - name: deployment-external
+        image: ubuntu:20.04
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: deployment-chaimeleon
+  labels:
+    app: ubuntu
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ubuntu
+  template:
+    metadata:
+      labels:
+       app: ubuntu
+    spec:
+      containers:
+      - name: deployment-chaimeleon
+        image: chaimeleon-eu.i3m.upv.es:10443/chaimeleon-library/base-vol:latest
+
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: job-external
+spec:
+  template:
+    spec:
+      containers:
+      - name: job-external
+        image: ubuntu:20.04
+        command: ["cat", "/etc/os-release"]
+      restartPolicy: Never
+  backoffLimit: 1
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: job-chaimeleon
+spec:
+  template:
+    spec:
+      containers:
+      - name: job-external
+        image: chaimeleon-eu.i3m.upv.es:10443/chaimeleon-library/base-vol:latest
+        command: ["cat", "/etc/os-release"]
+      restartPolicy: Never
+  backoffLimit: 1
