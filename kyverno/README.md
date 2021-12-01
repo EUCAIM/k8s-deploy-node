@@ -23,7 +23,13 @@ helm install kyverno  --namespace kyverno -f kyverno-values.yml kyverno/kyverno
 ```
 
 # Additional policies
-Before add the policies availables at [policies directory](https://github.com/chaimeleon-eu/k8s-deployments/tree/master/kyverno/policies), you can test them using the following commands:
+Before add the policies availables at [policies directory](https://github.com/chaimeleon-eu/k8s-deployments/tree/master/kyverno/policies), you will can test them using the following commands:
 ```console
-docker run -it gbaeke/kyverno-cli test https://github.com/chaimeleon-eu/k8s-deployments/tree/master/kyverno/policies
+docker run -it -v /path/to/k8s_deployments/kyverno/policies:/policies gbaeke/kyverno-cli "kyverno test /policies"
 ```
+If the Github repository is public, you also can test them executing:
+```console
+docker run -it gbaeke/kyverno-cli "kyverno test https://github.com/chaimeleon-eu/k8s-deployme
+nts/tree/master/kyverno/policies"
+```
+
