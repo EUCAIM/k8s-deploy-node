@@ -6,12 +6,14 @@ policies:
   - "../restrict-volume-types.yml"
   - "../restrict-external-ips.yml"
   - "../restrict-nodeport.yml"
+  - "../allowed-podpriorities.yml"
 resources:
   - "resources/registries.yml"
   - "resources/security-context.yml"
   - "resources/escalation.yml"
   - "resources/volumes.yml"
   - "resources/services.yml"
+  - "resources/podpriorities.yml"
   
 results:
 # restrict-image-registries
@@ -145,4 +147,21 @@ results:
   rule: restrict-nodeport
   resource: service-nodeport
   kind: Service
+  status: fail  
+
+# allowed-podpriorities
+- policy: allowed-podpriorities
+  rule: validate-pod-priority
+  resource: pod-priority-ok
+  kind: Pod
+  status: pass  
+- policy: allowed-podpriorities
+  rule: validate-pod-priority
+  resource: pod-priority-notappear
+  kind: Pod
+  status: fail  
+- policy: allowed-podpriorities
+  rule: validate-pod-priority
+  resource: pod-priority-other
+  kind: Pod
   status: fail  

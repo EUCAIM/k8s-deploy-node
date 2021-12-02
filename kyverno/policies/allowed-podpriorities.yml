@@ -1,0 +1,41 @@
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: allowed-podpriorities
+  annotations:
+    policies.kyverno.io/title: Pod Priorities for Chaimeleon Users
+    policies.kyverno.io/category: Best Practices
+    policies.kyverno.io/minversion: 1.3.0
+    policies.kyverno.io/subject: Pod
+    policies.kyverno.io/description: >-
+      A Pod PriorityClass is used to provide a guarantee on the scheduling of a Pod relative to others.
+      In certain cases where not all users in a cluster are trusted, a malicious user could create Pods
+      at the highest possible priorities, causing other Pods to be evicted/not get scheduled. This policy
+      checks the defined `priorityClassName` in a Pod spec to a dictionary of allowable
+      PriorityClasses for the given Namespace stored in a ConfigMap. If the `priorityClassName` is not
+      among them, the Pod is blocked.
+spec:
+  validationFailureAction: enforce
+  background: false
+  rules:
+  - name: validate-pod-priority
+    match:
+      resources:
+        kinds:
+        - Pod
+      subjects:
+      - kind: Group
+        name: "oidc:data-scientists"
+      - kind: Group
+        name: "oidc:external-researcher"
+      - kind: Group
+        name: "oidc:application-developer"
+      - kind: Group
+        name: "oidc:cloud-services-and-security-management"
+    validate:
+      message: >-
+        The Pod PriorityClass template.spec.priorityClassName must be equal to 'processing-applications' for CHAIMELEON users.
+      pattern:
+        spec:
+          priorityClassName: "processing-applications"
+          

@@ -25,7 +25,8 @@ Ingestion services:
 - QuibimPrecision: deployed using the [helm chart](https://gitlab.com/primageproject/k8s_quibimprecision). URL: https://chaimeleon-eu.i3m.upv.es/omni/
 - PACS: deployed using [plain YAMLs](https://gitlab.com/primageproject/k8s_quibimprecision/-/tree/master/without_chart/pacs). URL: https://chaimeleon-eu.i3m.upv.es/dcm4chee-arc/ui2/
 
-Chaimeleon core services:
+Dataset administration and Traceability System:
 - [Dataset-service](https://github.com/chaimeleon-eu/dataset-service#): deployed using [plain YAMLs](https://github.com/chaimeleon-eu/dataset-service#deploy-with-kubernetes). URL: https://chaimeleon-eu.i3m.upv.es/dataset-service/
 - [Chaimeleon K8s Operator](https://github.com/chaimeleon-eu/k8s-chaimeleon-operator): deployed using the Helm Chart. 
+- [Tracer Service](https://github.com/chaimeleon-eu/tracer). 
 

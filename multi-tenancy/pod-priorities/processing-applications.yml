@@ -1,0 +1,7 @@
+apiVersion: scheduling.k8s.io/v1
+kind: PriorityClass
+metadata:
+  name: processing-applications
+value: 1000000
+globalDefault: true
+description: "This priority class should be used for processing applications that are deployed by the CHAIMELEON users."
