@@ -1,0 +1,54 @@
+# Default values for chaimeleon-operator.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+priorityClassName: "core-services"
+
+serviceAccount:
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""
+
+rbac:
+  role:
+    name: "prod-chaimeleon-operator-namespaced"
+  clusterRole:
+    name: "prod-chaimeleon-operator-cluster"
+  roleBinding:
+    name: "prod-chaimeleon-operator-rolebinding"
+  clusterRoleBinding:
+    name: "prod-chaimeleon-operator-ClusterRoleBinding"
+
+operatorConfiguration:
+  keycloakClient: "kubernetes-operator"
+  keycloakClientSecret: "XXXXXXXXXXXXXXXX"
+  keycloakEndpoint: "https://chaimeleon-eu.i3m.upv.es/"
+  keycloakRealm: "CHAIMELEON"
+  datasetServiceEndpoint: "http://dataset-service-backend-service.dataset-service.svc.cluster.local:11000/"
+  k8sUserPrefix: "oidc:"
+
+service:
+  type: ClusterIP
+  port: 443
+
+image:
+  repository: "chaimeleon-eu.i3m.upv.es:10443/chaimeleon-services/k8s-operator"
+  pullPolicy: Always
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: "1.0.0"
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+
+podAnnotations: {}
+
+podSecurityContext: {}
+
+securityContext: {}
+
+resources: {}
+
