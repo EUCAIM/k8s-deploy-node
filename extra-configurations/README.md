@@ -69,7 +69,7 @@ description: "This priority class should be used for processing applications tha
     - _Never_: pods in that PriorityClass will be non-preempting.
 
 
-## Quality of Service
+### Quality of Service
 
 QoS Classes (depending on the priority):
 - _Guaranteee_: Pods  __not be killed until they exceed their limits__. Requirements:
@@ -80,7 +80,7 @@ QoS Classes (depending on the priority):
     - Every Container in the Pod must have a __memory request__, and __CPU request__.
 - _Best effort_: Pods will be treated as __lowest priority__. Processes in these pods are the first to get killed if the system runs out of memory. These containers can use any amount of free memory in the node though.
 
-## Resource Quota
+## Resource quotas
 "A resource quota, defined by a ResourceQuota object, provides constraints that __limit aggregate resource consumption per namespace__. It can limit the __quantity of objects__ that can be created in a namespace by type, as well as the total __amount of compute resources that may be consumed__ by resources in that namespace." Source: [here](https://kubernetes.io/docs/concepts/policy/resource-quotas/). 
 
 Using resource quotas we can limit:
@@ -107,9 +107,10 @@ spec:
     limits.cpu: "6"
     limits.memory: 50Gi
     requests.nvidia.com/gpu: 2
-````
+```
 
-## Storage Resource Quota
+### Ceph Resource Quota
+
 Persistent storage resource quota cannot be limited by K8s because the access mode is directly throught PV instead of PVC. [Here](https://access.redhat.com/documentation/en-us/red_hat_ceph_storage/4/html/file_system_guide/ceph-file-system-administration#ceph-file-system-quotas_fs) is the information for use this feature in Cehp.
 
 
