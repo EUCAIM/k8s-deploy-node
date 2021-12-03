@@ -46,5 +46,13 @@ System administrators must ensure that these core services are always running. T
 
 ### Pod priority
 Implementing the classes that are described below can be done using [Kubernetes PriorityClasses](https://kubernetes.io/docs/concepts/scheduling-eviction/pod-priority-preemption/#priorityclass). [Here](https://github.com/chaimeleon-eu/k8s-deployments/tree/master/multi-tenancy/pod-priorities) are availables the YAMLs that permits manage the priority between the diffent pods in the infrastructure. Furthermore, it is required a Kyverno policy to ensure that CHAIMELEON users only use the _Processing Application_ PriorityClass.
+
 ### Pod preemtion
-TBD
+
+"When Pods are created, they go to a queue and wait to be scheduled. The scheduler picks a Pod from the queue and tries to schedule it on a Node. If no Node is found that satisfies all the specified requirements of the Pod, preemption logic is triggered for the pending Pod. Let's call the pending Pod P. Preemption logic tries to find a Node where removal of one or more Pods with lower priority than P would enable P to be scheduled on that Node. If such a Node is found, one or more lower priority Pods get evicted from the Node. After the Pods are gone, P can be scheduled on the Node." Source: [here](https://kubernetes.io/docs/concepts/scheduling-eviction/pod-priority-preemption/#preemption).
+
+- PreemptionPolicy: 
+    -  _PreemptLowerPriority_: allow pods of that PriorityClass to preempt lower-priority pods (as is existing default behavior).
+    - _Never_: pods in that PriorityClass will be non-preempting.
+
+

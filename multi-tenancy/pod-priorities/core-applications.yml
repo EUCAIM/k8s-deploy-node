@@ -4,4 +4,5 @@ metadata:
   name: core-applications
 value: 1000010
 globalDefault: false
+preemptionPolicy: PreemptLowerPriority
 description: "This priority class should be used for the CHAIMELEON applications that are used by the CHAIMELEON users."
