@@ -45,7 +45,20 @@ System administrators must ensure that these core services are always running. T
 - __Processing Applications__: the applications that are deployed by the infrastructure users. 
 
 ### Pod priority
-Implementing the classes that are described below can be done using [Kubernetes PriorityClasses](https://kubernetes.io/docs/concepts/scheduling-eviction/pod-priority-preemption/#priorityclass). [Here](https://github.com/chaimeleon-eu/k8s-deployments/tree/master/multi-tenancy/pod-priorities) are availables the YAMLs that permits manage the priority between the diffent pods in the infrastructure. Furthermore, it is required a Kyverno policy to ensure that CHAIMELEON users only use the _Processing Application_ PriorityClass.
+Implementing the classes that are described below can be done using [Kubernetes PriorityClasses](https://kubernetes.io/docs/concepts/scheduling-eviction/pod-priority-preemption/#priorityclass). [Here](https://github.com/chaimeleon-eu/k8s-deployments/tree/master/extra-configurations/pod-priorities) are availables the YAMLs that permits manage the priority between the diffent pods in the infrastructure. Furthermore, it is required a Kyverno policy to ensure that CHAIMELEON users only use the _Processing Application_ PriorityClass.
+
+Example of PriorityClass:
+```yaml
+apiVersion: scheduling.k8s.io/v1
+kind: PriorityClass
+metadata:
+  name: processing-applications
+value: 1000000
+globalDefault: true
+preemptionPolicy: Never
+description: "This priority class should be used for processing applications that are deployed by the CHAIMELEON users."
+```
+
 
 ### Pod preemtion
 
@@ -68,3 +81,36 @@ QoS Classes (depending on the priority):
 - _Best effort_: Pods will be treated as __lowest priority__. Processes in these pods are the first to get killed if the system runs out of memory. These containers can use any amount of free memory in the node though.
 
 ## Resource Quota
+"A resource quota, defined by a ResourceQuota object, provides constraints that __limit aggregate resource consumption per namespace__. It can limit the __quantity of objects__ that can be created in a namespace by type, as well as the total __amount of compute resources that may be consumed__ by resources in that namespace." Source: [here](https://kubernetes.io/docs/concepts/policy/resource-quotas/). 
+
+Using resource quotas we can limit:
+- CPU (limit and request)
+- RAM Memory (limit and request)
+- GPUs
+- Storage (the complete amount of the PVCs)
+- Count of the different K8s objects (services, deployments, configmaps, etc.)
+
+
+Resource quota can be applied depending on the PriorityClass but, using this way, it is not possible to limit "requests.nvidia.com/gpu". 
+
+Example of possible ResourceQuota:
+```yaml
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: chaimeleon-users
+spec:
+  hard:
+    requests.cpu: "4"
+    requests.memory: 25Gi
+    requests.storage: 25Gi
+    limits.cpu: "6"
+    limits.memory: 50Gi
+    requests.nvidia.com/gpu: 2
+````
+
+## Storage Resource Quota
+Persistent storage resource quota cannot be limited by K8s because the access mode is directly throught PV instead of PVC. [Here](https://access.redhat.com/documentation/en-us/red_hat_ceph_storage/4/html/file_system_guide/ceph-file-system-administration#ceph-file-system-quotas_fs) is the information for use this feature in Cehp.
+
+
+__TBD -> configure it in the CHAIMELEON cluster__ 
