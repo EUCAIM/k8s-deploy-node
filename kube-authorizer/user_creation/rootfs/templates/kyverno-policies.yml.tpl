@@ -18,13 +18,6 @@ spec:
         resources:
           kinds:
             - "Pod"
-            - "Deployment"
-            - "Job"
-            - "ReplicaSet"
-            - "StatefulSet"
-            - "DaemonSet"
-            - "CronJon"
-            - "ReplicationController"
         subjects:
         - kind: User
           name: "oidc:{{ NEW_USER_NAME }}"
