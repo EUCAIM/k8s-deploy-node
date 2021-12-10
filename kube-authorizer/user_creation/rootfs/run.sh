@@ -13,6 +13,7 @@
 #   CEPH_ADMIN_USER=
 #   CEPH_ADMIN_KEY=
 #   CEPH_POOL_DATA=
+#   DIR_PERSISTENT_SHARED=
 #   DIR_PERSISTENT_HOMES=
 #   DIR_DATASETS=
 #   DIR_DATA=
@@ -49,7 +50,7 @@ echo -e "\n---------------------------------------------------------------"
 # Create the ceph account for the user
 export CEPH_NEW_USER=${CEPH_PREFIX_ACCOUNT}-${NEW_USER}
 echo -e "\nCreating new ceph user: client.${CEPH_NEW_USER} ..."
-ceph --user ${CEPH_ADMIN_USER} auth get-or-create client.${CEPH_NEW_USER} mon "allow r" mds "allow rw path="${DIR_PERSISTENT_HOMES}/${NEW_USER}", allow r path="${DIR_DATASETS}", allow r path="${DIR_DATA} osd "allow rw pool="${CEPH_POOL_DATA}""
+ceph --user ${CEPH_ADMIN_USER} auth get-or-create client.${CEPH_NEW_USER} mon "allow r" mds "allow rw path="${DIR_PERSISTENT_HOMES}/${NEW_USER}", allow rw path="${DIR_PERSISTENT_SHARED}", allow r path="${DIR_DATASETS}", allow r path="${DIR_DATA} osd "allow rw pool="${CEPH_POOL_DATA}""
 echo -e "\n---------------------------------------------------------------"
 echo -e "\nDisplay ceph user created: "
 ceph --user ${CEPH_ADMIN_USER} auth get client.${CEPH_NEW_USER}
