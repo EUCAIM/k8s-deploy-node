@@ -90,8 +90,7 @@ Using resource quotas we can limit:
 - Storage (the complete amount of the PVCs)
 - Count of the different K8s objects (services, deployments, configmaps, etc.)
 
-
-Resource quota can be applied depending on the PriorityClass but, using this way, it is not possible to limit "requests.nvidia.com/gpu". 
+Resource quota can be applied depending on the PriorityClass but, using this way, it is not possible to limit _"requests.nvidia.com/gpu"_. 
 
 Example of possible ResourceQuota:
 ```yaml
@@ -113,5 +112,9 @@ spec:
 
 Persistent storage resource quota cannot be limited by K8s because the access mode is directly throught PV instead of PVC. [Here](https://access.redhat.com/documentation/en-us/red_hat_ceph_storage/4/html/file_system_guide/ceph-file-system-administration#ceph-file-system-quotas_fs) is the information for use this feature in Cehp.
 
+The method is very simple, we only have to set the quota in bytes to her/his persistent home:
+```console
+getfattr -n ceph.quota.max_bytes DIRECTORY
+```
 
 __TBD -> configure it in the CHAIMELEON cluster__ 
