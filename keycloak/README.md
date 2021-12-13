@@ -49,4 +49,11 @@ As soon as Keycloak is running, some web sites should be available...
  
 And when CHAIMELEON realm is created...
  - Keycloak User Account Console at https://chaimeleon-eu.i3m.upv.es/auth/realms/CHAIMELEON/account
- 
+## CHAIMELEON EGI Check-in
+
+Client Management URL (Dev): https://aai-dev.egi.eu/federation/egi/home
+
+
+
+Privacy Policy: 
+Terms of Use: 

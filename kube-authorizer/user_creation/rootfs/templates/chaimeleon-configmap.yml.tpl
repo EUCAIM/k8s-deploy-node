@@ -10,6 +10,8 @@ data:
   datalake.mount_point: "/mnt/rootfs"
   persistent_home.path: "{{ DIR_PERSISTENT_HOMES }}/{{ NEW_USER }}"
   persistent_home.mount_point: "/home/chaimeleon/persistence" 
+  persistent_shared_folder.path: "{{ DIR_PERSISTENT_SHARED }}"
+  persistent_shared_folder.mount_point: "/home/chaimeleon/persistent-shared-folder"
 
   user.uid: "1000"
   user.name: chaimeleon

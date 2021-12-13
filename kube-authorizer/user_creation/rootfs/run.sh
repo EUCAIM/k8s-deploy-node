@@ -72,13 +72,13 @@ echo -e "\n---------------------------------------------------------------"
 #-----------------------------
 # OPERATOR ROLEBINDING
 #-----------------------------
-tpl -e templates/operator-rolebinding.yml.tpl > /tmp/${CEPH_NEW_USER}-operator-rolebinding.yml
-echo -e "\n/tmp/${CEPH_NEW_USER}-operator-rolebinding.yml:"
-cat /tmp/${CEPH_NEW_USER}-operator-rolebinding.yml
-echo -e "\n---------------------------------------------------------------"
-echo -e "\nCreating operator rolebinding ..."
-kubectl --server ${K8S_ENDPOINT} --insecure-skip-tls-verify=true --token=${K8S_TOKEN} apply -f /tmp/${CEPH_NEW_USER}-operator-rolebinding.yml
-echo -e "\n---------------------------------------------------------------"
+# tpl -e templates/operator-rolebinding.yml.tpl > /tmp/${CEPH_NEW_USER}-operator-rolebinding.yml
+# echo -e "\n/tmp/${CEPH_NEW_USER}-operator-rolebinding.yml:"
+# cat /tmp/${CEPH_NEW_USER}-operator-rolebinding.yml
+# echo -e "\n---------------------------------------------------------------"
+# echo -e "\nCreating operator rolebinding ..."
+# kubectl --server ${K8S_ENDPOINT} --insecure-skip-tls-verify=true --token=${K8S_TOKEN} apply -f /tmp/${CEPH_NEW_USER}-operator-rolebinding.yml
+# echo -e "\n---------------------------------------------------------------"
 
 #-----------------------------
 # CREATE USER DATASET SERVICE
