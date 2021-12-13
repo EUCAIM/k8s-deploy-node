@@ -42,6 +42,7 @@ tpl -e templates/ceph.key.tpl > /etc/ceph/ceph.client.${CEPH_ADMIN_USER}.keyring
 #-----------------------------
 echo -e "\nCreating directory: ${MOUNTED_DIR_PERSISTENT_HOMES}/${NEW_USER} ..."
 mkdir -p ${MOUNTED_DIR_PERSISTENT_HOMES}/${NEW_USER}
+chown 1000:1000 ${MOUNTED_DIR_PERSISTENT_HOMES}/${NEW_USER}
 echo -e "\n---------------------------------------------------------------"
 
 #-----------------------------
