@@ -3,8 +3,8 @@
 #set -x
 
 # Environmental variables required:
-#   NEW_USER=
-#   NEW_USER_NAME=
+#   NEW_USER=           # contains the user without spaces, @ etc
+#   NEW_USER_NAME=      # contains the k8s user
 #   NEW_USER_ID=
 #   NEW_USER_NAMESPACE=
 #   MOUNTED_DIR_PERSISTENT_HOMES= # Mount only at the container only the persistent homes directory from CephFS 
@@ -132,7 +132,7 @@ export GUACAMOLE_PASSWORD=$(< /dev/urandom tr -dc _A-Z-a-z-0-9 | head -c${1:-16}
 echo -e "\nCreating the guacamole user and connections group ..."
 python3 createGuacamoleUserAndConnectionsGroup.py --url "${GUACAMOLE_ENDPOINT}" \
                                                  --admin-user ${GUACAMOLE_ADMIN_USER} --admin-password "${GUACAMOLE_ADMIN_PASSWORD}" \
-                                                 --user "${NEW_USER}" --password "${GUACAMOLE_PASSWORD}"
+                                                 --user "${NEW_USER_NAME}" --password "${GUACAMOLE_PASSWORD}"
 
 #-----------------------------
 # GUACAMOLE SECRET
