@@ -38,6 +38,7 @@ System administrators must ensure that these core services are always running. T
     - :heavy_check_mark: Authorization (_Kube-authorizer_)
     - Traceability system (_Tracer Service_)
     - :heavy_check_mark: Kubernetes Operator (_Chaimeleon Operator_).
+    - :heavy_check_mark: Cluster Management Dashboard (_Kubernetes Dashboard_).
 - __Core applications__: 
     - Data ingestion (_Quibim Precision_, _PACS_)
     - Application Launcher & Marketplace Service (_Kubeapps_)
