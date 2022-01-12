@@ -266,10 +266,19 @@ spec:
       labels:
         app: kube-authorizer
     spec:
+      priorityClassName: core-services
       containers:
       - name: kube-authorizer
-        image: registry.gitlab.com/primageproject/kube-authorizer:1.0.3
+        image: registry.gitlab.com/primageproject/kube-authorizer:1.1.0
+        #image: chaimeleon-eu.i3m.upv.es:10443/chaimeleon-services/kube-authorizer:1.1.0
         imagePullPolicy: Always
+        resources:
+          requests:
+            memory: "250Mi"
+            cpu: "250m"
+          limits:
+            memory: "250Mi"
+            cpu: "250m"
         ports:
           - containerPort: 10000
             name: rest-api
