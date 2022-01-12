@@ -52,7 +52,8 @@ vim kubeapps-values.yaml
 
 # Install kubeapps
 helm repo add bitnami https://charts.bitnami.com/bitnami
-helm install kubeapps --namespace kubeapps -f kubeapps-values.yaml bitnami/kubeapps
+helm install kubeapps --namespace kubeapps -f kubeapps-values.yaml bitnami/kubeapps --version 7.1.0
+#helm -n kubeapps upgrade kubeapps -f kubeapps-values.yaml  bitnami/kubeapps --version 7.1.0
 
 ##############################
 # Authorization management

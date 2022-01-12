@@ -14,8 +14,8 @@ ingress:
 # secrets:
 # - name: "chaimeleon-eu.i3m.upv.es"
   annotations:
-    # The following line is needed when the proxy returns "502 - bad gateway" 
-    # and in the proxy log apears: ERROR upstream sent too big header while reading response header from upstream
+    # Lo siguiente es necesario cuando el proxy devuelve "502 - bad gateway" 
+    # y en log del proxy aparece: ERROR upstream sent too big header while reading response header from upstream
     nginx.ingress.kubernetes.io/proxy-buffer-size: 128k
 
 postgresql:
@@ -27,22 +27,37 @@ postgresql:
     enabled: true
     size: 1Gi
     storageClass: cephfs
+  primary:
+    priorityClassName: "core-applications"
+  resources:
+    requests:
+      memory: 500Mi
+      cpu: 500m
+    limits:
+      memory: 500Mi
+      cpu: 500m
 
 ## https://github.com/kubeapps/kubeapps/blob/master/docs/user/using-an-OIDC-provider.md
 authProxy:
   enabled: true
   external: false
+  resources:
+    requests:
+      memory: 128Mi
+      cpu: 250m
+    limits:
+      memory: 128Mi
+      cpu: 250m
   oauthLoginURI: "/apps/oauth2/start?rd=%2Fapps%2F"
   oauthLogoutURI: "/apps/oauth2/sign_out?rd=%2Fapps%2F"
 # oauthLoginURI: "/apps/oauth2/login"
 # oauthLogoutURI: "/apps/oauth2/logout"
   skipKubeappsLoginPage: false
   provider: oidc
-# clientID: "kubeapps"
   clientID: "kubernetes"
-  clientSecret: XXXXXXXXXXXXXXXXXXXXX
+  clientSecret: XXXXXXXXXXXXX
   ## python -c 'import os,base64; print base64.urlsafe_b64encode(os.urandom(16))'
-  cookieSecret: XXXXXXXXXXXXXXXXXX
+  cookieSecret: XXXXXXXXXXXXX
   additionalFlags:
     - "--oidc-issuer-url=https://chaimeleon-eu.i3m.upv.es/auth/realms/CHAIMELEON"
     - "--proxy-prefix=/apps/oauth2"
@@ -52,14 +67,58 @@ authProxy:
 
 frontend:
   replicaCount: 1
+  priorityClassName: "core-applications"
+  resources:
+    requests:
+      memory: 128Mi
+      cpu: 250m
+    limits:
+      memory: 128Mi
+      cpu: 250m
+
 dashboard:
   replicaCount: 1
+  priorityClassName: "core-applications"
+  resources:
+    requests:
+      memory: 128Mi
+      cpu: 250m
+    limits:
+      memory: 128Mi
+      cpu: 250m  
+
 kubeops:
+  priorityClassName: "core-applications"
   replicaCount: 1
+  resources:
+    requests:
+      memory: 256Mi
+      cpu: 250m
+    limits:
+      memory: 256Mi
+      cpu: 250m
+
 assetsvc:
   replicaCount: 1
-  
+  priorityClassName: "core-applications"
+  resource: "avoid-chart-error-in-IF"
+  resources:
+    requests:
+      memory: 256Mi
+      cpu: 250m
+    limits:
+      memory: 256Mi
+      cpu: 250m
+
 apprepository:
+  priorityClassName: "core-applications"
+  resources:
+    requests:
+      memory: 128Mi
+      cpu: 250m
+    limits:
+      memory: 128Mi
+      cpu: 250m  
   initialRepos:
     - name: bitnami
       url: "https://charts.bitnami.com/bitnami"

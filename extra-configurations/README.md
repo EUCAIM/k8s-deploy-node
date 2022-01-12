@@ -41,7 +41,7 @@ System administrators must ensure that these core services are always running. T
     - :heavy_check_mark: Cluster Management Dashboard (_Kubernetes Dashboard_).
 - __Core applications__: 
     - Data ingestion (_Quibim Precision_, _PACS_)
-    - Application Launcher & Marketplace Service (_Kubeapps_)
+    - :heavy_check_mark: Application Launcher & Marketplace Service (_Kubeapps_)
     - :heavy_check_mark: Accessing application Service (_Guacamole_). 
 - __Processing Applications__: the applications that are deployed by the infrastructure users. 
 
