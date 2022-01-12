@@ -25,7 +25,7 @@ expose:
         port: 4443
         nodePort: 14443 
 
-externalURL: https://chaimeleon-eu.i3m.upv.es:10443/
+externalURL: https://chaimeleon-eu.i3m.upv.es:10443
 #externalURL: https://chaimeleon-eu.i3m.upv.es/
 
 internalTLS:
@@ -55,65 +55,182 @@ persistence:
         subPath: trivy
 
 
-harborAdminPassword: XXXXXXXXXX
+harborAdminPassword: XXXXXXXXXXXXXXXXX
 
 # Docker mages
 portal:
+  priorityClassName: core-services
   image:
     repository: goharbor/harbor-portal
     tag: v2.2.0
+  resources:
+    requests:
+      memory: "1000Mi"
+      cpu: "1000m"
+    limits:
+      memory: "1000Mi"
+      cpu: "1000m" #1 Gb
 core:
+  priorityClassName: core-services
   image:
     repository: goharbor/harbor-core
     tag: v2.2.0
+  resources:
+    requests:
+      memory: "1000Mi"
+      cpu: "1000m"
+    limits:
+      memory: "1000Mi"
+      cpu: "1000m" #1 Gb
+
 jobservice:
+  priorityClassName: core-services
   image:
     repository: goharbor/harbor-jobservice
     tag: v2.2.0
+  resources:
+    requests:
+      memory: "500Mi"
+      cpu: "500m"
+    limits:
+      memory: "500Mi"
+      cpu: "500m" #1 Gb
+
 registry:
-  image:
-    repository: goharbor/registry-photon
-    tag: v2.2.0
+  priorityClassName: core-services
   credentials:
     username: admin
-    password: XXXXXXXXXX
-    htpasswd: admin:XXXXXXXXXXX
+    password: XXXXXXXXXXXXXXXXX
+    htpasswd: admin:XXXXXXXXXXXXXXXXX
+  registry:
+    image:
+      repository: goharbor/registry-photon
+      tag: v2.2.0
+    resources:
+      requests:
+        memory: "1000Mi"
+        cpu: "1000m"
+      limits:
+        memory: "1000Mi"
+        cpu: "1000m" #1 Gb    
+  controller:
+    image:
+      repository: goharbor/harbor-registryctl
+      tag: v2.2.0
+    resources:
+      requests:
+        memory: "1000Mi"
+        cpu: "1000m"
+      limits:
+        memory: "1000Mi"
+        cpu: "1000m" #1 Gb    
+
 chartmuseum:
   enabled	: true
+  priorityClassName: core-services
+  resources:
+    requests:
+      memory: "500Mi"
+      cpu: "500m"
+    limits:
+      memory: "500Mi"
+      cpu: "500m" 
   image:
     repository: goharbor/chartmuseum-photon
     tag: v2.2.0
+
 trivy:
   enabled	: true
+  priorityClassName: core-services
+  resources:
+    requests:
+      memory: "500Mi"
+      cpu: "500m"
+    limits:
+      memory: "500Mi"
+      cpu: "500m" #1 Gb
   image:
     repository: goharbor/trivy-adapter-photon
     tag: v2.2.0
+
 notary:
   enabled	: true
+  server:
+    priorityClassName: core-services
+    resources:
+      requests:
+        memory: "500Mi"
+        cpu: "500m"
+      limits:
+        memory: "500Mi"
+        cpu: "500m" #1 Gb
+  signer:
+    priorityClassName: core-services
+    resources:
+      requests:
+        memory: "500Mi"
+        cpu: "500m"
+      limits:
+        memory: "500Mi"
+        cpu: "500m" #1 Gb
   image:
     repository: goharbor/notary-server-photon
     tag: v2.2.0
+
 database:
   type: internal
   internal:
-    password: XXXXXXXXXX
+    password: XXXXXXXXXXXXXXXXX
+    priorityClassName: core-services
+    resources:
+      requests:
+        memory: "1000Mi"
+        cpu: "1000m"
+      limits:
+        memory: "1000Mi"
+        cpu: "1000m" #1 Gb
     image:
       repository: goharbor/harbor-db
       tag: v2.2.0
+
 redis:
   type: internal
   internal:
+    resources:
+      requests:
+        memory: "500Mi"
+        cpu: "500m"
+      limits:
+        memory: "500Mi"
+        cpu: "500m" #1 Gb
+    priorityClassName: core-services
     image:
       repository: goharbor/redis-photon
       tag: v2.2.0
 exporter:
+  priorityClassName: core-services
   image:
     repository: goharbor/harbor-exporter
     tag: v2.2.0
+  resources:
+    requests:
+      memory: "250Mi"
+      cpu: "500m"
+    limits:
+      memory: "250Mi"
+      cpu: "500m" #1 Gb
 nginx:
+  priorityClassName: core-services
   image:
     repository: goharbor/nginx-photon
     tag: v2.2.0
+  resources:
+    requests:
+      memory: "1000Mi"
+      cpu: "1000m"
+    limits:
+      memory: "1000Mi"
+      cpu: "1000m" #1 Gb
 
 metrics:
   enabled: false	
