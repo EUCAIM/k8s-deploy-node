@@ -5,6 +5,7 @@ helm repo update
 helm install kyverno-crds kyverno/kyverno-crds --namespace kyverno --create-namespace
 
 helm install kyverno  --namespace kyverno -f kyverno-values.yml kyverno/kyverno
+#helm -n kyverno upgrade kyverno -f kyverno-values.yml kyverno/kyverno --version 2.0.3
 
 helm repo add policy-reporter https://kyverno.github.io/policy-reporter
 helm repo update
