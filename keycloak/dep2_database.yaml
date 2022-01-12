@@ -14,6 +14,7 @@ spec:
       labels:
         app: db
     spec:
+      priorityClassName: core-services
       volumes:
         - name: task-pv-postgres-data
           persistentVolumeClaim:
@@ -27,12 +28,18 @@ spec:
         - name: POSTGRES_USER
           value: keycloak-user
         - name: POSTGRES_PASSWORD
-          value: XXXXXXXXXXXXXX
-        resources: {}
+          value: "XXXXXXXX"
+        resources: 
+          requests:
+            memory: "2000Mi"
+            cpu: "1000m"
+          limits:
+            memory: "2000Mi"
+            cpu: "1000m"        
         ports:
           - containerPort: 5432
             # standard postgres DB port
-            name: dbport
+            name: "dbport"
         volumeMounts:
           - mountPath: "/var/lib/postgresql/data"
             name: task-pv-postgres-data
@@ -50,5 +57,5 @@ spec:
   ports:
   - protocol: TCP
     port: 5432
-    targetPort: dbport
+    targetPort: 5432
 
