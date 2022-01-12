@@ -7,7 +7,14 @@ config:
   resourceFilters: '[Event,*,*][*,kube-system,*][*,kube-public,*][*,kube-node-lease,*][Node,*,*][APIService,*,*][TokenReview,*,*][SubjectAccessReview,*,*][SelfSubjectAccessReview,*,*][*,kyverno,*][Binding,*,*][ReportChangeRequest,*,*][ClusterReportChangeRequest,*,*]'
 
 #[ReplicaSet,*,*]
-
+priorityClassName: core-services
+resources: 
+  requests:
+    memory: "1000Mi"
+    cpu: "1000m"
+  limits:
+    memory: "1000Mi"
+    cpu: "1000m" #1 Gb
 rbac:
   create: true
   serviceAccount:
