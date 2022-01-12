@@ -36,14 +36,15 @@ System administrators must ensure that these core services are always running. T
     - :heavy_check_mark: Security Policy Management System (_Kyverno_) 
     - :heavy_check_mark: Dataset administration (_Dataset Service_)
     - :heavy_check_mark: Authorization (_Kube-authorizer_)
-    - :heavy_check_mark: Traceability system (_Tracer Service_)
+    - :white_check_mark: Traceability system (_Tracer Service_)
     - :heavy_check_mark: Kubernetes Operator (_Chaimeleon Operator_).
 - __Core applications__: 
-    - Data ingestion (_Quibim Precision_, _PACS_)
-    - Application Launcher & Marketplace Service (_Kubeapps_)
-    - Accessing application Service (_Guacamole_). 
+    - :white_check_mark: Data ingestion (_Quibim Precision_, _PACS_)
+    - :white_check_mark: Application Launcher & Marketplace Service (_Kubeapps_)
+    - :heavy_check_mark: Accessing application Service (_Guacamole_). 
 - __Processing Applications__: the applications that are deployed by the infrastructure users. 
 
+where :heavy_check_mark: represents that the service is running with the priorityClass well defined.
 ### Pod priority
 Implementing the classes that are described below can be done using [Kubernetes PriorityClasses](https://kubernetes.io/docs/concepts/scheduling-eviction/pod-priority-preemption/#priorityclass). [Here](https://github.com/chaimeleon-eu/k8s-deployments/tree/master/extra-configurations/pod-priorities) are availables the YAMLs that permits manage the priority between the diffent pods in the infrastructure. Furthermore, it is required a Kyverno policy to ensure that CHAIMELEON users only use the _Processing Application_ PriorityClass.
 
