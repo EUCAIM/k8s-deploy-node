@@ -36,11 +36,11 @@ System administrators must ensure that these core services are always running. T
     - :heavy_check_mark: Security Policy Management System (_Kyverno_) 
     - :heavy_check_mark: Dataset administration (_Dataset Service_)
     - :heavy_check_mark: Authorization (_Kube-authorizer_)
-    - :white_check_mark: Traceability system (_Tracer Service_)
+    - Traceability system (_Tracer Service_)
     - :heavy_check_mark: Kubernetes Operator (_Chaimeleon Operator_).
 - __Core applications__: 
-    - :white_check_mark: Data ingestion (_Quibim Precision_, _PACS_)
-    - :white_check_mark: Application Launcher & Marketplace Service (_Kubeapps_)
+    - Data ingestion (_Quibim Precision_, _PACS_)
+    - Application Launcher & Marketplace Service (_Kubeapps_)
     - :heavy_check_mark: Accessing application Service (_Guacamole_). 
 - __Processing Applications__: the applications that are deployed by the infrastructure users. 
 
