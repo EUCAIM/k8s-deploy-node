@@ -120,8 +120,6 @@ apprepository:
       memory: 128Mi
       cpu: 250m  
   initialRepos:
-    - name: bitnami
-      url: "https://charts.bitnami.com/bitnami"
     - name: chaimeleon-library
       url: "https://chaimeleon-eu.i3m.upv.es:10443/chartrepo/chaimeleon-library"
 
