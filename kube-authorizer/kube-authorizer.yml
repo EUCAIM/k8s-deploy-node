@@ -87,7 +87,7 @@ data:
                           "containers": [
                             { 
                               "name": "chaimeleon-__EMAIL__",
-                              "image": "chaimeleon-eu.i3m.upv.es:10443/chaimeleon-services/user-creation:0.0.2",
+                              "image": "chaimeleon-eu.i3m.upv.es:10443/chaimeleon-services/user-creation:0.0.4",
                               "imagePullPolicy": "Always",
                               "command": [ "/home/ubuntu/run.sh" ],
                               "args": [],

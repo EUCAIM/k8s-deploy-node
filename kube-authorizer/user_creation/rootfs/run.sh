@@ -37,17 +37,17 @@ tpl -e templates/ceph.conf.tpl > /etc/ceph/ceph.conf
 tpl -e templates/ceph.key.tpl > /etc/ceph/ceph.client.${CEPH_ADMIN_USER}.keyring
 
 
-#-----------------------------
+#----------------------------------------------------------
 # USER PERSISTENT HOME 
-#-----------------------------
+#----------------------------------------------------------
 echo -e "\nCreating directory: ${MOUNTED_DIR_PERSISTENT_HOMES}/${NEW_USER} ..."
 mkdir -p ${MOUNTED_DIR_PERSISTENT_HOMES}/${NEW_USER}
 chown 1000:1000 ${MOUNTED_DIR_PERSISTENT_HOMES}/${NEW_USER}
 echo -e "\n---------------------------------------------------------------"
 
-#-----------------------------
+#----------------------------------------------------------
 # CEPH USER
-#-----------------------------
+#----------------------------------------------------------
 # Create the ceph account for the user
 export CEPH_NEW_USER=${CEPH_PREFIX_ACCOUNT}-${NEW_USER}
 echo -e "\nCreating new ceph user: client.${CEPH_NEW_USER} ..."
@@ -59,9 +59,9 @@ echo -e "\n---------------------------------------------------------------"
 # Obtain the key of the previously created ceph account 
 export _NEW_USER_CEPH_KEY=$(ceph --user ${CEPH_ADMIN_USER} auth get-key client.${CEPH_NEW_USER})
 
-#-----------------------------
+#----------------------------------------------------------
 # CEPH SECRET
-#-----------------------------
+#----------------------------------------------------------
 tpl -e templates/ceph-secret.yml.tpl > /tmp/${CEPH_NEW_USER}-secret.yml
 echo -e "\n/tmp/${CEPH_NEW_USER}-secret.yml:"
 cat /tmp/${CEPH_NEW_USER}-secret.yml
@@ -70,9 +70,9 @@ echo -e "\nCreating the ceph-auth secret ..."
 kubectl --server ${K8S_ENDPOINT} --insecure-skip-tls-verify=true --token=${K8S_TOKEN} apply -f /tmp/${CEPH_NEW_USER}-secret.yml
 echo -e "\n---------------------------------------------------------------"
 
-#-----------------------------
+#----------------------------------------------------------
 # OPERATOR ROLEBINDING
-#-----------------------------
+#----------------------------------------------------------
 # tpl -e templates/operator-rolebinding.yml.tpl > /tmp/${CEPH_NEW_USER}-operator-rolebinding.yml
 # echo -e "\n/tmp/${CEPH_NEW_USER}-operator-rolebinding.yml:"
 # cat /tmp/${CEPH_NEW_USER}-operator-rolebinding.yml
@@ -81,9 +81,9 @@ echo -e "\n---------------------------------------------------------------"
 # kubectl --server ${K8S_ENDPOINT} --insecure-skip-tls-verify=true --token=${K8S_TOKEN} apply -f /tmp/${CEPH_NEW_USER}-operator-rolebinding.yml
 # echo -e "\n---------------------------------------------------------------"
 
-#-----------------------------
+#----------------------------------------------------------
 # CREATE USER DATASET SERVICE
-#-----------------------------
+#----------------------------------------------------------
 # Obtain AUTH token from keycloak
 echo -e "\nObtaining AUTH token from keycloak ..."
 curl -d "grant_type=client_credentials" -d "client_id=${KEYCLOAK_CLIENT}" -d "client_secret=${KEYCLOAK_CLIENT_SECRET}" "${KEYCLOAK_ENDPOINT}/auth/realms/${KEYCLOAK_REALM}/protocol/openid-connect/token" > /tmp/auth-token.json
@@ -102,9 +102,9 @@ cat /tmp/user-info.json
 echo -e "\n---------------------------------------------------------------"
 export _NEW_USER_GID=$(jq -r .gid /tmp/user-info.json )
 
-#-----------------------------
+#----------------------------------------------------------
 # CHAIMELEON CONFIGMAP
-#-----------------------------
+#----------------------------------------------------------
 tpl -e templates/chaimeleon-configmap.yml.tpl > /tmp/user-${_NEW_USER_GID}-chaimeleon-configmap.yml
 echo -e "\n/tmp/user-${_NEW_USER_GID}-chaimeleon-configmap.yml:"
 cat /tmp/user-${_NEW_USER_GID}-chaimeleon-configmap.yml
@@ -113,20 +113,36 @@ echo -e "\nCreating the chaimeleon-configmap  ... "
 kubectl --server ${K8S_ENDPOINT} --insecure-skip-tls-verify=true --token=${K8S_TOKEN} apply -f /tmp/user-${_NEW_USER_GID}-chaimeleon-configmap.yml
 echo -e "\n---------------------------------------------------------------"
 
-#-----------------------------
+#----------------------------------------------------------
 # KYVERNO POLOCIES
-#-----------------------------
-tpl -e templates/kyverno-policies.yml.tpl > /tmp/user-${_NEW_USER_GID}-kyverno-policies.yml
-echo -e "\n/tmp/user-${_NEW_USER_GID}-kyverno-policies.yml:"
-cat /tmp/user-${_NEW_USER_GID}-kyverno-policies.yml
+#----------------------------------------------------------
+# **************************** 
+# Security context
+# **************************** 
+tpl -e templates/kyverno-policies-security-context-gid.yml.tpl > /tmp/user-${_NEW_USER_GID}-kyverno-policies-security-context-gid.yml
+echo -e "\n/tmp/user-${_NEW_USER_GID}-kyverno-policies-security-context-gid.yml:"
+cat /tmp/user-${_NEW_USER_GID}-kyverno-policies-security-context-gid.yml
 echo -e "\n---------------------------------------------------------------"
-echo -e "\nCreating the Kyverno policy ..."
-kubectl --server ${K8S_ENDPOINT} --insecure-skip-tls-verify=true --token=${K8S_TOKEN} apply -f /tmp/user-${_NEW_USER_GID}-kyverno-policies.yml
+echo -e "\nCreating the Kyverno policy [Security context]..."
+kubectl --server ${K8S_ENDPOINT} --insecure-skip-tls-verify=true --token=${K8S_TOKEN} apply -f /tmp/user-${_NEW_USER_GID}-kyverno-policies-security-context-gid.yml
+echo -e "\n---------------------------------------------------------------"
+# **************************** 
+# Ingress root path
+# **************************** 
+sed 's/{{ NEW_USER_NAMESPACE }}/'${NEW_USER_NAMESPACE}'/g' templates/kyverno-policies-ingress.yml.tpl > /tmp/user-${_NEW_USER_GID}-kyverno-policies-ingress.yml
+sed -i 's/{{ NEW_USER_NAME }}/'${NEW_USER_NAME}'/g' /tmp/user-${_NEW_USER_GID}-kyverno-policies-ingress.yml
+#tpl -e templates/kyverno-policies-ingress.yml.tpl > /tmp/user-${_NEW_USER_GID}-kyverno-policies-ingress.yml
+echo -e "\n/tmp/user-${_NEW_USER_GID}-kyverno-policies-ingress.yml:"
+cat /tmp/user-${_NEW_USER_GID}-kyverno-policies-ingress.yml
+echo -e "\n---------------------------------------------------------------"
+echo -e "\nCreating the Kyverno policy [Ingress root path] ..."
+kubectl --server ${K8S_ENDPOINT} --insecure-skip-tls-verify=true --token=${K8S_TOKEN} apply -f /tmp/user-${_NEW_USER_GID}-kyverno-policies-ingress.yml
 echo -e "\n---------------------------------------------------------------"
 
-#-----------------------------
+
+#----------------------------------------------------------
 # GUACAMOLE USER 
-#-----------------------------
+#----------------------------------------------------------
 # Create Guacamole user to access to the REST API and a private connections group for the user
 export GUACAMOLE_PASSWORD=$(< /dev/urandom tr -dc _A-Z-a-z-0-9 | head -c${1:-16};echo;)
 echo -e "\nCreating the guacamole user and connections group ..."
@@ -134,9 +150,9 @@ python3 createGuacamoleUserAndConnectionsGroup.py --url "${GUACAMOLE_ENDPOINT}" 
                                                  --admin-user ${GUACAMOLE_ADMIN_USER} --admin-password "${GUACAMOLE_ADMIN_PASSWORD}" \
                                                  --user "${NEW_USER_NAME}" --password "${GUACAMOLE_PASSWORD}"
 
-#-----------------------------
+#----------------------------------------------------------
 # GUACAMOLE SECRET
-#-----------------------------
+#----------------------------------------------------------
 # Store the credentials in a secret
 tpl -e templates/guacamole-secret.yml.tpl > /tmp/guacamole-api-user-${NEW_USER}-secret.yml
 echo -e "\n/tmp/guacamole-api-user-${NEW_USER}-secret.yml: "
