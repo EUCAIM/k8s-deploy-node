@@ -1,0 +1,135 @@
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: chaimeleon-users-binding-serlophug
+  namespace: chaimeleon
+subjects:
+- kind: ServiceAccount
+  name: serlophug-account
+  namespace: chaimeleon
+roleRef:
+  kind: ClusterRole
+  name: chaimeleon-users-role-namespace
+  apiGroup: rbac.authorization.k8s.io
+---
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: chaimeleon-users-cluster-binding-serlophug
+subjects:
+- kind: ServiceAccount
+  name: serlophug-account
+  namespace: chaimeleon
+roleRef:
+  kind: ClusterRole
+  name: chaimeleon-users-role-cluster
+  apiGroup: rbac.authorization.k8s.io
+---
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: chaimeleon-users-binding-iblanque
+  namespace: chaimeleon
+subjects:
+- kind: ServiceAccount
+  name: iblanque-account
+  namespace: chaimeleon
+roleRef:
+  kind: ClusterRole
+  name: chaimeleon-users-role-namespace
+  apiGroup: rbac.authorization.k8s.io
+---
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: chaimeleon-users-cluster-binding-iblanque
+subjects:
+- kind: ServiceAccount
+  name: iblanque-account
+  namespace: chaimeleon
+roleRef:
+  kind: ClusterRole
+  name: chaimeleon-users-role-cluster
+  apiGroup: rbac.authorization.k8s.io
+---
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: chaimeleon-users-binding-dquilis
+  namespace: chaimeleon
+subjects:
+- kind: ServiceAccount
+  name: dquilis-account
+  namespace: chaimeleon
+roleRef:
+  kind: ClusterRole
+  name: chaimeleon-users-role-namespace
+  apiGroup: rbac.authorization.k8s.io
+---
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: chaimeleon-users-cluster-binding-dquilis
+subjects:
+- kind: ServiceAccount
+  name: dquilis-account
+  namespace: chaimeleon
+roleRef:
+  kind: ClusterRole
+  name: chaimeleon-users-role-cluster
+  apiGroup: rbac.authorization.k8s.io
+---
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: chaimeleon-users-binding-palollo
+  namespace: chaimeleon
+subjects:
+- kind: ServiceAccount
+  name: palollo-account
+  namespace: chaimeleon
+roleRef:
+  kind: ClusterRole
+  name: chaimeleon-users-role-namespace
+  apiGroup: rbac.authorization.k8s.io
+---
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: chaimeleon-users-cluster-binding-palollo
+subjects:
+- kind: ServiceAccount
+  name: palollo-account
+  namespace: chaimeleon
+roleRef:
+  kind: ClusterRole
+  name: chaimeleon-users-role-cluster
+  apiGroup: rbac.authorization.k8s.io
+---
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: chaimeleon-users-binding-asalic
+  namespace: chaimeleon
+subjects:
+- kind: ServiceAccount
+  name: asalic-account
+  namespace: chaimeleon
+roleRef:
+  kind: ClusterRole
+  name: chaimeleon-users-role-namespace
+  apiGroup: rbac.authorization.k8s.io
+---
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: chaimeleon-users-cluster-binding-asalic
+subjects:
+- kind: ServiceAccount
+  name: asalic-account
+  namespace: chaimeleon
+roleRef:
+  kind: ClusterRole
+  name: chaimeleon-users-role-cluster
+  apiGroup: rbac.authorization.k8s.io
+---
