@@ -14,8 +14,8 @@ ingress:
 # secrets:
 # - name: "chaimeleon-eu.i3m.upv.es"
   annotations:
-    # Lo siguiente es necesario cuando el proxy devuelve "502 - bad gateway" 
-    # y en log del proxy aparece: ERROR upstream sent too big header while reading response header from upstream
+    # The following line is needed when the proxy returns "502 - bad gateway" 
+    # and in the proxy log apears: ERROR upstream sent too big header while reading response header from upstream
     nginx.ingress.kubernetes.io/proxy-buffer-size: 128k
 
 postgresql:
@@ -120,6 +120,8 @@ apprepository:
       memory: 128Mi
       cpu: 250m  
   initialRepos:
+#   - name: bitnami
+#     url: "https://charts.bitnami.com/bitnami"
     - name: chaimeleon-library
       url: "https://chaimeleon-eu.i3m.upv.es:10443/chartrepo/chaimeleon-library"
 
