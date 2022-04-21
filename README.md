@@ -10,7 +10,7 @@ Security Policy Management System:
 - [Kyverno](https://kyverno.github.io/kyverno/): deployed using the Helm Chart. Pod Security Standard Policy: _baseline_. Other applied policies availables [here](https://github.com/chaimeleon-eu/k8s-deployments/tree/master/kyverno/policies).
 
 Container image and Helm Chart repository:
-- Harbor: deployed using the helm chart. URL: https://chaimeleon-eu.i3m.upv.es:10443/
+- Harbor: deployed using the helm chart. URL: https://harbor.chaimeleon-eu.i3m.upv.es/
 
 Interact with Kubernetes:
 - Kubernetes Dashboard: deployed using the Kubernetes Ansible role. URL: https://chaimeleon-eu.i3m.upv.es/dashboard/
@@ -30,3 +30,5 @@ Dataset administration and Traceability System:
 - [Chaimeleon K8s Operator](https://github.com/chaimeleon-eu/k8s-chaimeleon-operator): deployed using the Helm Chart. 
 - [Tracer Service](https://github.com/chaimeleon-eu/tracer). 
 
+Authentication proxy:
+- OAuth2-proxy: deployed using the helm chart. URL: https://chaimeleon-eu.i3m.upv.es/oauth2p/

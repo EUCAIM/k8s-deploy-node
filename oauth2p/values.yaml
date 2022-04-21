@@ -1,0 +1,67 @@
+# Reference:
+# https://github.com/oauth2-proxy/manifests/tree/main/helm/oauth2-proxy
+# https://oauth2-proxy.github.io/oauth2-proxy/docs/configuration/overview/
+
+config:
+  # The ID of the client created in keycloak for that service.
+  clientID: oauth2p
+  
+  # The secret of the client created in keycloak (type "confidential" should be selected to obtain a secret).
+  clientSecret: "XXXXXXXXXXXX"
+  
+  # Generate one with: 
+  #   python -c 'import secrets,base64; print(base64.b64encode(base64.b64encode(secrets.token_bytes(16))));'
+  cookieSecret: "XXXXXXXXXXXX"
+  
+  configFile: |-
+    provider = "oidc"
+    
+    # The end point of the realm created in keycloak for the project (CHAIMELEON).
+    oidc_issuer_url = "https://chaimeleon-eu.i3m.upv.es/auth/realms/CHAIMELEON"
+    
+    # The path for that service. Same as ingress.path (below).
+    proxy_prefix = "/oauth2p"
+    
+    cookie_refresh = "2m"
+    cookie_expire = "30m"
+    # The domain of the project.
+    cookie_domains = "chaimeleon-eu.i3m.upv.es"
+    
+    upstreams="file:///dev/null"
+    # The domain of the project.
+    whitelist_domains = "chaimeleon-eu.i3m.upv.es"
+    
+    scope = "openid email"
+    email_domains = "*"
+    
+    # The groups created in keycloak whose users will be allowed to access.
+    allowed_groups = ["data-scientists", "external-researcher", "application-developer"]
+        
+    pass_basic_auth = false
+    pass_authorization_header = true
+    pass_access_token = true
+    pass_user_headers = true
+    set_authorization_header = true
+    set_xauthrequest = true
+  
+ingress:
+  enabled: true
+  className: nginx
+  hosts: 
+    - "chaimeleon-eu.i3m.upv.es"  # The domain of the project.
+  path: /oauth2p/(.+)?    # The path for that oauth2p service.
+# pathType: Prefix
+  annotations:
+    # Fix for: "WARNING: Multiple cookies are required for this session as it exceeds the 4kb cookie limit. 
+    #           Please use server side session storage (eg. Redis) instead."
+    nginx.ingress.kubernetes.io/proxy-buffer-size: "16k"
+
+#image:
+#  repository: "harbor.chaimeleon-eu.i3m.upv.es/quay/oauth2-proxy/oauth2-proxy"
+
+resources:
+  requests:
+    memory: "128Mi"
+    cpu: "250m"
+priorityClassName: core-services
+
