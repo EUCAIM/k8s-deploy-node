@@ -16,11 +16,11 @@ roleRef:
 kind: RoleBinding
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
-  name: chaimeleon-oidc-biomedical-data-engineers-binding-view
+  name: chaimeleon-oidc-data-scientist-binding-view
   namespace: "chaimeleon"
 subjects:
 - kind: Group
-  name: "oidc:biomedical-data-engineers"
+  name: "oidc:data-scientist"
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
@@ -29,11 +29,38 @@ roleRef:
 kind: RoleBinding
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
-  name: chaimeleon-oidc-biomedical-data-engineers-binding-edit
+  name: chaimeleon-oidc-data-scientist-binding-edit
   namespace: "chaimeleon"
 subjects:
 - kind: Group
-  name: "oidc:biomedical-data-engineers"
+  name: "oidc:data-scientist"
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: edit
+
+---
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: chaimeleon-oidc-application-developer-binding-view
+  namespace: "chaimeleon"
+subjects:
+- kind: Group
+  name: "oidc:application-developer"
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: view
+---
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: chaimeleon-oidc-application-developer-binding-edit
+  namespace: "chaimeleon"
+subjects:
+- kind: Group
+  name: "oidc:application-developer"
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
@@ -52,4 +79,33 @@ roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
   name: cluster-admin
+
+---
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: tracer-service-oidc-asalic-binding-view
+  namespace: "tracer-service"
+subjects:
+- kind: User
+  name: "oidc:asalic"
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: view
+
+---
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: tracer-service-oidc-asalic-binding-edit
+  namespace: "tracer-service"
+subjects:
+- kind: User
+  name: "oidc:asalic"
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: edit
+
 

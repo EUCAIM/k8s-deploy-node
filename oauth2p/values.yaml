@@ -22,11 +22,14 @@ config:
     # The path for that service. Same as ingress.path (below).
     proxy_prefix = "/oauth2p"
     
-    cookie_refresh = "2m"
+    # Set the name to avoid conflict with other possible oauth2-proxies in the cluster with the default name
+    cookie_name = "oauth2p"
     cookie_expire = "30m"
+    cookie_refresh = "2m"
+
     # The domain of the project.
     cookie_domains = "chaimeleon-eu.i3m.upv.es"
-    
+
     upstreams="file:///dev/null"
     # The domain of the project.
     whitelist_domains = "chaimeleon-eu.i3m.upv.es"
@@ -37,12 +40,12 @@ config:
     # The groups created in keycloak whose users will be allowed to access.
     allowed_groups = ["data-scientists", "external-researcher", "application-developer"]
         
-    pass_basic_auth = false
-    pass_authorization_header = true
-    pass_access_token = true
-    pass_user_headers = true
-    set_authorization_header = true
-    set_xauthrequest = true
+    #pass_basic_auth = false
+    #pass_authorization_header = true
+    #pass_access_token = true
+    #pass_user_headers = true
+    #set_authorization_header = true
+    #set_xauthrequest = true
   
 ingress:
   enabled: true

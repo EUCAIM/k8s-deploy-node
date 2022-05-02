@@ -20,6 +20,8 @@ ingress:
 
 postgresql:
   enabled: true
+  image:
+    registry: "harbor.chaimeleon-eu.i3m.upv.es/dockerhub"
   postgresqlPassword: XXXXXXXXXXXXX
   replication:
     enabled: false
@@ -41,6 +43,8 @@ postgresql:
 authProxy:
   enabled: true
   external: false
+  image:
+    registry: "harbor.chaimeleon-eu.i3m.upv.es/dockerhub"
   resources:
     requests:
       memory: 128Mi
@@ -63,9 +67,13 @@ authProxy:
     - "--proxy-prefix=/apps/oauth2"
     - "--scope=openid email"
     - "--set-authorization-header=true"
+    - "--cookie-name=oauth2kubeapps"
+    - "--cookie-path=/apps/"
 
 
 frontend:
+  image:
+    registry: "harbor.chaimeleon-eu.i3m.upv.es/dockerhub"
   replicaCount: 1
   priorityClassName: "core-applications"
   resources:
@@ -77,6 +85,8 @@ frontend:
       cpu: 250m
 
 dashboard:
+  image:
+    registry: "harbor.chaimeleon-eu.i3m.upv.es/dockerhub"
   replicaCount: 1
   priorityClassName: "core-applications"
   resources:
@@ -88,19 +98,10 @@ dashboard:
       cpu: 250m  
 
 kubeops:
+  image:
+    registry: "harbor.chaimeleon-eu.i3m.upv.es/dockerhub"
   priorityClassName: "core-applications"
   replicaCount: 1
-  resources:
-    requests:
-      memory: 256Mi
-      cpu: 250m
-    limits:
-      memory: 256Mi
-      cpu: 250m
-
-assetsvc:
-  replicaCount: 1
-  priorityClassName: "core-applications"
   resource: "avoid-chart-error-in-IF"
   resources:
     requests:
@@ -110,7 +111,25 @@ assetsvc:
       memory: 256Mi
       cpu: 250m
 
+assetsvc:
+  image:
+    registry: "harbor.chaimeleon-eu.i3m.upv.es/dockerhub"
+  priorityClassName: "core-applications"
+  replicaCount: 1
+  resource: "avoid-chart-error-in-IF"
+  resources:
+    requests:
+      memory: 128Mi
+      cpu: 250m
+    limits:
+      memory: 128Mi
+      cpu: 250m
+
 apprepository:
+  image:
+    registry: "harbor.chaimeleon-eu.i3m.upv.es/dockerhub"
+  syncImage:
+    registry: "harbor.chaimeleon-eu.i3m.upv.es/dockerhub"
   priorityClassName: "core-applications"
   resources:
     requests:
@@ -123,6 +142,8 @@ apprepository:
 #   - name: bitnami
 #     url: "https://charts.bitnami.com/bitnami"
     - name: chaimeleon-library
-      url: "https://chaimeleon-eu.i3m.upv.es:10443/chartrepo/chaimeleon-library"
+      url: "https://harbor.chaimeleon-eu.i3m.upv.es/chartrepo/chaimeleon-library"
 
+testImage:
+  registry: "harbor.chaimeleon-eu.i3m.upv.es/dockerhub"
 

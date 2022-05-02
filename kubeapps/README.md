@@ -73,17 +73,28 @@ Then, create a volume (Persistent Volume Claim, PVC) for the database files with
 ```console
 kubectl apply -f postgresql-pvc.yaml
 ```
-Depending on the Kubernetes configuration you have, you may need to run a pod to set permissions in the volume:
+Depending on the Kubernetes configuration you have, you may need to run a pod to set permissions in the volume for the user 1001 
+(because in kubeapps-postgresql statefulSet there is a "spec.template.spec.containers[0].securityContext.runAsUser: 1001"):
 ```console
 kubectl apply -f prepare-postgresql-pvc.yaml
 ```
-
+Then review the configuration in the "values.yaml" file. Create your own, with your private passwords.
+```console
+cp values.yaml values.private.yaml
+```
 Now, you can deploy the chart:
 ```console
 helm repo add bitnami https://charts.bitnami.com/bitnami
-helm install kubeapps --namespace kubeapps -f kubeapps-values.yaml bitnami/kubeapps
+helm install --namespace kubeapps -f values.private.yaml kubeapps bitnami/kubeapps --version 7.1.0
 ```
 
+# Upgrade
+If you want to upgrade the chart or apply any change in the config file:
+```console
+helm upgrade --namespace kubeapps -f values.private.yaml kubeapps bitnami/kubeapps --version 7.1.0
+```
+
+# Usage
 As soon as all components are running, Kubeapps portal should be available at https://chaimeleon-eu.i3m.upv.es/apps/.
 
 # Authorization management
