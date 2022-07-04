@@ -119,3 +119,166 @@ getfattr -n ceph.quota.max_bytes DIRECTORY
 ```
 
 __TBD -> configure it in the CHAIMELEON cluster__ 
+
+## Automatic acquisition and renewal of certificates
+
+There are two subdomains where services and applications are accesible, so we need two certificates:
+ - _chaimeleon-eu.i3m.upv.es_: for the Kubernetes dashboard and the rest of services and applications 
+                               (one certificate for all, they will be differentiated by path).
+ - _harbor.chaimeleon-eu.i3m.upv.es_: for the Harbor services and webUI.
+
+### Certificate for Kubernetes-dashboard and all other services/apps
+
+All the services and applications will be accessible through the ingress proxy which will be accepting connections in the HTTPS port for the main subdomain _chaimeleon-eu.i3m.upv.es_.
+
+The services/apps (including those deployed by the users) will be differentiated by the path:
+ - https://chaimeleon-eu.i3m.upv.es/dashboard/
+ - https://chaimeleon-eu.i3m.upv.es/dataset-service/
+ - https://chaimeleon-eu.i3m.upv.es/apps/
+ - ...
+
+We use cert-manager to automatically obtain and renew certificates. 
+The installation and configuration to obtain the certificate for this main subdomain is done automatically by our Ansible role:
+https://github.com/chaimeleon-eu/recipes/blob/master/chaimeleon-kubernetes.radl
+
+The configuration lines for that:
+```
+    kube_cert_manager: true
+    kube_install_ingress: true      
+    kube_deploy_dashboard: true
+    kube_cert_user_email: serlohu@upv.es
+    kube_public_dns_name: chaimeleon-eu.i3m.upv.es
+```
+
+Just for information, this is what happens underneath...  
+First, a cluster-issuer (k8s object) is created to configure the access to Let's Encrypt. 
+The definition is like this:
+```
+apiVersion: cert-manager.io/v1alpha2
+kind: ClusterIssuer
+metadata:
+    name: letsencrypt-prod
+spec:
+  acme:
+    server:  https://acme-v02.api.letsencrypt.org/directory
+    email:  serlohu@upv.es
+    privateKeySecretRef:
+      name:  letsencrypt-prod
+    solvers:
+    - http01:
+        ingress:
+          class:  nginx
+```
+
+Then, an ingress (k8s object) is created like this:
+```
+kind: Ingress
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: kubernetes-dashboard
+  namespace: kubernetes-dashboard
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    nginx.ingress.kubernetes.io/backend-protocol: HTTPS
+    nginx.ingress.kubernetes.io/rewrite-target: /$1
+spec:
+  tls:
+    - hosts:
+        - chaimeleon-eu.i3m.upv.es
+      secretName: chaimeleon-eu.i3m.upv.es
+  rules:
+    - host: chaimeleon-eu.i3m.upv.es
+      http:
+        paths:
+          - path: /dashboard/?(.*)
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: kubernetes-dashboard
+                port:
+                  number: 8443
+```
+This object configures the nginx proxy to redirect all the paths prefixed with "/dashboard/" to the kubernetes-dashboard service using HTTPS protocol and with the certificate contained in the secret specified by _secretName_.  
+One important line is the first annotation that makes cert-manager to use the "letsencrypt-prod" cluster-issuer to obtain the certificate. That line causes a certificate (k8s) object will be automatically created to keep track of the status of the certificate. The certificate will be adquired for the domain specified in the _hosts_ section of the ingress and it will be saved in the specified secret.
+
+This is the certificate object created:
+```
+apiVersion: cert-manager.io/v1alpha2
+kind: Certificate
+metadata:
+    name: chaimeleon-eu.i3m.upv.es
+namespace:    kubernetes-dashboard
+spec:
+  dnsNames:
+    chaimeleon-eu.i3m.upv.es
+  issuerRef:
+    group:      cert-manager.io
+    kind:       ClusterIssuer
+    name:       letsencrypt-prod
+  secretName:  chaimeleon-eu.i3m.upv.es
+```
+We can see the status with the command:  
+`kubectl describe certificate chaimeleon-eu.i3m.upv.es -n kubernetes-dashboard`.  
+And we can see the contents of the certificate with:  
+`kubectl get secret chaimeleon-eu.i3m.upv.es -n kubernetes-dashboard -o jsonpath='{.data.tls\.crt}' | base64 -d | openssl x509 -text -noout`  
+Or just the issuer and dates with:  
+`kubectl get secret chaimeleon-eu.i3m.upv.es -n kubernetes-dashboard -o jsonpath='{.data.tls\.crt}' | base64 -d | openssl x509 -dates -noout -issuer`  
+
+__The rest of services/apps__
+
+Now, for the rest of services/apps to deploy (across different namespaces), we will have to create an ingress (k8s object) (one for each) with 
+ - the same subdomain (_spec.rules[].host_),
+ - a different prefix for each (_spec.rules[].http.paths[].path_), 
+ - not include the section _spec.tls_ (if you do it, you must set the same certificate**),
+ - and obviously not include either the "cert-manager.io/cluster-issuer" annotation line to adquire the certificate (this is important to avoid requesting the certificate multiple times to Let's Encrypt, they can block us for that)
+ 
+Example:
+```
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: dataset-service-backend-proxy
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /$1
+    nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
+spec:
+# tls: section not required, it is already defined for that host in the kubernetes-dashboard ingress
+  rules:
+    - host: chaimeleon-eu.i3m.upv.es         # the same subdomain for all services
+      http:
+        paths:
+          - path: /dataset-service/?(.*)           # different prefix for each service
+            backend:
+              serviceName: dataset-service-backend-service
+              servicePort: 11000
+```
+ 
+** The first created Ingress object for a host creates the rule in the nginx configuration. So when our kubernetes-dashboard service is deployed, the first ingress object is created and causes the creation of the nginx rule with the certificate to be used for that host. Then, the _spec.tls_ section of any other ingress object created with the same host will be ignored. 
+
+Note we are using the k8s [community ingress controler](https://github.com/kubernetes/ingress-nginx) (based on NGINX).  
+If you use the alternative [NGINX's ingress controler](https://github.com/nginxinc/kubernetes-ingress) it is not possible to create two or more ingress objects with the same host (there would be a conflict and only one is the winner). In that case you should use mergeable-ingress-type annotation (master and minions). It is better explained [here](https://diazjf.github.io/2018/05/15/kubernetes-nginx-mergeable-types.html), and [here](https://github.com/nginxinc/kubernetes-ingress/tree/master/examples/mergeable-ingress-types) is an example. 
+
+
+### Certificate for Harbor
+
+This is a special service/app that we put in a dedicated subdomain, so we need another certificate.
+The simplest way to configure cert-manager to automatically get and renew the certificate is to add the annotation in the ingress (k8s) object for the Harbor service.
+
+So, the _expose_ section of the "values.yaml" file for deploying the Harbor service looks like this:
+```
+expose:
+  type: ingress
+  tls:
+    enabled: true
+    certSource: secret
+    secret:
+      secretName: harbor.chaimeleon-eu.i3m.upv.es
+  ingress:
+    harbor:
+      annotations:
+        cert-manager.io/cluster-issuer: letsencrypt-prod
+    hosts:
+      core: harbor.chaimeleon-eu.i3m.upv.es
+```
+The effects of the annotation line are explained in the previous section.
+
