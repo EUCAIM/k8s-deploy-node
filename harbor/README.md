@@ -1,6 +1,9 @@
 # Configuration of the helm charts:
 
-Documentation of the Helm chart: https://github.com/goharbor/harbor-helm
+Documentation of the Helm chart: 
+https://github.com/goharbor/harbor-helm/tree/1.6.0  
+https://artifacthub.io/packages/helm/harbor/harbor/1.6.0
+
 ## __values-persistence.yaml:__
 
 - Line 36: ``enabled``: _true_. Enable persistence.
@@ -13,23 +16,27 @@ Documentation of the Helm chart: https://github.com/goharbor/harbor-helm
 htpasswd -nbBC10 $username $password
 ```
 - Line 96: ``password``: _XXXXXXXXXX_.
+
 # Deployment
 
 First, you must create the namespace for the deployment of Harbor:
 ```console
 kubectl apply -f harbor-namespace.yaml
 ```
-Then, it is required to create the persistent volume claim (PVC) where all Harbor components will store their data. This step only is required if persistence is enabled.
+Then, it is required to create the persistent volume claim (PVC) where all Harbor components will store their data.  
+(This step only is required if persistence is enabled, which is our case.)
 ```console
 kubectl apply -f pvc-harbor.yaml
 ```
 
 Finally, you can deploy Harbor:
 ```console
-git clone -b 1.6.0 https://github.com/goharbor/harbor-helm.git
-
-helm install harbor --namespace harbor  -f values-persistence.yaml ./harbor-helm
-
+#helm repo add harbor https://helm.goharbor.io
+#helm repo update
+#helm install harbor --namespace harbor  -f values.private.yaml harbor/harbor --version 1.6.0
+git clone -b 1.6.0 https://github.com/chaimeleon-eu/helm-chart-harbor.git
+helm install harbor --namespace harbor  -f values.private.yaml ./helm-chart-harbor
 ```
-As soon as all components are running, Harbor portal should be available at https://chaimeleon-eu.i3m.upv.es:10443/.
+
+As soon as all components are running, Harbor portal should be available at https://harbor.chaimeleon-eu.i3m.upv.es/.
 

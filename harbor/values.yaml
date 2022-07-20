@@ -1,33 +1,37 @@
-# expose:
-#   type: ingress
-#   tls: 
-#     enabled: true
-#     certSource: none
-#   ingress:
-#     hosts:
-#       core: chaimeleon-eu.i3m.upv.es
-#       #core: chaimeleon-eu.i3m.upv.es
-# #      notary: chaimeleon-eu.i3m.upv.es
 expose:
-   type: nodePort 
-   tls: 
-     enabled: true
-     certSource: secret
-     secret:
-      secretName: chaimeleon-eu.i3m.upv.es
-   nodePort:
-    name: harbor
-    ports:
-      https:
-        port: 443
-        nodePort: 10443      
-      notary:
-        port: 4443
-        nodePort: 14443 
+  type: ingress
+  tls: 
+    enabled: true
+    certSource: secret
+    secret:
+      secretName: harbor.chaimeleon-eu.i3m.upv.es
+      notarySecretName: notary.chaimeleon-eu.i3m.upv.es
+  ingress:
+    harbor:
+      annotations: 
+        cert-manager.io/cluster-issuer: letsencrypt-prod
+    hosts:
+      core: harbor.chaimeleon-eu.i3m.upv.es
+      notary: notary.chaimeleon-eu.i3m.upv.es
+# expose:
+#    type: nodePort 
+#    tls: 
+#      enabled: true
+#      certSource: secret
+#      secret:
+#       secretName: chaimeleon-eu.i3m.upv.es
+#    nodePort:
+#     name: harbor
+#     ports:
+#       https:
+#         port: 443
+#         nodePort: 10443      
+#       notary:
+#         port: 4443
+#         nodePort: 14443 
 
-externalURL: https://chaimeleon-eu.i3m.upv.es:10443
-#externalURL: https://chaimeleon-eu.i3m.upv.es/
-
+#externalURL: https://chaimeleon-eu.i3m.upv.es:10443
+externalURL: https://harbor.chaimeleon-eu.i3m.upv.es
 internalTLS:
   enabled	: true
   certSource: auto
