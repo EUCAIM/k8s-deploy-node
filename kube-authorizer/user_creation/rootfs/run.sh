@@ -95,7 +95,7 @@ export _DATASET_AUTH_TOKEN=$(jq -r .access_token /tmp/auth-token.json )
 
 # Obtain the new UID for the user from dataset service
 echo -e "\nObtaining the new UID for the user from dataset service ..."
-curl -X GET -H "Authorization: bearer ${_DATASET_AUTH_TOKEN}" -H "Content-Type: application/json" "${DATASET_SERVICE_ENDPOINT}/api/user/${NEW_USER_NAME}" > /tmp/user-info.json
+curl -X GET -H "Authorization: bearer ${_DATASET_AUTH_TOKEN}" -H "Content-Type: application/json" "${DATASET_SERVICE_ENDPOINT}/api/users/${NEW_USER_NAME}" > /tmp/user-info.json
 echo -e "\n    .............    "
 echo -e "\nResponse: "
 cat /tmp/user-info.json
