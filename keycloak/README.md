@@ -32,18 +32,31 @@ Once initialized the volume with the original files from the official image, you
 bash-4.4$ ls /opt/jboss/keycloak/themes/
 base/        chaimeleon/  keycloak/    keycloak.v2/ README.txt
 ```
-Also copy the [event listeners](https://github.com/orgs/chaimeleon-eu/repositories?q=event-listener) at the PVC  ``standalone-deployments``. As a result:
+Ensure permissions of the new directory and contents are the same of the others.
+
+Also copy the [event listeners](https://github.com/orgs/chaimeleon-eu/repositories?q=event-listener) to the PVC  ``standalone-deployments``.  
+Current download links (2022-09-07):
+```
+wget "https://github.com/chaimeleon-eu/event-listener-datasetservice/raw/master/target/event-listener-datasetservice-1.0.0.jar"
+wget "https://repo1.maven.org/maven2/org/keycloak/keycloak-admin-client/13.0.1/keycloak-admin-client-13.0.1.jar"
+wget "https://github.com/chaimeleon-eu/event-listener-kubeauthorizer/raw/master/target/event-listener-kubeauthorizer-1.1.0.jar"
+```
+As a result:
 ```console
 bash-4.4$ ls /opt/jboss/keycloak/standalone/deployments/
 event-listener-datasetservice-1.0.0.jar           event-listener-kubeauthorizer-1.1.0.jar           keycloak-admin-client-13.0.1.jar
 ```
+You must create the configmap with some configuration for the main service. It will be mounted in the container as the file ``/opt/jboss/keycloak/standalone/configuration/standalone-ha.xml``. (The original config, if you want to diff with, is in ``config.base.xml``)
+```console
+kubectl apply -f dep1_configmap.private.yaml
+```
 Now, you are able to deploy the database:
 ```console
-kubectl apply -f dep2_database.mine.yaml
+kubectl apply -f dep2_database.private.yaml
 ```
 Once the database is running, you can deploy the main service:
 ```console
-kubectl apply -f dep3_keycloak_v4.mine.yaml
+kubectl apply -f dep3_keycloak_v4.private.yaml
 ```
 And finally you can create an ingress to access the main service:
 ```console
