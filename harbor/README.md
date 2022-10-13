@@ -31,11 +31,16 @@ kubectl apply -f pvc-harbor.yaml
 
 Finally, you can deploy Harbor:
 ```console
-#helm repo add harbor https://helm.goharbor.io
-#helm repo update
-#helm install harbor --namespace harbor  -f values.private.yaml harbor/harbor --version 1.6.0
-git clone -b 1.6.0 https://github.com/chaimeleon-eu/helm-chart-harbor.git
-helm install harbor --namespace harbor  -f values.private.yaml ./helm-chart-harbor
+helm repo add harbor https://helm.goharbor.io
+helm repo update
+helm install harbor --namespace harbor  -f values.private.yaml harbor/harbor --version 1.10.1
+
+# using oci still not works
+#helm install --namespace harbor -f values.private.yaml harbor oci://helm.goharbor.io/harbor/harbor --version 1.10.1
+
+# alternative: clone github repo
+#git clone -b 1.6.0 https://github.com/chaimeleon-eu/helm-chart-harbor.git
+#helm install harbor --namespace harbor  -f values.private.yaml ./helm-chart-harbor
 ```
 
 As soon as all components are running, Harbor portal should be available at https://harbor.chaimeleon-eu.i3m.upv.es/.
