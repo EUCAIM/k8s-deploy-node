@@ -69,7 +69,7 @@ First, you must create the namespace for the deployment:
 ```console
 kubectl apply -f kubeapps-namespace.yaml
 ```
-Then, create a volume (Persistent Volume Claim, PVC) for the database files with the name that the chart expects.
+Then, create a volume (Persistent Volume Claim, PVC) for the database files with the name that the helm chart expects.
 ```console
 kubectl apply -f postgresql-pvc.yaml
 ```
@@ -85,7 +85,7 @@ cp values.yaml values.private.yaml
 Now, you can deploy the chart:
 ```console
 helm repo add bitnami https://charts.bitnami.com/bitnami
-helm install --namespace kubeapps -f values.private.yaml kubeapps bitnami/kubeapps --version 7.1.0
+helm install --namespace kubeapps -f values.private.yaml kubeapps bitnami/kubeapps --version 10.3.5
 ```
 
 # Upgrade
