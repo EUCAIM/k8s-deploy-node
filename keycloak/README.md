@@ -4,9 +4,9 @@
 - Line 30: ``POSTGRES_PASSWORD``: _XXXXXXXXXX_. The password for the user in the database.
 
 ## __dep3_keycloak_v4.yaml:__
-- Line 48: ``KEYCLOAK_USER``: _admin_. The name of the admin user.
-- Line 50: ``KEYCLOAK_PASSWORD``: _XXXXXXXXXXXX_. The password of the admin user.
-- Line 60: ``DB_PASSWORD``: _XXXXXXXXXX_. The password of the user in the database (same as line 30 of __dep2_database.yaml__).
+- Line 48: ``KEYCLOAK_ADMIN``: _admin_. The name of the admin user.
+- Line 50: ``KEYCLOAK_ADMIN_PASSWORD``: _XXXXXXXXXXXX_. The password of the admin user.
+- Line 60: ``KC_DB_PASSWORD``: _XXXXXXXXXX_. The password of the user in the database (same as line 30 of __dep2_database.yaml__).
 
 ## __dep4_ingress.yaml:__
 - Line 15 and 18: ``host``: _chaimeleon-eu.i3m.upv.es_. The domain name of the host.
@@ -23,13 +23,13 @@ Then, it is required to create the persistent volume claims (PVC). There will be
 ```console
 kubectl apply -f dep0_volumes.yaml
 ```
-You must launch a pod to initialize the permissions and contents of the volumes:
+In old version of Kubernetes you must launch a pod to initialize the permissions of the volumes:
 ```console
 kubectl apply -f dep1_init_volumes.yaml
 ```
-Once initialized the volume with the original files from the official image, you can copy the _chaimeleon_ theme into the volume for themes (named _themes-data_). That volume will be mounted on _themes_ directory of the keycloak working directory in the main service container, by default: ``/opt/jboss/keycloak/themes/``. The result should be like that:
+Once initialized the volume with the original files from the official image, you can copy the _chaimeleon_ theme into the volume for themes (named _themes-data_). That volume will be mounted on _themes_ directory of the keycloak working directory in the main service container, by default: ``/opt/keycloak/themes/``. The result should be like that:
 ```console
-bash-4.4$ ls /opt/jboss/keycloak/themes/
+bash-4.4$ ls /opt/keycloak/themes/
 base/        chaimeleon/  keycloak/    keycloak.v2/ README.txt
 ```
 Ensure permissions of the new directory and contents are the same of the others.
@@ -38,17 +38,13 @@ Also copy the [event listeners](https://github.com/orgs/chaimeleon-eu/repositori
 Current download links (2022-09-07):
 ```
 wget "https://github.com/chaimeleon-eu/event-listener-datasetservice/raw/master/target/event-listener-datasetservice-1.0.0.jar"
-wget "https://repo1.maven.org/maven2/org/keycloak/keycloak-admin-client/13.0.1/keycloak-admin-client-13.0.1.jar"
-wget "https://github.com/chaimeleon-eu/event-listener-kubeauthorizer/raw/master/target/event-listener-kubeauthorizer-1.1.0.jar"
+# wget "https://repo1.maven.org/maven2/org/keycloak/keycloak-admin-client/19.0.3/keycloak-admin-client-19.0.3.jar"
+# wget "https://github.com/chaimeleon-eu/event-listener-kubeauthorizer/raw/master/target/event-listener-kubeauthorizer-1.1.0.jar"
 ```
 As a result:
 ```console
-bash-4.4$ ls /opt/jboss/keycloak/standalone/deployments/
-event-listener-datasetservice-1.0.0.jar           event-listener-kubeauthorizer-1.1.0.jar           keycloak-admin-client-13.0.1.jar
-```
-You must create the configmap with some configuration for the main service. It will be mounted in the container as the file ``/opt/jboss/keycloak/standalone/configuration/standalone-ha.xml``. (The original config, if you want to diff with, is in ``config.base.xml``)
-```console
-kubectl apply -f dep1_configmap.private.yaml
+bash-4.4$ ls /opt/keycloak/providers/
+event-listener-datasetservice-1.0.0.jar
 ```
 Now, you are able to deploy the database:
 ```console
