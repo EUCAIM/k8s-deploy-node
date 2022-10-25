@@ -62,31 +62,31 @@ portal:
   priorityClassName: core-services
   resources:
     requests:
-      memory: "1000Mi"
-      cpu: "1000m"
+      memory: "512Mi"
+      cpu: "200m"
     limits:
-      memory: "1000Mi"
-      cpu: "1000m" #1 Gb
+      memory: "1024Mi"
+      cpu: "1000m" #1 cpu
 
 core:
   priorityClassName: core-services
   resources:
     requests:
-      memory: "1000Mi"
-      cpu: "1000m"
+      memory: "512Mi"
+      cpu: "200m"
     limits:
-      memory: "1000Mi"
-      cpu: "1000m" #1 Gb
+      memory: "1024Mi"
+      cpu: "1000m" #1 cpu
 
 jobservice:
   priorityClassName: core-services
   resources:
     requests:
-      memory: "500Mi"
-      cpu: "500m"
+      memory: "512Mi"
+      cpu: "200m"
     limits:
-      memory: "500Mi"
-      cpu: "500m" #1 Gb
+      memory: "1024Mi"
+      cpu: "1000m" #1 cpu
 
 registry:
   priorityClassName: core-services
@@ -97,41 +97,41 @@ registry:
   registry:
     resources:
       requests:
-        memory: "1000Mi"
-        cpu: "1000m"
+        memory: "512Mi"
+        cpu: "200m"
       limits:
-        memory: "1000Mi"
-        cpu: "1000m" #1 Gb    
+        memory: "1024Mi"
+        cpu: "1000m" #1 cpu
   controller:
     resources:
       requests:
-        memory: "1000Mi"
-        cpu: "1000m"
+        memory: "512Mi"
+        cpu: "200m"
       limits:
-        memory: "1000Mi"
-        cpu: "1000m" #1 Gb    
+        memory: "1024Mi"
+        cpu: "1000m" #1 cpu
 
 chartmuseum:
   enabled	: true
   priorityClassName: core-services
   resources:
     requests:
-      memory: "500Mi"
-      cpu: "500m"
+      memory: "512Mi"
+      cpu: "200m"
     limits:
-      memory: "500Mi"
-      cpu: "500m" 
+      memory: "1024Mi"
+      cpu: "1000m" 
 
 trivy:
   enabled	: true
   priorityClassName: core-services
   resources:
     requests:
-      memory: "500Mi"
-      cpu: "500m"
+      memory: "512Mi"
+      cpu: "200m"
     limits:
-      memory: "500Mi"
-      cpu: "500m" #1 Gb
+      memory: "1024Mi"
+      cpu: "1000m" #1 cpu
 
 notary:
   enabled: false
@@ -143,33 +143,33 @@ database:
     priorityClassName: core-services
     resources:
       requests:
-        memory: "1000Mi"
-        cpu: "1000m"
+        memory: "512Mi"
+        cpu: "200m"
       limits:
-        memory: "1000Mi"
-        cpu: "1000m" #1 Gb
+        memory: "1024Mi"
+        cpu: "1000m" #1 cpu
 
 redis:
   type: internal
   internal:
+    priorityClassName: core-services
     resources:
       requests:
-        memory: "500Mi"
-        cpu: "500m"
+        memory: "512Mi"
+        cpu: "200m"
       limits:
-        memory: "500Mi"
-        cpu: "500m" #1 Gb
-    priorityClassName: core-services
+        memory: "1024Mi"
+        cpu: "1000m" #1 cpu
 
 exporter:
   priorityClassName: core-services
   resources:
     requests:
-      memory: "250Mi"
-      cpu: "500m"
+      memory: "512Mi"
+      cpu: "200m"
     limits:
-      memory: "250Mi"
-      cpu: "500m" #1 Gb
+      memory: "1024Mi"
+      cpu: "1000m" #1 cpu
 
 #nginx:
 # priorityClassName: core-services

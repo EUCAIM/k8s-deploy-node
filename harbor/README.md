@@ -32,7 +32,7 @@ kubectl apply -f pvc-harbor.yaml
 Finally, you can deploy Harbor:
 ```console
 helm repo add harbor https://helm.goharbor.io
-helm repo update
+helm repo update harbor
 helm install harbor --namespace harbor  -f values.private.yaml harbor/harbor --version 1.10.1
 
 # using oci still not works
