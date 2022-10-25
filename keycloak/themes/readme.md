@@ -3,6 +3,8 @@ Copy the _chaimeleon_ directory into the _themes_ directory of the keycloak dire
 
 Doc:
 https://www.keycloak.org/docs/latest/server_development/#_custom_user_attributes
+Example of custom account console with react (based on theme keycloak.v2):
+https://github.com/keycloak/keycloak-quickstarts/tree/latest/extend-account-console
 
 Note:
 *.base.ftl files are not functional just included to identify changes from the base version with a diff. 
