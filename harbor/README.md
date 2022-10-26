@@ -28,7 +28,10 @@ Then, it is required to create the persistent volume claim (PVC) where all Harbo
 ```console
 kubectl apply -f pvc-harbor.yaml
 ```
-
+Now make a private copy of the values file and change it for your preferences.
+```console
+cp values.yaml values.private.yaml
+```
 Finally, you can deploy Harbor:
 ```console
 helm repo add harbor https://helm.goharbor.io
