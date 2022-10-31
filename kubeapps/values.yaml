@@ -1,3 +1,4 @@
+# Doc: https://github.com/kubeapps/kubeapps/tree/master/chart/kubeapps#parameters
 
 ingress:
   enabled: true
