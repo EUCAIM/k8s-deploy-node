@@ -54,7 +54,7 @@ helm install --namespace guacamole -f guacamole-values.private.yaml  guacamole .
 
 As soon as Guacamole is running, it should be available at https://chaimeleon-eu.i3m.upv.es/guacamole/.
 
-Initially there is only one user created in the database with the name "guacadmin" and password "guacadmin". In order to enter with that user (with admin permissions) we must create a user in Keycloak with that same name.
-Once we accessed in the Guacamole configuration page with admin permissions we can create the admins group corresponding to the group defined in Keycloak (matching by name).
+Initially there is only one user created in the database with the name indicated in the property "dbcreation.adminUsername". In order to enter with that user (with admin permissions) we must create a user in Keycloak with that same name.
+Once we accessed in the Guacamole configuration page with admin permissions we can create the admins group corresponding to the group defined in Keycloak (matching by name), in our case is "cloud-services-and-security-management".
 Also you may want to create the user "chaimeleon-user-creator" (with permission "system admin") for the automatic creation of users and connection groups done by kube-authorizer.
 

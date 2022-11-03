@@ -15,6 +15,8 @@ dbcreation:
 #   repository: bitnami/postgresql
     repository: harbor.chaimeleon-eu.i3m.upv.es/dockerhub/bitnami/postgresql
     tag: "11.12.0-debian-10-r5"  # 11.9.0-debian-10-r73
+  adminUsername: "XXXXXXXXXXXX"
+  adminLocalPassword: "XXXXXXXXXXXX"
 
 serviceAccount:
   # Specifies whether a service account should be created
