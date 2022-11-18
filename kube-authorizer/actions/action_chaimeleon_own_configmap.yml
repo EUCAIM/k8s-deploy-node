@@ -1,0 +1,82 @@
+apiVersion: "v1"
+kind: "Action"
+metadata:
+  name: "chaimeleon_own_configmap"
+spec: 
+  description: |
+    Create the CHAIMELEON ConfigMap in her/his own namespace. 
+  allow_yaml: |
+    apiVersion: batch/v1
+    kind: Job
+    metadata:
+      name: allow-configmap-namespace-__TENANT_USERNAME__
+      namespace: kube-authorizer
+    spec:
+      template:
+        spec:
+          containers:
+          - name: deny-rbac
+            image: harbor.chaimeleon-eu.i3m.upv.es/chaimeleon-services/user-creation:test
+            imagePullPolicy: Always
+            command: ["/bin/bash"]
+            args: ["-c", "/home/ubuntu/create_chaimeleon_configmap.sh"]
+            env:
+            - name: TENANT_TYPE
+              value: "__TENANT_TYPE__"
+            - name: TENANT_NAMESPACE
+              value: "__TENANT_NAMESPACE__"
+            - name: TENANT_NAME
+              value: "__TENANT_USERNAME__"
+            - name: K8S_TOKEN
+              value: "d2KLKJfg35a52gvSffth56h2ol23df63cUSh1k5u23aq85rt1+rt56d+"
+            - name: K8S_ENDPOINT
+              value: "https://192.168.3.13:6443"
+            - name: KEYCLOAK_ENDPOINT
+              value: "https://chaimeleon-test.grycap.i3m.upv.es"
+            - name: KEYCLOAK_REALM
+              value: "CHAIMELEON"
+            - name: DATASET_SERVICE_ENDPOINT
+              value: "http://dataset-service-backend-service.dataset-service.svc.cluster.local:11000"
+            - name: KEYCLOAK_CLIENT
+              value: "kubeauthorizer-pod"
+            - name: KEYCLOAK_CLIENT_SECRET
+              value: "a3401596-088b-476e-92d8-a486f42e0406"
+            - name: DIR_PERSISTENT_SHARED
+              value: "/homes/chaimeleon-shared-folder"   
+            - name: DIR_PERSISTENT_HOMES
+              value: "/homes/chaimeleon-users"   
+            - name: DIR_DATASETS
+              value: "/datasets"   
+            - name: DIR_DATA
+              value: "/datalake"   
+            - name: CEPH_HOST
+              value: "192.168.3.16"  
+            - name: CEPH_PREFIX_ACCOUNT
+              value: chaimeleon                              
+          restartPolicy: Never
+      backoffLimit: 4
+
+  deny_yaml: |
+    apiVersion: batch/v1
+    kind: Job
+    metadata:
+      name: deny-configmap-namespace-__TENANT_USERNAME__
+      namespace: kube-authorizer
+    spec:
+      template:
+        spec:
+          containers:
+          - name: deny-rbac
+            image: harbor.chaimeleon-eu.i3m.upv.es/chaimeleon-services/user-creation:test
+            imagePullPolicy: Always
+            command: ["/bin/bash"]
+            args: ["-c", "kubectl --server $$K8S_ENDPOINT --insecure-skip-tls-verify=true --token=$$K8S_TOKEN delete -n $$TENANT_NAMESPACE chaimeleon"]
+            env:
+            - name: TENANT_NAMESPACE
+              value: "__TENANT_NAMESPACE__"
+            - name: K8S_TOKEN
+              value: "d2KLKJfg35a52gvSffth56h2ol23df63cUSh1k5u23aq85rt1+rt56d+"
+            - name: K8S_ENDPOINT
+              value: "https://192.168.3.13:6443"
+          restartPolicy: Never
+      backoffLimit: 4
