@@ -5,14 +5,13 @@ expose:
     certSource: secret
     secret:
       secretName: harbor.chaimeleon-eu.i3m.upv.es
-      notarySecretName: notary.chaimeleon-eu.i3m.upv.es
   ingress:
     harbor:
       annotations: 
         cert-manager.io/cluster-issuer: letsencrypt-prod
+        kubernetes.io/ingress.class: nginx
     hosts:
       core: harbor.chaimeleon-eu.i3m.upv.es
-      notary: notary.chaimeleon-eu.i3m.upv.es
 # expose:
 #    type: nodePort 
 #    tls: 
@@ -26,12 +25,10 @@ expose:
 #       https:
 #         port: 443
 #         nodePort: 10443      
-#       notary:
-#         port: 4443
-#         nodePort: 14443 
 
 #externalURL: https://chaimeleon-eu.i3m.upv.es:10443
 externalURL: https://harbor.chaimeleon-eu.i3m.upv.es
+
 internalTLS:
   enabled	: true
   certSource: auto
@@ -61,44 +58,35 @@ persistence:
 
 harborAdminPassword: XXXXXXXXXXXXXXXXX
 
-# Docker mages
 portal:
   priorityClassName: core-services
-  image:
-    repository: goharbor/harbor-portal
-    tag: v2.2.0
   resources:
     requests:
-      memory: "1000Mi"
-      cpu: "1000m"
+      memory: "512Mi"
+      cpu: "200m"
     limits:
-      memory: "1000Mi"
-      cpu: "1000m" #1 Gb
+      memory: "1024Mi"
+      cpu: "1000m" #1 cpu
+
 core:
   priorityClassName: core-services
-  image:
-    repository: goharbor/harbor-core
-    tag: v2.2.0
   resources:
     requests:
-      memory: "1000Mi"
-      cpu: "1000m"
+      memory: "512Mi"
+      cpu: "200m"
     limits:
-      memory: "1000Mi"
-      cpu: "1000m" #1 Gb
+      memory: "1024Mi"
+      cpu: "1000m" #1 cpu
 
 jobservice:
   priorityClassName: core-services
-  image:
-    repository: goharbor/harbor-jobservice
-    tag: v2.2.0
   resources:
     requests:
-      memory: "500Mi"
-      cpu: "500m"
+      memory: "512Mi"
+      cpu: "200m"
     limits:
-      memory: "500Mi"
-      cpu: "500m" #1 Gb
+      memory: "1024Mi"
+      cpu: "1000m" #1 cpu
 
 registry:
   priorityClassName: core-services
@@ -107,79 +95,46 @@ registry:
     password: XXXXXXXXXXXXXXXXX
     htpasswd: admin:XXXXXXXXXXXXXXXXX
   registry:
-    image:
-      repository: goharbor/registry-photon
-      tag: v2.2.0
     resources:
       requests:
-        memory: "1000Mi"
-        cpu: "1000m"
+        memory: "512Mi"
+        cpu: "200m"
       limits:
-        memory: "1000Mi"
-        cpu: "1000m" #1 Gb    
+        memory: "1024Mi"
+        cpu: "1000m" #1 cpu
   controller:
-    image:
-      repository: goharbor/harbor-registryctl
-      tag: v2.2.0
     resources:
       requests:
-        memory: "1000Mi"
-        cpu: "1000m"
+        memory: "512Mi"
+        cpu: "200m"
       limits:
-        memory: "1000Mi"
-        cpu: "1000m" #1 Gb    
+        memory: "1024Mi"
+        cpu: "1000m" #1 cpu
 
 chartmuseum:
   enabled	: true
   priorityClassName: core-services
   resources:
     requests:
-      memory: "500Mi"
-      cpu: "500m"
+      memory: "512Mi"
+      cpu: "200m"
     limits:
-      memory: "500Mi"
-      cpu: "500m" 
-  image:
-    repository: goharbor/chartmuseum-photon
-    tag: v2.2.0
+      memory: "1024Mi"
+      cpu: "1000m" 
 
 trivy:
   enabled	: true
   priorityClassName: core-services
   resources:
     requests:
-      memory: "500Mi"
-      cpu: "500m"
+      memory: "512Mi"
+      cpu: "200m"
     limits:
-      memory: "500Mi"
-      cpu: "500m" #1 Gb
-  image:
-    repository: goharbor/trivy-adapter-photon
-    tag: v2.2.0
+      memory: "1024Mi"
+      cpu: "1000m" #1 cpu
 
 notary:
-  enabled	: true
-  server:
-    priorityClassName: core-services
-    resources:
-      requests:
-        memory: "500Mi"
-        cpu: "500m"
-      limits:
-        memory: "500Mi"
-        cpu: "500m" #1 Gb
-  signer:
-    priorityClassName: core-services
-    resources:
-      requests:
-        memory: "500Mi"
-        cpu: "500m"
-      limits:
-        memory: "500Mi"
-        cpu: "500m" #1 Gb
-  image:
-    repository: goharbor/notary-server-photon
-    tag: v2.2.0
+  enabled: false
 
 database:
   type: internal
@@ -188,53 +143,44 @@ database:
     priorityClassName: core-services
     resources:
       requests:
-        memory: "1000Mi"
-        cpu: "1000m"
+        memory: "512Mi"
+        cpu: "200m"
       limits:
-        memory: "1000Mi"
-        cpu: "1000m" #1 Gb
-    image:
-      repository: goharbor/harbor-db
-      tag: v2.2.0
+        memory: "1024Mi"
+        cpu: "1000m" #1 cpu
 
 redis:
   type: internal
   internal:
+    priorityClassName: core-services
     resources:
       requests:
-        memory: "500Mi"
-        cpu: "500m"
+        memory: "512Mi"
+        cpu: "200m"
       limits:
-        memory: "500Mi"
-        cpu: "500m" #1 Gb
-    priorityClassName: core-services
-    image:
-      repository: goharbor/redis-photon
-      tag: v2.2.0
+        memory: "1024Mi"
+        cpu: "1000m" #1 cpu
+
 exporter:
   priorityClassName: core-services
-  image:
-    repository: goharbor/harbor-exporter
-    tag: v2.2.0
   resources:
     requests:
-      memory: "250Mi"
-      cpu: "500m"
+      memory: "512Mi"
+      cpu: "200m"
     limits:
-      memory: "250Mi"
-      cpu: "500m" #1 Gb
-nginx:
-  priorityClassName: core-services
-  image:
-    repository: goharbor/nginx-photon
-    tag: v2.2.0
-  resources:
-    requests:
-      memory: "1000Mi"
-      cpu: "1000m"
-    limits:
-      memory: "1000Mi"
-      cpu: "1000m" #1 Gb
+      memory: "1024Mi"
+      cpu: "1000m" #1 cpu
+
+#nginx:
+# priorityClassName: core-services
+# resources:
+#   requests:
+#     memory: "1000Mi"
+#     cpu: "1000m"
+#   limits:
+#     memory: "1000Mi"
+#     cpu: "1000m" #1 Gb
 
 metrics:
   enabled: false	
+

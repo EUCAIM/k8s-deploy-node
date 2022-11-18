@@ -1,20 +1,3 @@
-apiVersion: v1
-kind: Service
-metadata:
-  name: keycloak
-  namespace: keycloak
-  labels:
-    app: keycloak
-spec:
-  ports:
-  - name: http
-    port: 8080
-    targetPort: 8080
-  selector:
-    app: keycloak
-  type: LoadBalancer
-
----
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -40,12 +23,10 @@ spec:
         - name: vol-standalone-deployments
           persistentVolumeClaim:
             claimName: standalone-deployments
-        - name: keycloak-conf
-          configMap:
-            name: keycloak-conf
       containers:
       - name: keycloak
-        image: quay.io/keycloak/keycloak:13.0.1
+        image: "quay.io/keycloak/keycloak:19.0.2"
+        args: ["start", "--http-relative-path /auth"]
         resources:
           requests:
             memory: "1000Mi"
@@ -54,29 +35,64 @@ spec:
             memory: "1000Mi"
             cpu: "1500m"
         volumeMounts:
-          - mountPath: "/opt/jboss/keycloak/themes"
-            name: vol-themes-data
-          - mountPath: "/opt/jboss/keycloak/standalone/deployments/"
-            name: vol-standalone-deployments
+          - name: vol-themes-data
+            mountPath: "/opt/keycloak/themes/chaimeleon/"
+            subPath: "chaimeleon"
+          - name: vol-standalone-deployments
+            mountPath: "/opt/keycloak/providers/event-listener-datasetservice-1.0.0.jar"
+            subPath: "event-listener-datasetservice-1.0.0.jar"
             readOnly: false
-          - name: keycloak-conf
-            mountPath: "/opt/jboss/keycloak/standalone/configuration/standalone-ha.xml"
-            subPath: standalone-ha.xml
+#         - name: vol-standalone-deployments
+#           mountPath: "/opt/keycloak/providers/event-listener-kubeauthorizer-1.1.0.jar"
+#           subPath: "event-listener-kubeauthorizer-1.1.0.jar"
+#           readOnly: false
         env:
-        - name: KEYCLOAK_USER
+        - name: KEYCLOAK_ADMIN
           value: "admin"
-        - name: KEYCLOAK_PASSWORD
+        - name: KEYCLOAK_ADMIN_PASSWORD
           value: "XXXXXXXXXX"
-        - name: PROXY_ADDRESS_FORWARDING
-          value: "true"
-        - name: DB_VENDOR
+
+        # Doc: https://www.keycloak.org/server/all-config
+        - name: KC_PROXY
+          value: "edge"
+        - name: KC_DB
           value: postgres
-        - name: DB_ADDR
-          value: db:5432
-        - name: DB_USER
+        - name: KC_DB_URL_HOST
+          value: db
+        - name: KC_DB_URL_PORT
+          value: "5432"
+        - name: KC_DB_USERNAME
           value: "keycloak-user"
-        - name: DB_PASSWORD
+        - name: KC_DB_PASSWORD
           value: "XXXXXXXXXX"
+        - name: KC_HOSTNAME
+          # This is recommended for checking the "host" header of requests
+          value: "chaimeleon-eu.i3m.upv.es"
+
+        # Doc: https://www.keycloak.org/server/configuration-provider
+        - name: KC_SPI_EVENTS_LISTENER_EVENT_LISTENER_DATASETSERVICE_OIDCGROUPS
+          value: "admins,application-developer,cloud-services-and-security-management,data-scientists,external-researcher"
+        - name: KC_SPI_EVENTS_LISTENER_EVENT_LISTENER_DATASETSERVICE_ADMIN_EVENT
+          value: "GROUP_MEMBERSHIP"
+        - name: KC_SPI_EVENTS_LISTENER_EVENT_LISTENER_DATASETSERVICE_KEYCLOAK_CLIENT
+          value: "kubeauthorizer-pod"
+        - name: KC_SPI_EVENTS_LISTENER_EVENT_LISTENER_DATASETSERVICE_KEYCLOAK_CLIENT_SECRET
+          value: "XXXXXXXXXX"
+        - name: KC_SPI_EVENTS_LISTENER_EVENT_LISTENER_DATASETSERVICE_KEYCLOAK_ENDPOINT
+          value: "https://chaimeleon-eu.i3m.upv.es"
+        - name: KC_SPI_EVENTS_LISTENER_EVENT_LISTENER_DATASETSERVICE_DATASET_SERVICE_ENDPOINT
+          value: "https://chaimeleon-eu.i3m.upv.es/dataset-service/api"
+#       - name: KC_SPI_EVENTS_LISTENER_EVENT_LISTENER_KUBEAUTHORIZER_OIDCGROUPS
+#         value: "admins,application-developer,cloud-services-and-security-management,data-scientists,external-researcher"
+#       - name: KC_SPI_EVENTS_LISTENER_EVENT_LISTENER_KUBEAUTHORIZER_ADMIN_EVENT
+#         value: "GROUP_MEMBERSHIP"
+#       - name: KC_SPI_EVENTS_LISTENER_EVENT_LISTENER_KUBEAUTHORIZER_KUBE_AUTHORIZER_ENDPOINT
+#         value: "XXXXXXXXXX"
+#       - name: KC_SPI_EVENTS_LISTENER_EVENT_LISTENER_KUBEAUTHORIZER_KUBE_AUTHORIZER_USER_CLAIM
+#         value: "username"
+#       - name: KC_SPI_EVENTS_LISTENER_EVENT_LISTENER_KUBEAUTHORIZER_KUBE_AUTHORIZER_TOKEN
+#         value: "XXXXXXXXXX"
+
         ports:
         - name: http
           containerPort: 8080
@@ -87,3 +103,19 @@ spec:
             path: /auth/realms/master
             port: 8080
 
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: keycloak
+  namespace: keycloak
+  labels:
+    app: keycloak
+spec:
+  selector:
+    app: keycloak
+  type: LoadBalancer
+  ports:
+  - name: http
+    port: 8080
+    targetPort: 8080

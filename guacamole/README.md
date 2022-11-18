@@ -18,24 +18,43 @@
     - Line 89: ``database``: _guacamole_. The database name (line 158 of __postgresql-values.yaml__).
     - Line 90: ``user``: _grycap-admin_. The name of the user in the database (line 141 of __postgresql-values.yaml__).
     - Line 91: ``password``: _guacamole_. The password of the user in the database (line 136 of __postgresql-values.yaml__).
-# Deployment
 
-First, you must create the namespace for the deployment of Guacamole and the database PostgreSQL:
+# Deployment
+First of all, you must create the namespace for the deployments of Guacamole and the database:
 ```console
-kubectl apply -f guacamole-namespace.yaml
+kubectl create namespace guacamole
 ```
-Then, you must set up the database. First, it is required to create the persistent volume claim (PVC). This step only is required if persistence is enabled. 
+
+## Database
+For the database it is required to create the persistent volume claim (PVC).  
+This step only is required if persistence is enabled which is our case. 
 ```console
 kubectl apply -f postgresql-pvc.yaml
 ```
-After this, you are able to deploy the database installing the helm chart:
+Now make a private copy of the values file and change it for your preferences.
+```console
+cp postgresql-values.yaml postgresql-values.private.yaml
+```
+After this, you are able to deploy the database installing the helm chart ([ref](https://github.com/bitnami/charts/tree/master/bitnami/postgresql)):
 ```console
 helm repo add bitnami https://charts.bitnami.com/bitnami
-
-helm install --name postgresql --namespace guacamole  -f postgresql-values.yaml  bitnami/postgresql
+helm install --namespace guacamole -f postgresql-values.private.yaml postgresql bitnami/postgresql --version 11.9.12
 ```
-Once the database is running, you must put its IP in the appropriate variable in the __guacamole-values.yaml__. Finally, you can deploy Guacamole:
+## The main service
+Finally, you can deploy Guacamole.
+Again make a private copy of the values file and change it for your preferences ([ref](https://github.com/chaimeleon-eu/helm-chart-guacamole/blob/master/values.yaml)):
 ```console
-helm install --name guacamole --namespace guacamole  -f guacamole-values.yaml halkeye/guacamole
+cp guacamole-values.yaml guacamole-values.private.yaml
 ```
-As soon as Guacamole is running, it should be available at https://chaimeleon-eu.i3m.upv.es/guacamole/#/.
+Then just download the helm chart and install:
+```console
+git clone https://github.com/chaimeleon-eu/helm-chart-guacamole.git
+helm install --namespace guacamole -f guacamole-values.private.yaml  guacamole ./helm-chart-guacamole
+```
+
+As soon as Guacamole is running, it should be available at https://chaimeleon-eu.i3m.upv.es/guacamole/.
+
+Initially there is only one user created in the database with the name indicated in the property "dbcreation.adminUsername". In order to enter with that user (with admin permissions) we must create a user in Keycloak with that same name.
+Once we accessed in the Guacamole configuration page with admin permissions we can create the admins group corresponding to the group defined in Keycloak (matching by name), in our case is "cloud-services-and-security-management".
+Also you may want to create the user "chaimeleon-user-creator" (with permission "system admin") for the automatic creation of users and connection groups done by kube-authorizer.
+

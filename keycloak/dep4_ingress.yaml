@@ -1,5 +1,4 @@
-apiVersion: extensions/v1beta1
-#apiVersion: networking.k8s.io/v1
+apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: proxy-keycloak
@@ -13,17 +12,15 @@ metadata:
     # and in the proxy log apears: ERROR upstream sent too big header while reading response header from upstream
     nginx.ingress.kubernetes.io/proxy-buffer-size: 128k
 spec:
-  tls:
-  - hosts:
-    - chaimeleon-eu.i3m.upv.es
-#     secretName:  chaimeleon-eu.i3m.upv.es     # letsencryp-cert-tls, comment to use the default, which is set in the ingress controller param --default-ssl-certificate
   rules:
     - host: chaimeleon-eu.i3m.upv.es
       http:
         paths:
 #         - path: /
           - path: /auth/?(.*)
+            pathType: ImplementationSpecific
             backend:
-              serviceName: keycloak
-              servicePort: 8080
-
+              service:
+                name: keycloak
+                port:
+                  number: 8080

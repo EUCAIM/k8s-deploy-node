@@ -30,15 +30,15 @@ Tipically, a computing infrastructure is composed of  a multiple core services a
 
 System administrators must ensure that these core services are always running. Thus, there are different types of applications that can be categorized in the following classes:
 - __Core services__: they are in charge of mantain a minimal functionality of the cluster. Examples: 
-    - :heavy_check_mark: Container and Helm Chart Repository (_Harbor_)
-    - :heavy_check_mark: Authentication (_Keycloak_)
     - :heavy_check_mark: Storage (_CephFS provider_)
     - :heavy_check_mark: Security Policy Management System (_Kyverno_) 
+    - :heavy_check_mark: Cluster Management Dashboard (_Kubernetes Dashboard_).
+    - :heavy_check_mark: Authentication (_Keycloak_)
+    - :heavy_check_mark: Container and Helm Chart Repository (_Harbor_)
+    - :heavy_check_mark: Traceability system (_Tracer Service_)
     - :heavy_check_mark: Dataset administration (_Dataset Service_)
     - :heavy_check_mark: Authorization (_Kube-authorizer_)
-    - :heavy_check_mark: Traceability system (_Tracer Service_)
     - :heavy_check_mark: Kubernetes Operator (_Chaimeleon Operator_).
-    - :heavy_check_mark: Cluster Management Dashboard (_Kubernetes Dashboard_).
 - __Core applications__: 
     - :heavy_check_mark: Data ingestion (_Quibim Precision_, _PACS_)
     - :heavy_check_mark: Application Launcher & Marketplace Service (_Kubeapps_)

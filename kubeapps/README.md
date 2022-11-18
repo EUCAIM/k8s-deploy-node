@@ -69,15 +69,9 @@ First, you must create the namespace for the deployment:
 ```console
 kubectl apply -f kubeapps-namespace.yaml
 ```
-Then, create a volume (Persistent Volume Claim, PVC) for the database files with the name that the chart expects.
-```console
-kubectl apply -f postgresql-pvc.yaml
-```
-Depending on the Kubernetes configuration you have, you may need to run a pod to set permissions in the volume for the user 1001 
-(because in kubeapps-postgresql statefulSet there is a "spec.template.spec.containers[0].securityContext.runAsUser: 1001"):
-```console
-kubectl apply -f prepare-postgresql-pvc.yaml
-```
+
+In old versions of Kubernetes o in special configurations, some permission error can appear when mounting or writing in the db persistence volume. In that case see volume/README.md.
+
 Then review the configuration in the "values.yaml" file. Create your own, with your private passwords.
 ```console
 cp values.yaml values.private.yaml
@@ -85,7 +79,7 @@ cp values.yaml values.private.yaml
 Now, you can deploy the chart:
 ```console
 helm repo add bitnami https://charts.bitnami.com/bitnami
-helm install --namespace kubeapps -f values.private.yaml kubeapps bitnami/kubeapps --version 7.1.0
+helm install --namespace kubeapps -f values.private.yaml kubeapps bitnami/kubeapps --version 10.3.5
 ```
 
 # Upgrade

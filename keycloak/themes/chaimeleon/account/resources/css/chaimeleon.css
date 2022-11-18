@@ -1,19 +1,9 @@
 
-.navbar-pf {
-    background: white;
+header.pf-c-page__header {
+    background-color: lightgrey;
+    color: black;
 }
-.navbar-pf .navbar-utility > li > a {
-    color: #000 !important;
+div.pf-c-page__header  {
+    background-color: transparent;
+    color: black;
 }
-
-.navbar-title {
-    background-image: url('../img/logo-chaimeleon.svg');
-    background-size: contain;
-    background-repeat: no-repeat;
-    height: 86px;
-    width: 180px;
-    margin: 8px 10px 5px;
-    text-indent: -99999px;
-}
-
-
