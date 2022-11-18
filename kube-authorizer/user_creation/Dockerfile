@@ -12,7 +12,7 @@ RUN touch /etc/apt/sources.list.d/kubernetes.list
 RUN echo "deb http://apt.kubernetes.io/ kubernetes-xenial main" |  tee -a /etc/apt/sources.list.d/kubernetes.list
 RUN apt-get update
 RUN apt-get install -y kubectl 
-RUN apt-get install -y vim 
+RUN apt-get install -y vim linux-libc-dev 
 
 COPY rootfs /home/ubuntu
 
