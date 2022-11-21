@@ -38,7 +38,8 @@ config:
     email_domains = "*"
     
     # The groups created in keycloak whose users will be allowed to access.
-    allowed_groups = ["data-scientists", "external-researcher", "application-developer"]
+    allowed_groups = ["data-scientists", "external-researcher", "application-developer", "cloud-services-and-security-management"]
+    #oidc_groups_claim = "groups"
         
     #pass_basic_auth = false
     #pass_authorization_header = true
