@@ -122,10 +122,12 @@ __TBD -> configure it in the CHAIMELEON cluster__
 
 ## Automatic acquisition and renewal of certificates
 
-There are two subdomains where services and applications are accesible, so we need two certificates:
+There are some subdomains where services and applications are accesible, so we need two certificates:
  - _chaimeleon-eu.i3m.upv.es_: for the Kubernetes dashboard and the rest of services and applications 
                                (one certificate for all, they will be differentiated by path).
  - _harbor.chaimeleon-eu.i3m.upv.es_: for the Harbor services and webUI.
+ - _hubble.chaimeleon-eu.grycap.i3m.upv.es_: for the Hubble application.
+ - _chaimeleon-test.grycap.i3m.upv.es_: for test deployments. 
 
 ### Certificate for Kubernetes-dashboard and all other services/apps
 
@@ -153,7 +155,7 @@ The configuration lines for that:
 Just for information, this is what happens underneath...  
 First, a cluster-issuer (k8s object) is created to configure the access to Let's Encrypt. 
 The definition is like this:
-```
+```yaml
 apiVersion: cert-manager.io/v1alpha2
 kind: ClusterIssuer
 metadata:
@@ -171,7 +173,7 @@ spec:
 ```
 
 Then, an ingress (k8s object) is created like this:
-```
+```yaml
 kind: Ingress
 apiVersion: networking.k8s.io/v1
 metadata:
@@ -202,15 +204,15 @@ This object configures the nginx proxy to redirect all the paths prefixed with "
 One important line is the first annotation that makes cert-manager to use the "letsencrypt-prod" cluster-issuer to obtain the certificate. That line causes a certificate (k8s) object will be automatically created to keep track of the status of the certificate. The certificate will be adquired for the domain specified in the _hosts_ section of the ingress and it will be saved in the specified secret.
 
 This is the certificate object created:
-```
-apiVersion: cert-manager.io/v1alpha2
+```yaml
+apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
     name: chaimeleon-eu.i3m.upv.es
-namespace:    kubernetes-dashboard
+    namespace:    kubernetes-dashboard
 spec:
   dnsNames:
-    chaimeleon-eu.i3m.upv.es
+    - "chaimeleon-eu.i3m.upv.es"
   issuerRef:
     group:      cert-manager.io
     kind:       ClusterIssuer
@@ -233,7 +235,7 @@ Now, for the rest of services/apps to deploy (across different namespaces), we w
  - and obviously not include either the "cert-manager.io/cluster-issuer" annotation line to adquire the certificate (this is important to avoid requesting the certificate multiple times to Let's Encrypt, they can block us for that)
  
 Example:
-```
+```yaml
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
@@ -265,7 +267,7 @@ This is a special service/app that we put in a dedicated subdomain, so we need a
 The simplest way to configure cert-manager to automatically get and renew the certificate is to add the annotation in the ingress (k8s) object for the Harbor service.
 
 So, the _expose_ section of the "values.yaml" file for deploying the Harbor service looks like this:
-```
+```yaml
 expose:
   type: ingress
   tls:
@@ -282,3 +284,19 @@ expose:
 ```
 The effects of the annotation line are explained in the previous section.
 
+### Certificate for Habble
+
+This is another special application...
+
+### Certificate for test deployments subdomain
+
+The acquisition of the certificate is carried out by the first deployment we needed which is QuibimPrecision and allows us to obtain the certificate just adding this lines in the "values.yaml":
+```yaml
+ingress:
+  host: "chaimeleon-test.grycap.i3m.upv.es"
+  port:
+  path: omni
+  includeCertManagerAnnotation: true
+  # If you want to generate a certificate for this domain, set the previous to true and the next to an existent cluster-issuer
+  clusterIssuer: "letsencrypt-prod"
+```
