@@ -35,11 +35,11 @@ postgresql:
     priorityClassName: "core-applications"
   resources:
     requests:
-      memory: 500Mi
-      cpu: 500m
+      memory: 200Mi
+      cpu: 200m
     limits:
-      memory: 500Mi
-      cpu: 500m
+      memory: 200Mi
+      cpu: 200m
 
 ## https://github.com/kubeapps/kubeapps/blob/master/docs/user/using-an-OIDC-provider.md
 authProxy:
@@ -50,10 +50,10 @@ authProxy:
   resources:
     requests:
       memory: 128Mi
-      cpu: 250m
+      cpu: 100m
     limits:
       memory: 128Mi
-      cpu: 250m
+      cpu: 100m
   oauthLoginURI: "/apps/oauth2/start?rd=%2Fapps%2F"
   oauthLogoutURI: "/apps/oauth2/sign_out?rd=%2Fapps%2F"
 # oauthLoginURI: "/apps/oauth2/login"

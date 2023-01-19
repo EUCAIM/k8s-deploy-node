@@ -42,24 +42,24 @@ Doc: https://github.com/kubeapps/kubeapps/tree/master/chart/kubeapps#parameters
 
 ## __kubeapps-values.yaml:__
 
-- Line 4 and 12: ``host``: _chaimeleon-eu.i3m.upv.es_. The domain name of the host.
-- Line 5: ``path``: _apps_. The path to access to that service in the host.
+- Line 5 and 13: ``host``: _chaimeleon-eu.i3m.upv.es_. The domain name of the host.
+- Line 6: ``path``: _apps_. The path to access to that service in the host.
 
-- Line 23: ``postgresqlPassword``: _XXXXXXXXXXXXX_. The password of the database user.
+- Line 28: ``postgresqlPassword``: _XXXXXXXXXXXXX_. The password of the database user.
 
-- Line 35: ``oauthLoginURI``: _"/apps/oauth2/start?rd=%2Fapps%2F"_. The path in line 5 appears here two times: in the URI and in the redirection (rd).
-- The same for the next line (36: ``oauthLogoutURI``).
-- Line 42: ``clientID``: _kubernetes_. The clientID generated previously in Keycloak.
-- Line 43: ``clientSecret``: _XXXXXXXXXXXXXXXXXXXXX_. The client secret generated previously in Keycloak.
-- Line 44: ``cookieSecret``: _XXXXXXXXXXXXXXXXXX_. You can generate a random secret with: ```python -c 'import os,base64; print base64.urlsafe_b64encode(os.urandom(16))'```
-- Line 46: ``additionalFlags``: 
+- Line 57: ``oauthLoginURI``: _"/apps/oauth2/start?rd=%2Fapps%2F"_. The path in line 5 appears here two times: in the URI and in the redirection (rd).
+- The same for the next line (58: ``oauthLogoutURI``).
+- Line 63: ``clientID``: _kubernetes_. The clientID generated previously in Keycloak.
+- Line 64: ``clientSecret``: _XXXXXXXXXXXXXXXXXXXXX_. The client secret generated previously in Keycloak.
+- Line 66: ``cookieSecret``: _XXXXXXXXXXXXXXXXXX_. You can generate a random secret with: ```python -c 'import os,base64; print base64.urlsafe_b64encode(os.urandom(16))'```
+- Line 67: ``extraFlags``: 
     - ``--oidc-issuer-url=https://chaimeleon-eu.i3m.upv.es/auth/realms/CHAIMELEON``. Base url of the CHAIMELEON realm.
     - ``--proxy-prefix=/apps/oauth2``. Use the same path that in line 5.
 
-- Line 63: ``initialRepos``: You can add initial repositories which will be visible for all namespaces, like this from our Harbor service:
+- Line 144: ``initialRepos``: You can add initial repositories which will be visible for all namespaces, like this from our Harbor service:
 ```
     - name: chaimeleon-library
-      url: "https://chaimeleon-eu.i3m.upv.es:10443/chartrepo/chaimeleon-library"
+      url: "https://harbor.chaimeleon-eu.i3m.upv.es/chartrepo/chaimeleon-library"
 ```
 
 
@@ -85,7 +85,7 @@ helm install --namespace kubeapps -f values.private.yaml kubeapps bitnami/kubeap
 # Upgrade
 If you want to upgrade the chart or apply any change in the config file:
 ```console
-helm upgrade --namespace kubeapps -f values.private.yaml kubeapps bitnami/kubeapps --version 7.1.0
+helm upgrade --namespace kubeapps -f values.private.yaml kubeapps bitnami/kubeapps --version 10.3.5
 ```
 
 # Usage
