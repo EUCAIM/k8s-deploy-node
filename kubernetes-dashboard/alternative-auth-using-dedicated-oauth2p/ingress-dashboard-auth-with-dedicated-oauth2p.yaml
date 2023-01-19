@@ -1,0 +1,29 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: kubernetes-dashboard-auth
+  namespace: kubernetes-dashboard
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/backend-protocol: HTTPS
+#   nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    nginx.ingress.kubernetes.io/rewrite-target: /$1
+    nginx.ingress.kubernetes.io/auth-url: "http://kubernetes-oauth2p-oauth2-proxy.kubernetes-dashboard.svc.cluster.local/dashboard-auth/oauth2p/auth"
+    nginx.ingress.kubernetes.io/auth-signin: "https://chaimeleon-eu.i3m.upv.es/dashboard-auth/oauth2p/start"
+    nginx.ingress.kubernetes.io/auth-response-headers: authorization
+    nginx.ingress.kubernetes.io/proxy-buffer-size: '16k'
+spec:
+  tls:
+    - hosts:
+        - chaimeleon-eu.i3m.upv.es
+  rules:
+    - host: chaimeleon-eu.i3m.upv.es
+      http:
+        paths:
+          - path: /dashboard-auth/?(.*)
+            pathType: Prefix
+            backend:
+              service:
+                name: kubernetes-dashboard
+                port:
+                  number: 8443

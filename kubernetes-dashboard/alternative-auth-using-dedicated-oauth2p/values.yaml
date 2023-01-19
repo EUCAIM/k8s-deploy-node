@@ -1,0 +1,98 @@
+# Reference:
+# https://github.com/oauth2-proxy/manifests/tree/main/helm/oauth2-proxy
+# https://oauth2-proxy.github.io/oauth2-proxy/docs/configuration/overview/
+
+config:
+  # The ID of the client created in keycloak for that service.
+  clientID: kubernetes
+  
+  # The secret of the client created in keycloak (type "confidential" should be selected to obtain a secret).
+  clientSecret: "XXXXXXXXXXXX"
+  
+  # Generate one with: 
+  #   python -c 'import secrets,base64; print(base64.b64encode(base64.b64encode(secrets.token_bytes(16))));'
+  cookieSecret: "XXXXXXXXXXXX"
+  
+  configFile: |-
+    provider = "oidc"
+    
+    # The end point of the realm created in keycloak for the project (CHAIMELEON).
+    oidc_issuer_url = "https://chaimeleon-eu.i3m.upv.es/auth/realms/CHAIMELEON"
+    
+    # The path for that service. Same as ingress.path (below).
+    proxy_prefix = "/k8s-oauth2p"
+    
+    # Set the name to avoid conflict with other possible oauth2-proxies in the cluster with the default name
+    cookie_name = "k8s-oauth2p"
+    cookie_expire = "30m"
+    cookie_refresh = "2m"
+    cookie_path = "/dashboard-auth/"
+
+    # The domain of the project.
+    cookie_domains = ["chaimeleon-eu.i3m.upv.es"]
+    #cookie_path = "dashboard"
+
+    upstreams="file:///dev/null"
+    # The domain of the project.
+    whitelist_domains = ["chaimeleon-eu.i3m.upv.es"]
+    
+    scope = "openid email"
+    email_domains = "*"
+    
+    # The groups created in keycloak whose users will be allowed to access.
+    allowed_groups = ["application-developer", "cloud-services-and-security-management"]
+    #oidc_groups_claim = "groups"
+    
+    # The next option pass OIDC IDToken to upstream.
+    # It is not needed in that case (Nginx auth_request mode).
+    # The token will be in the header "Authorization: bearer XXXXXXX". 
+    #pass_authorization_header = true
+    
+    # The next option includes OIDC IDToken in the response.
+    # The token will be in the header "Authorization: bearer XXXXXXX". 
+    # This is needed, for example, by kubernetes dashboard.
+    set_authorization_header = true
+    # You should also add the annotation "nginx.ingress.kubernetes.io/auth-response-headers: authorization" in the ingress 
+    # in order to finally send the header to the backend service (the upstream of the nginx-ingress proxy).
+    
+    # The next two options pass OIDC AccessToken to upstream (the first) and include it in the response (the second).
+    # The first is not needed in that case (Nginx auth_request mode, there is no upstream) but it is required by the second option.
+    # The token will be in the header "x-forwarded-access-token" in the upstream and in the header "x-auth-request-access-token" in the response. 
+    # This is needed, for example, by QuibimPrecision.
+    #pass_access_token = true
+    #set_xauthrequest = true
+    # You should also add the annotation "nginx.ingress.kubernetes.io/auth-response-headers: x-auth-request-access-token" in the ingress 
+    # in order to finally send the header to the backend service (the upstream of the nginx-ingress proxy).
+    
+    # Finally the next option pass other info from the user to the upstream.
+    # It is not needed in that case (Nginx auth_request mode).
+    # The headers included will be: "X-Forwarded-User", "X-Forwarded-Groups", "X-Forwarded-Email" and "X-Forwarded-Preferred-Username". 
+    #pass_user_headers = true
+    
+    # That user details will be included also in the response if the option "set_xauthrequest" is enabled, but the headers in response will be:
+    # "X-Auth-Request-User", "X-Auth-Request-Groups", "X-Auth-Request-Email" and "X-Auth-Request-Preferred-Username".
+    
+    #pass_basic_auth = false
+
+  
+ingress:
+  enabled: true
+  className: nginx
+  hosts: 
+    - "chaimeleon-eu.i3m.upv.es"  # The domain of the project.
+  path: /k8s-oauth2p/(.+)?    # The path for that oauth2p service.
+# pathType: Prefix
+  annotations:
+    # Fix for: "WARNING: Multiple cookies are required for this session as it exceeds the 4kb cookie limit. 
+    #           Please use server side session storage (eg. Redis) instead."
+    nginx.ingress.kubernetes.io/proxy-buffer-size: "32k"
+
+#image:
+#  repository: "harbor.chaimeleon-eu.i3m.upv.es/quay/oauth2-proxy/oauth2-proxy"
+
+resources:
+  requests:
+    memory: "64Mi"
+    cpu: "100m"
+priorityClassName: core-services
+
