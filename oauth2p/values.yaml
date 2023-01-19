@@ -40,13 +40,38 @@ config:
     # The groups created in keycloak whose users will be allowed to access.
     allowed_groups = ["data-scientists", "external-researcher", "application-developer", "cloud-services-and-security-management"]
     #oidc_groups_claim = "groups"
-        
-    #pass_basic_auth = false
+    
+    # The next option pass OIDC IDToken to upstream.
+    # It is not needed in that case (Nginx auth_request mode).
+    # The token will be in the header "Authorization: bearer XXXXXXX". 
     #pass_authorization_header = true
-    #pass_access_token = true
+    
+    # The next option includes OIDC IDToken in the response.
+    # The token will be in the header "Authorization: bearer XXXXXXX". 
+    # This is needed, for example, by kubernetes dashboard.
+    set_authorization_header = true
+    # You should also add the annotation "nginx.ingress.kubernetes.io/auth-response-headers: authorization" in the ingress 
+    # in order to finally send the header to the backend service (the upstream of the nginx-ingress proxy).
+    
+    # The next two options pass OIDC AccessToken to upstream (the first) and include it in the response (the second).
+    # The first is not needed in that case (Nginx auth_request mode, there is no upstream) but it is required by the second option.
+    # The token will be in the header "x-forwarded-access-token" in the upstream and in the header "x-auth-request-access-token" in the response. 
+    # This is needed, for example, by QuibimPrecision.
+    pass_access_token = true
+    set_xauthrequest = true
+    # You should also add the annotation "nginx.ingress.kubernetes.io/auth-response-headers: x-auth-request-access-token" in the ingress 
+    # in order to finally send the header to the backend service (the upstream of the nginx-ingress proxy).
+    
+    # Finally the next option pass other info from the user to the upstream.
+    # It is not needed in that case (Nginx auth_request mode).
+    # The headers included will be: "X-Forwarded-User", "X-Forwarded-Groups", "X-Forwarded-Email" and "X-Forwarded-Preferred-Username". 
     #pass_user_headers = true
-    #set_authorization_header = true
-    #set_xauthrequest = true
+    
+    # That user details will be included also in the response if the option "set_xauthrequest" is enabled, but the headers in response will be:
+    # "X-Auth-Request-User", "X-Auth-Request-Groups", "X-Auth-Request-Email" and "X-Auth-Request-Preferred-Username".
+    
+    #pass_basic_auth = false
+
   
 ingress:
   enabled: true
