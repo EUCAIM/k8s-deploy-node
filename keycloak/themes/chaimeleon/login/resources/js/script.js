@@ -17,3 +17,23 @@ function checkBoxesToRolesArray() {
     return rolesArray;
 }
 
+
+function isSafeUsername(txt) {
+    if (txt.length < 3) {
+        alert("Sorry, the username must be 3 or more characters");
+        return false;
+    }
+    if (txt.length > 24) {
+        alert("Sorry, the username must be up to 24 characters");
+        return false;
+    }
+    if (!txt.match(/^[0-9a-z-]+$/)) {
+        alert("Sorry, the username must contain only lowercase alphanumeric characters or '-'. \nExamples: james, james-upv, james31");
+        return false;
+    }
+    if (txt[0] == '-' || txt[txt.length-1] == '-') {
+        alert("Sorry, the username can't start nor end with '-'");
+        return false;
+    }
+    return true;
+}

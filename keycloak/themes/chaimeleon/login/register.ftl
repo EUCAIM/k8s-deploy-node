@@ -11,6 +11,8 @@
                     rolesArrayToCheckBoxes(strVal.split(","));
                 
                 document.forms[0].onsubmit = function(){
+                    if(!isSafeUsername($("input[id='username']")[0].value)) return false;
+                    
                     rolesArray = checkBoxesToRolesArray();
                     $("[id='user.attributes.requiredRoles']")[0].value = rolesArray.join(",");
                 }
@@ -173,7 +175,7 @@
                 <div class="col-md-6">
                     <div class="${properties.kcFormGroupClass!}">
                         <div class="${properties.kcLabelWrapperClass!}">
-                            <h3 style="margin-top: 0px">${msg("user.attributes.requiredRoles")}</label>
+                            <h3 style="margin-top: 0px">${msg("user.attributes.requiredRoles")}</h3>
                         </div>
                         
                         <ul style="list-style-type: none">
