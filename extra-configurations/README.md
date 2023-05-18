@@ -284,7 +284,7 @@ expose:
 ```
 The effects of the annotation line are explained in the previous section.
 
-### Certificate for Habble
+### Certificate for Hubble
 
 This is another special application...
 
