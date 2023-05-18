@@ -71,7 +71,7 @@ spec:
 
         # Doc: https://www.keycloak.org/server/configuration-provider
         - name: KC_SPI_EVENTS_LISTENER_EVENT_LISTENER_DATASETSERVICE_OIDCGROUPS
-          value: "admins,application-developer,cloud-services-and-security-management,data-scientists,external-researcher"
+          value: "application-developer,cloud-services-and-security-management,data-scientists,external-researcher"
         - name: KC_SPI_EVENTS_LISTENER_EVENT_LISTENER_DATASETSERVICE_ADMIN_EVENT
           value: "GROUP_MEMBERSHIP"
         - name: KC_SPI_EVENTS_LISTENER_EVENT_LISTENER_DATASETSERVICE_KEYCLOAK_CLIENT
