@@ -23,3 +23,22 @@ Then, you can deploy it using the __installation-values.yml:__ with the followin
 ```console
 helm install chaimeleon-operator ./k8s-chaimeleon-operator/chaimeleon-operator-chart -f installation-values.yml --namespace chaimeleon-operator --create-namespace 
 ```
+
+# Upgrade
+
+```console
+helm upgrade chaimeleon-operator ./k8s-chaimeleon-operator/chaimeleon-operator-chart -f installation-values.yml --namespace chaimeleon-operator
+```
+
+
+## Uninstall
+```
+sudo helm -n chaimeleon-operator delete chaimeleon-operator
+```
+Then delete the webhooks created by the operator.
+```
+sudo kubectl get -A validatingwebhookconfigurations
+sudo kubectl delete mutatingwebhookconfigurations chaimeleon.eu 
+sudo kubectl delete validatingwebhookconfigurations chaimeleon.eu 
+sudo kubectl get -A validatingwebhookconfigurations
+```

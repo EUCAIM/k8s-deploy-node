@@ -2,6 +2,8 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
+priorityClassName: "core-services"
+
 serviceAccount:
   # Annotations to add to the service account
   annotations: {}
@@ -15,9 +17,9 @@ rbac:
   clusterRole:
     name: "prod-chaimeleon-operator-cluster"
   roleBinding:
-    name: "prod-chaimeleon-operator-rolebinding"
+    name: "prod-chaimeleon-operator-rolebinding-namespaced"
   clusterRoleBinding:
-    name: "prod-chaimeleon-operator-ClusterRoleBinding"
+    name: "prod-chaimeleon-operator-rolebinding-cluster"
 
 operatorConfiguration:
   keycloakClient: "kubernetes-operator"
@@ -25,17 +27,23 @@ operatorConfiguration:
   keycloakEndpoint: "https://chaimeleon-eu.i3m.upv.es/"
   keycloakRealm: "CHAIMELEON"
   datasetServiceEndpoint: "http://dataset-service-backend-service.dataset-service.svc.cluster.local:11000/"
+  datasetServiceTestEndpoint: "http://dataset-service-backend-service.dataset-service-test.svc.cluster.local:11000/"
   k8sUserPrefix: "oidc:"
+  guacamoleURL: "https://chaimeleon-eu.i3m.upv.es/guacamole/"
+  guacamoleUser: "XXXXXXXXXXXXXXXX"
+  guacamolePassword: "XXXXXXXXXXXXXXXX"
+  guacamoleConnectionsBackendHost: "guacamole-guacd.guacamole.svc.cluster.local"
+  
 
 service:
   type: ClusterIP
   port: 443
 
 image:
-  repository: "chaimeleon-eu.i3m.upv.es:10443/chaimeleon-services/k8s-operator"
+  repository: "harbor.chaimeleon-eu.i3m.upv.es/chaimeleon-services/k8s-operator"
   pullPolicy: Always
   # Overrides the image tag whose default is the chart appVersion.
-  tag: "1.0.0"
+  tag: "2.1.0-1.36.0"
 
 imagePullSecrets: []
 nameOverride: ""
@@ -48,5 +56,10 @@ podSecurityContext: {}
 
 securityContext: {}
 
-resources: {}
-
+resources:
+  requests:
+    memory: "1000Mi"
+    cpu: "1000m"
+  limits:
+    memory: "1000Mi"
+    cpu: "1000m" #1 Gb
