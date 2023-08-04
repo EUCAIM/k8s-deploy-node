@@ -44,6 +44,9 @@ resources:
     memory: '2Gi'
     cpu: 1
     
+nodeSelector:
+  chaimeleon.eu/target: core-services
+
 postgres:
   hostname: "postgresql"
   port: "5432"

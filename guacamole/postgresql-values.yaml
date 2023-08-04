@@ -39,4 +39,5 @@ primary:
     limits:
       memory: 500Mi
       cpu: 500m
-
+  nodeSelector:
+    chaimeleon.eu/target: core-services
