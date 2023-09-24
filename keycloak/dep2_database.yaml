@@ -15,6 +15,8 @@ spec:
         app: db
     spec:
       priorityClassName: core-services
+      nodeSelector: 
+        chaimeleon.eu/target: core-services
       volumes:
         - name: task-pv-postgres-data
           persistentVolumeClaim:

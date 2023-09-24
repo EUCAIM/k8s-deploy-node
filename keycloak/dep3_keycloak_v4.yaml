@@ -16,6 +16,8 @@ spec:
         app: keycloak
     spec:
       priorityClassName: core-services
+      nodeSelector: 
+        chaimeleon.eu/target: core-services
       volumes:
         - name: vol-themes-data
           persistentVolumeClaim:

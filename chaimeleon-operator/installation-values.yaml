@@ -3,6 +3,7 @@
 # Declare variables to be passed into your templates.
 
 priorityClassName: "core-services"
+nodeSelector: "core-services"
 
 serviceAccount:
   # Annotations to add to the service account
@@ -28,6 +29,7 @@ operatorConfiguration:
   keycloakRealm: "CHAIMELEON"
   datasetServiceEndpoint: "http://dataset-service-backend-service.dataset-service.svc.cluster.local:11000/"
   datasetServiceTestEndpoint: "http://dataset-service-backend-service.dataset-service-test.svc.cluster.local:11000/"
+  internalImageRepositoryCheck: "harbor.chaimeleon-eu.i3m.upv.es"
   k8sUserPrefix: "oidc:"
   guacamoleURL: "https://chaimeleon-eu.i3m.upv.es/guacamole/"
   guacamoleUser: "XXXXXXXXXXXXXXXX"

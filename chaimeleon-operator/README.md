@@ -38,7 +38,15 @@ sudo helm -n chaimeleon-operator delete chaimeleon-operator
 Then delete the webhooks created by the operator.
 ```
 sudo kubectl get -A validatingwebhookconfigurations
-sudo kubectl delete mutatingwebhookconfigurations chaimeleon.eu 
 sudo kubectl delete validatingwebhookconfigurations chaimeleon.eu 
 sudo kubectl get -A validatingwebhookconfigurations
+sudo kubectl get -A mutatingwebhookconfigurations
+sudo kubectl delete mutatingwebhookconfigurations chaimeleon.eu 
+sudo kubectl get -A mutatingwebhookconfigurations
 ```
+That webhooks are created automatically on running the service the first time, 
+but not deleted when the service is stopped because it can be started again without lose any event.
+The k8s operations received in the mean time will be blocked, some of them resumed in the next start.
+So, in case of uninstall, the deletion of this webhooks is important because the k8s operations will be blocked until you do it.
+
+
