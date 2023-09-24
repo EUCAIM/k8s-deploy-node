@@ -4,18 +4,15 @@ Documentation of the Helm chart:
 https://github.com/goharbor/harbor-helm/tree/1.6.0  
 https://artifacthub.io/packages/helm/harbor/harbor/1.6.0
 
-## __values-persistence.yaml:__
+## __values.yaml:__
 
-- Line 36: ``enabled``: _true_. Enable persistence.
-- Lines 39,42,45,48,51,54: ``existingClaim``: _harbor-harbor-pvc_. The name of the PVC defined in __pvc-harbor.yaml__.
-- Line 58: ``harborAdminPassword``: _XXXXXXXXXX_.
-- Line 78: ``username``: _admin_. Name of the user for Photon container registry.
-- Line 79: ``password``: _XXXXXXXXXX_. Name of the user for Photon container registry.
-- Line 80: ``htpasswd``: _admin:XXXXXXXXXXX_. You can generate it using:
-```console 
-htpasswd -nbBC10 $username $password
-```
-- Line 96: ``password``: _XXXXXXXXXX_.
+- ``persistence.enabled``: _true_. Enable persistence.
+- ``persistence.persistentVolumeClaim.\*.existingClaim``: _harbor-harbor-pvc_. The name of the PVC defined in __pvc-harbor.yaml__.
+- ``harborAdminPassword``: _XXXXXXXXXX_.
+- ``registry.credentials.username``: _admin_. Name of the user for Photon container registry.
+- ``registry.credentials.password``: _XXXXXXXXXX_. Password of the user for Photon container registry.
+- ``registry.credentials.htpasswd``: _admin:XXXXXXXXXXX_. You can generate it using: `htpasswd -nbBC10 $username $password`
+- ``database.internal.password``: _XXXXXXXXXX_.
 
 # Deployment
 
