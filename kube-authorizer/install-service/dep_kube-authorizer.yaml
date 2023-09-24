@@ -1,0 +1,73 @@
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kube-authorizer
+  namespace: kube-authorizer
+  labels:
+    app: kube-authorizer
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kube-authorizer
+  template:
+    metadata:
+      labels:
+        app: kube-authorizer
+    spec:
+      priorityClassName: core-services
+      containers:
+      - name: kube-authorizer
+        image: harbor.chaimeleon-eu.i3m.upv.es/chaimeleon-services/kube-authorizer:2.0.2
+        imagePullPolicy: Always
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 80
+          initialDelaySeconds: 10
+          periodSeconds: 60
+        resources:
+          requests:
+            memory: "300Mi"
+            cpu: "100m"
+          limits:
+            memory: "300Mi"
+            cpu: "100m"
+        ports:
+          - containerPort: 80
+            name: rest-api
+        volumeMounts:
+         - name: kube-authorizer
+           mountPath: /etc/kube-authorizer/kube-authorizer.yaml
+           subPath: kube-authorizer.yaml
+         - name: kube-authorizer
+           mountPath: /etc/kube-authorizer/kube-authorizer-cli.yaml
+           subPath: kube-authorizer-cli.yaml
+         - name: kube-authorizer
+           mountPath: /etc/kube-authorizer/logging.cfg
+           subPath: logging.cfg
+         - name: vol-logs
+           mountPath: /var/log/kube-authorizer/
+           readOnly: false
+      volumes:
+        - name: kube-authorizer
+          configMap:
+            name: kube-authorizer
+        - name: vol-logs
+          persistentVolumeClaim:
+            claimName: logs
+---
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: kube-authorizer
+  name: kube-authorizer
+spec:
+  type: ClusterIP
+  ports:
+  - name: rest-api
+    port: 80
+    targetPort: 80
+  selector:
+    app: kube-authorizer
