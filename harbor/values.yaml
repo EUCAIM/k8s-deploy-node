@@ -60,6 +60,8 @@ harborAdminPassword: XXXXXXXXXXXXXXXXX
 
 portal:
   priorityClassName: core-services
+  nodeSelector:
+    chaimeleon.eu/target: core-services               
   resources:
     requests:
       memory: "512Mi"
@@ -70,6 +72,8 @@ portal:
 
 core:
   priorityClassName: core-services
+  nodeSelector:
+    chaimeleon.eu/target: core-services               
   resources:
     requests:
       memory: "512Mi"
@@ -80,6 +84,8 @@ core:
 
 jobservice:
   priorityClassName: core-services
+  nodeSelector:
+    chaimeleon.eu/target: core-services               
   resources:
     requests:
       memory: "512Mi"
@@ -90,6 +96,8 @@ jobservice:
 
 registry:
   priorityClassName: core-services
+  nodeSelector:
+    chaimeleon.eu/target: core-services               
   credentials:
     username: admin
     password: XXXXXXXXXXXXXXXXX
@@ -114,6 +122,8 @@ registry:
 chartmuseum:
   enabled	: true
   priorityClassName: core-services
+  nodeSelector:
+    chaimeleon.eu/target: core-services               
   resources:
     requests:
       memory: "512Mi"
@@ -125,6 +135,8 @@ chartmuseum:
 trivy:
   enabled	: true
   priorityClassName: core-services
+  nodeSelector:
+    chaimeleon.eu/target: core-services               
   resources:
     requests:
       memory: "512Mi"
@@ -141,6 +153,8 @@ database:
   internal:
     password: XXXXXXXXXXXXXXXXX
     priorityClassName: core-services
+    nodeSelector:
+      chaimeleon.eu/target: core-services                 
     resources:
       requests:
         memory: "512Mi"
@@ -153,6 +167,8 @@ redis:
   type: internal
   internal:
     priorityClassName: core-services
+    nodeSelector:
+      chaimeleon.eu/target: core-services                 
     resources:
       requests:
         memory: "512Mi"
@@ -163,6 +179,8 @@ redis:
 
 exporter:
   priorityClassName: core-services
+  nodeSelector:
+    chaimeleon.eu/target: core-services               
   resources:
     requests:
       memory: "512Mi"
