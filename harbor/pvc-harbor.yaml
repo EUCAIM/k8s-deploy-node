@@ -2,12 +2,11 @@ kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
   name: harbor-harbor-pvc
-  namespace: harbor 
 spec:
   storageClassName: cephfs
   accessModes:
     - ReadWriteMany
   resources:
     requests:
-      storage: 120Gi
+      storage: 180Gi
 

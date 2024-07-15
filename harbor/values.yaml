@@ -4,47 +4,33 @@ expose:
     enabled: true
     certSource: secret
     secret:
-      secretName: harbor.chaimeleon-eu.i3m.upv.es
+      secretName: harbor.eucaim-node.i3m.upv.es
   ingress:
-    harbor:
-      annotations: 
-        cert-manager.io/cluster-issuer: letsencrypt-prod
-        kubernetes.io/ingress.class: nginx
+    annotations: 
+      cert-manager.io/cluster-issuer: letsencrypt-prod
+      kubernetes.io/ingress.class: nginx
+      # This is to disable the uploads in 2 steps. 
+      # When it is 'on' (default), there is a first step when the layer of image is uploaded entirely to a buffer in the proxy 
+      # and then in a 2nd step the content of buffer is transfered to the destination pod.
+      nginx.ingress.kubernetes.io/proxy-request-buffering: 'off'
     hosts:
-      core: harbor.chaimeleon-eu.i3m.upv.es
-# expose:
-#    type: nodePort 
-#    tls: 
-#      enabled: true
-#      certSource: secret
-#      secret:
-#       secretName: chaimeleon-eu.i3m.upv.es
-#    nodePort:
-#     name: harbor
-#     ports:
-#       https:
-#         port: 443
-#         nodePort: 10443      
+      core: harbor.eucaim-node.i3m.upv.es
 
-#externalURL: https://chaimeleon-eu.i3m.upv.es:10443
-externalURL: https://harbor.chaimeleon-eu.i3m.upv.es
-
-internalTLS:
-  enabled	: true
-  certSource: auto
+# The external URL for Harbor core service. It is used to
+# 1) populate the docker/helm commands showed on portal
+# 2) populate the token service URL returned to docker client
+externalURL: https://harbor.eucaim-node.i3m.upv.es
 
 persistence:
-    enabled	: true
+    enabled: true
     persistentVolumeClaim:
       registry:
         existingClaim: harbor-harbor-pvc
         subPath: registry
-      chartmuseum:
-        existingClaim: harbor-harbor-pvc	
-        subPath: chartmuseum
       jobservice:
-        existingClaim: harbor-harbor-pvc
-        subPath: jobservice
+        jobLog:
+          existingClaim: harbor-harbor-pvc
+          subPath: jobservice
       database:
         existingClaim: harbor-harbor-pvc
         subPath: database
@@ -55,13 +41,31 @@ persistence:
         existingClaim: harbor-harbor-pvc
         subPath: trivy
 
-
 harborAdminPassword: XXXXXXXXXXXXXXXXX
 
+# The internal TLS used for harbor components secure communicating. In order to enable https
+# in each component tls cert files need to provided in advance.
+internalTLS:
+  enabled: true
+  certSource: auto
+
+metrics:
+  enabled: false
+  
+# If service exposed via "ingress", the Nginx will not be used
+#nginx:
+# nodeSelector:
+#   chaimeleon.eu/target: core-services
+# priorityClassName: core-services
+# resources:
+#   requests:
+#     memory: "1000Mi"
+#     cpu: "1000m"
+#   limits:
+#     memory: "1000Mi"
+#     cpu: "1000m" #1 Gb
+
 portal:
-  priorityClassName: core-services
-  nodeSelector:
-    chaimeleon.eu/target: core-services               
   resources:
     requests:
       memory: "512Mi"
@@ -69,11 +73,11 @@ portal:
     limits:
       memory: "1024Mi"
       cpu: "1000m" #1 cpu
+  nodeSelector:
+    chaimeleon.eu/target: core-services
+  priorityClassName: core-services
 
 core:
-  priorityClassName: core-services
-  nodeSelector:
-    chaimeleon.eu/target: core-services               
   resources:
     requests:
       memory: "512Mi"
@@ -81,11 +85,11 @@ core:
     limits:
       memory: "1024Mi"
       cpu: "1000m" #1 cpu
+  nodeSelector:
+    chaimeleon.eu/target: core-services
+  priorityClassName: core-services
 
 jobservice:
-  priorityClassName: core-services
-  nodeSelector:
-    chaimeleon.eu/target: core-services               
   resources:
     requests:
       memory: "512Mi"
@@ -93,15 +97,11 @@ jobservice:
     limits:
       memory: "1024Mi"
       cpu: "1000m" #1 cpu
+  nodeSelector:
+    chaimeleon.eu/target: core-services
+  priorityClassName: core-services
 
 registry:
-  priorityClassName: core-services
-  nodeSelector:
-    chaimeleon.eu/target: core-services               
-  credentials:
-    username: admin
-    password: XXXXXXXXXXXXXXXXX
-    htpasswd: admin:XXXXXXXXXXXXXXXXX
   registry:
     resources:
       requests:
@@ -118,25 +118,22 @@ registry:
       limits:
         memory: "1024Mi"
         cpu: "1000m" #1 cpu
-
-chartmuseum:
-  enabled	: true
-  priorityClassName: core-services
   nodeSelector:
-    chaimeleon.eu/target: core-services               
-  resources:
-    requests:
-      memory: "512Mi"
-      cpu: "200m"
-    limits:
-      memory: "1024Mi"
-      cpu: "1000m" 
+    chaimeleon.eu/target: core-services
+  priorityClassName: core-services
+  credentials:
+    username: admin
+    password: XXXXXXXXXXX
+    # The documentation says that htpasswd excludes username and password, but it is not true, 
+    # they are used anyway to configure the "core" service, so if you don't set them, the default values will be used 
+    # and will not match with the htpasswd used to configure the "registry" service and so the CLI login (docker login) will fail.
+    # Conclusion: you should ADDITIONALLY set the htpasswd only if you have to integrate with tools like argocd or flux,
+    #             just mantain the same and not regenerate the salt every time the chart template is rendered.
+    #             It can be generated (for admin and some-password) with: apt install apache2-utils && htpasswd -nbBC10 admin some-password
+    #htpasswdString: admin:XXXXXXXXXXXXXX
 
 trivy:
-  enabled	: true
-  priorityClassName: core-services
-  nodeSelector:
-    chaimeleon.eu/target: core-services               
+  enabled: true
   resources:
     requests:
       memory: "512Mi"
@@ -144,17 +141,13 @@ trivy:
     limits:
       memory: "1024Mi"
       cpu: "1000m" #1 cpu
-
-notary:
-  enabled: false
+  nodeSelector:
+    chaimeleon.eu/target: core-services
+  priorityClassName: core-services
 
 database:
   type: internal
   internal:
-    password: XXXXXXXXXXXXXXXXX
-    priorityClassName: core-services
-    nodeSelector:
-      chaimeleon.eu/target: core-services                 
     resources:
       requests:
         memory: "512Mi"
@@ -162,13 +155,14 @@ database:
       limits:
         memory: "1024Mi"
         cpu: "1000m" #1 cpu
+    nodeSelector:
+      chaimeleon.eu/target: core-services
+    priorityClassName: core-services
+    password: XXXXXXXXXXXXXXXXX
 
 redis:
   type: internal
   internal:
-    priorityClassName: core-services
-    nodeSelector:
-      chaimeleon.eu/target: core-services                 
     resources:
       requests:
         memory: "512Mi"
@@ -176,11 +170,11 @@ redis:
       limits:
         memory: "1024Mi"
         cpu: "1000m" #1 cpu
+    nodeSelector:
+      chaimeleon.eu/target: core-services
+    priorityClassName: core-services
 
 exporter:
-  priorityClassName: core-services
-  nodeSelector:
-    chaimeleon.eu/target: core-services               
   resources:
     requests:
       memory: "512Mi"
@@ -188,17 +182,7 @@ exporter:
     limits:
       memory: "1024Mi"
       cpu: "1000m" #1 cpu
-
-#nginx:
-# priorityClassName: core-services
-# resources:
-#   requests:
-#     memory: "1000Mi"
-#     cpu: "1000m"
-#   limits:
-#     memory: "1000Mi"
-#     cpu: "1000m" #1 Gb
-
-metrics:
-  enabled: false	
+  nodeSelector:
+    chaimeleon.eu/target: core-services
+  priorityClassName: core-services
 
