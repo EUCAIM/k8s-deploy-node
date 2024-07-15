@@ -1,0 +1,28 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: dataset-service-backend-proxy
+  annotations:
+#   kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/rewrite-target: /$1
+    nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
+#   nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    # Timeout (in seconds) to wait for the service response (default 60)
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "300"
+spec:
+  ingressClassName: nginx
+# tls:
+#   - hosts:
+#       - eucaim-node.i3m.upv.es
+#         secretName:  eucaim-node.i3m.upv.es
+  rules:
+    - host: eucaim-node.i3m.upv.es
+      http:
+        paths:
+          - path: /dataset-service/?(.*)
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: dataset-service-backend-service
+                port:
+                  number: 11000

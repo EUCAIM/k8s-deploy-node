@@ -1,0 +1,123 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dataset-service-backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dataset-service-backend
+  template:
+    metadata:
+      labels:
+        app: dataset-service-backend
+    spec:
+      serviceAccountName: dataset-service-backend
+      volumes:
+        - name: dataset-service-data-volume
+          persistentVolumeClaim:
+            claimName: dataset-service-data
+        - name: datalake-volume
+          cephfs:
+            path: "/datalake"
+            monitors: 
+              - "192.168.10.230:6789"
+              - "192.168.10.3:6789"
+              - "192.168.10.4:6789"
+            user: dataset-service
+            secretRef:
+              name: dataset-service-ceph-user-secret
+            readOnly: false
+        - name: datasets-volume
+          cephfs:
+            path: "/datasets"
+            monitors: 
+              - "192.168.10.230:6789"
+              - "192.168.10.3:6789"
+              - "192.168.10.4:6789"
+            user: dataset-service
+            secretRef:
+              name: dataset-service-ceph-user-secret
+            readOnly: false
+      containers:
+        - name: dataset-service-backend
+          image:  harbor.chaimeleon-eu.i3m.upv.es/chaimeleon-services/dataset-service-backend:3.10
+          ports:
+            - containerPort: 11000
+              name: dssport
+          volumeMounts:
+            - mountPath: "/dataset-service/log"
+              subPath: "log"
+              name: dataset-service-data-volume
+            - mountPath: "/var/www/dataset-service-ui"
+              subPath: "ui"
+              name: dataset-service-data-volume
+            - mountPath: "/var/www/datalakeinfo"
+              subPath: "datalakeinfo"
+              name: dataset-service-data-volume
+            - mountPath: "/mnt/datalake"
+              name: datalake-volume
+            - mountPath: "/mnt/datasets"
+              name: datasets-volume
+          env:
+            - name: DATASET_SERVICE_CONFIG
+              value: |
+                { "db": { "host": "db", "port": 5432, "dbname": "dataset-service", "user": "dataset-service-user", "password": "XXXXXX" },
+                  "auth": {
+                      "token_validation": {
+                          "token_issuer_public_keys_url": "https://eucaim-node.i3m.upv.es/auth/realms/EUCAIM-NODE/protocol/openid-connect/certs",
+                          "kid": "T7yU60He9Irc8iNJ7zCBVUQEkXe9yq0XrHLu4fBi1gU",
+                          "audience": ["dataset-service"],
+                          "issuer": "https://eucaim-node.i3m.upv.es/auth/realms/EUCAIM-NODE"
+                      },
+                      "client": {
+                          "auth_url": "https://eucaim-node.i3m.upv.es/auth/realms/EUCAIM-NODE/protocol/openid-connect/token",
+                          "client_id": "dataset-service",
+                          "client_secret": "XXXXXXXX"
+                      },
+                      "admin_api_url": "https://eucaim-node.i3m.upv.es/auth/admin/realms/EUCAIM-NODE/"
+                  },
+                  "tracer": {
+                      "url": "https://eucaim-node.i3m.upv.es/tracer-service/tracer/"
+                  },
+                  "zenodo": {
+                      "url": "https://zenodo.org/",
+                      "access_token": "XXXXXXXX",
+                      "community": "",
+                      "grant": ""
+                  },
+                  "self": { 
+                      "port": 11000, 
+                      "log": { 
+                        "main_service": {"level": "DEBUG", "file_path": "./log/dataset-service.log"},
+                        "dataset_creation_job": {"level": "DEBUG", "file_path": "./log/dataset-creation-job-%s.log"}
+                      },
+                      "static_files_dir_path": "/var/www/dataset-service-ui",
+                      "datalakeinfo_dir_path": "/var/www/datalakeinfo",
+                      "datalakeinfo_token": "XXXXXXXX",
+                      "datalake_mount_path": "/mnt/datalake",
+                      "datasets_mount_path": "/mnt/datasets",
+                      "eucaim_search_token": "XXXXXXXX"
+                  }
+                }
+          resources:
+            requests:
+              memory: "320Mi"
+              cpu: "300m"
+      priorityClassName: core-services
+      nodeSelector: 
+        chaimeleon.eu/target: core-services
+      restartPolicy: Always
+      
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: dataset-service-backend-service
+spec:
+  selector:
+    app: dataset-service-backend
+  ports:
+    - port: 11000
+      protocol: TCP
+      targetPort: dssport

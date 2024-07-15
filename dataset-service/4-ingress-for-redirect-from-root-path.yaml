@@ -1,14 +1,14 @@
 kind: Ingress
 apiVersion: networking.k8s.io/v1
 metadata:
-  name: dataset-service-backend-proxy
-  namespace: dataset-service
+  name: root-path-redirect
   annotations:
-    kubernetes.io/ingress.class: nginx
-    nginx.ingress.kubernetes.io/permanent-redirect: https://chaimeleon-eu.i3m.upv.es/dataset-service
+#   kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/permanent-redirect: https://eucaim-node.i3m.upv.es/dataset-service
 spec:
+  ingressClassName: nginx
   rules:
-    - host: chaimeleon-eu.i3m.upv.es
+    - host: eucaim-node.i3m.upv.es
       http:
         paths:
           - path: /?(.*)
