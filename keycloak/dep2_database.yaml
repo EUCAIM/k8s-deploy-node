@@ -23,7 +23,7 @@ spec:
             claimName: postgres-data
       containers:
       - name: db
-        image: "postgres:12"
+        image: "postgres:15"
         env:
         - name: POSTGRES_DB
           value: keycloak

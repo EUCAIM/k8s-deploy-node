@@ -27,8 +27,8 @@ spec:
             claimName: standalone-deployments
       containers:
       - name: keycloak
-        image: "quay.io/keycloak/keycloak:19.0.2"
-        args: ["start", "--http-relative-path /auth"]
+        image: "quay.io/keycloak/keycloak:25.0.1"
+        args: ["start", "--http-relative-path=/auth"]
         resources:
           requests:
             memory: "1000Mi"
@@ -38,8 +38,8 @@ spec:
             cpu: "1500m"
         volumeMounts:
           - name: vol-themes-data
-            mountPath: "/opt/keycloak/themes/chaimeleon/"
-            subPath: "chaimeleon"
+            mountPath: "/opt/keycloak/themes/eucaim-node/"
+            subPath: "eucaim-node"
           - name: vol-standalone-deployments
             mountPath: "/opt/keycloak/providers/event-listener-datasetservice-1.0.0.jar"
             subPath: "event-listener-datasetservice-1.0.0.jar"
@@ -69,7 +69,7 @@ spec:
           value: "XXXXXXXXXX"
         - name: KC_HOSTNAME
           # This is recommended for checking the "host" header of requests
-          value: "chaimeleon-eu.i3m.upv.es"
+          value: "eucaim-node.i3m.upv.es"
 
         # Doc: https://www.keycloak.org/server/configuration-provider
         - name: KC_SPI_EVENTS_LISTENER_EVENT_LISTENER_DATASETSERVICE_OIDCGROUPS
@@ -81,9 +81,9 @@ spec:
         - name: KC_SPI_EVENTS_LISTENER_EVENT_LISTENER_DATASETSERVICE_KEYCLOAK_CLIENT_SECRET
           value: "XXXXXXXXXX"
         - name: KC_SPI_EVENTS_LISTENER_EVENT_LISTENER_DATASETSERVICE_KEYCLOAK_ENDPOINT
-          value: "https://chaimeleon-eu.i3m.upv.es"
+          value: "https://eucaim-node.i3m.upv.es"
         - name: KC_SPI_EVENTS_LISTENER_EVENT_LISTENER_DATASETSERVICE_DATASET_SERVICE_ENDPOINT
-          value: "https://chaimeleon-eu.i3m.upv.es/dataset-service/api"
+          value: "https://eucaim-node.i3m.upv.es/dataset-service/api"
 #       - name: KC_SPI_EVENTS_LISTENER_EVENT_LISTENER_KUBEAUTHORIZER_OIDCGROUPS
 #         value: "admins,application-developer,cloud-services-and-security-management,data-scientists,external-researcher"
 #       - name: KC_SPI_EVENTS_LISTENER_EVENT_LISTENER_KUBEAUTHORIZER_ADMIN_EVENT
