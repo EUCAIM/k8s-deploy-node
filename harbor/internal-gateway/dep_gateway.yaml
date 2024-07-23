@@ -37,7 +37,7 @@ spec:
           - mountPath: "/etc/nginx/certs"
             name: certs
         # Liveness probe is important to regenerate pod when the certificate expires to reload from the secret
-        # httpget method don't check the certificate, so we use exec command method with curl
+        # httpget method does not check the certificate, so we use exec command method with curl
         livenessProbe:
           exec:
             command: ['curl', 'https://harbor.chaimeleon-eu.i3m.upv.es:5000/healthz']

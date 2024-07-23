@@ -83,7 +83,7 @@ helm install --namespace kubeapps -f values.private.yaml kubeapps bitnami/kubeap
 ```
 
 # Upgrade
-If you want to upgrade the chart or apply any change in the config file:
+If you want to upgrade the chart or apply any change in the values file:
 ```console
 helm upgrade --namespace kubeapps -f values.private.yaml kubeapps bitnami/kubeapps --version 10.3.5
 ```

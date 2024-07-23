@@ -27,8 +27,15 @@ ingress:
   annotations:
      kubernetes.io/ingress.class: nginx
 #    kubernetes.io/tls-acme: "true"
+     # https://guacamole.incubator.apache.org/doc/gug/reverse-proxy.html#adjusting-file-upload-limits
      nginx.ingress.kubernetes.io/proxy-body-size: 100000m
 #    nginx.ingress.kubernetes.io/rewrite-target: /guacamole/$1
+     # Default timeout is 5 seconds. It's better 10s or 15s to avoid the message of "disconnected" in slow networks.
+     nginx.ingress.kubernetes.io/proxy-connect-timeout: '10'
+     # This is to disable the uploads in 2 steps. 
+     # When it is 'on' (default), there is a first step when the file is uploaded entirely to a buffer in the proxy 
+     # and then in a 2nd step the content of buffer is transfered to the destination pod.
+     nginx.ingress.kubernetes.io/proxy-request-buffering: 'off'
   hosts:
     - host: chaimeleon-eu.i3m.upv.es
       paths:

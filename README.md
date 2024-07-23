@@ -22,8 +22,9 @@ Interact with deployed resources:
 
 
 Ingestion services:
-- QuibimPrecision: deployed using the [helm chart](https://gitlab.com/primageproject/k8s_quibimprecision). URL: https://chaimeleon-eu.i3m.upv.es/omni/
-- PACS: deployed using [plain YAMLs](https://gitlab.com/primageproject/k8s_quibimprecision/-/tree/master/without_chart/pacs). URL: https://chaimeleon-eu.i3m.upv.es/dcm4chee-arc/ui2/
+- QuibimPrecision: deployed using a [helm chart](https://github.com/chaimeleon-eu/k8s_quibimprecision). URL: https://chaimeleon-eu.i3m.upv.es/omni/
+- PACS: deployed using [plain YAMLs](https://github.com/chaimeleon-eu/k8s_quibimprecision/tree/master/without_chart/pacs). URL: https://chaimeleon-eu.i3m.upv.es/dcm4chee-arc/ui2/
+- PACS-cleaner: deployed using [plain YAMLs](https://github.com/chaimeleon-eu/pacs-cleaner/?tab=readme-ov-file#deploy-in-k8s).
 
 Dataset administration and Traceability System:
 - [Dataset-service](https://github.com/chaimeleon-eu/dataset-service#): deployed using [plain YAMLs](https://github.com/chaimeleon-eu/dataset-service#deploy-with-kubernetes). URL: https://chaimeleon-eu.i3m.upv.es/dataset-service/
@@ -32,3 +33,6 @@ Dataset administration and Traceability System:
 
 Authentication proxy:
 - OAuth2-proxy: deployed using the helm chart. URL: https://chaimeleon-eu.i3m.upv.es/oauth2p/
+
+In-silico validation: deployed using a [helm chart](https://github.com/chaimeleon-eu/helm-chart-in-silico-validation). URL: https://in-silico-validation.chaimeleon-eu.i3m.upv.es/
+

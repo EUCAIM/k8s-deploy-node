@@ -47,6 +47,9 @@ authProxy:
   external: false
   image:
     registry: "harbor.chaimeleon-eu.i3m.upv.es/dockerhub"
+    # provisional until update the new chart version which already include the new version, 
+    # this is to get the property --cookie-csrf-per-request, introduced in 7.4
+    tag: "7.4.0-debian-11-r43"
   resources:
     requests:
       memory: 128Mi
@@ -73,7 +76,7 @@ authProxy:
     - "--cookie-path=/apps/"
     - "--skip-provider-button=true"
     - "--whitelist-domain=chaimeleon-eu.i3m.upv.es"
-
+    - "--cookie-csrf-per-request=true"
 
 frontend:
   image:
