@@ -1,0 +1,82 @@
+# Default values.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+ingress:
+  host: "in-silico-validation.chaimeleon-eu.i3m.upv.es"
+  port: 
+  includeCertManagerAnnotation: true
+  # If you want to generate a certificate for this domain, set the previous to true and the next to an existent cluster-issuer
+  clusterIssuer: "letsencrypt-prod"
+
+authProxy:
+  ## It is a proxy (oauth2-proxy) in front of the Ohif viewer to do the authentication 
+  ## and then pass the access token to the uppstream in the header "x-auth-request-access-token".
+  enabled: true
+  oidcIssuerUrl: "https://chaimeleon-eu.i3m.upv.es/auth/realms/CHAIMELEON"
+  clientID: "in-silico-validation"
+  clientSecret: "XXXXXXXXXXXXXXXXXXXXXX"
+  ## python -c 'import os,base64; print(base64.urlsafe_b64encode(os.urandom(16)))'
+  cookieSecret: "XXXXXXXXXXXXXXXXXXXXXX"
+  allowedGroups: ["clinical-staff"]
+  resources:
+    memory: 128Mi
+    cpu: 100m
+
+persistence:
+  dataPVCName: "data-claim"
+  orthancIndexPVCName: "orthanc-index-claim"
+  cephAccess:
+    user: "in-silico-validation"
+    password: "XXXXXXXXXXXXXXXXXXXXXX"
+
+privateRegistryCredentials:
+  registry: harbor.chaimeleon-eu.i3m.upv.es
+  username: robot$insilicovalidationimagepuller
+  password: XXXXXXXXXXXXXXXXXXX
+
+# You can set here the endpoint of a proxy (empty to use official dockerhub endpoint)  
+dockerhubRegistry: "harbor.chaimeleon-eu.i3m.upv.es/dockerhub/"
+
+priorityClassName: "core-services"
+nodeSelector:
+  chaimeleon.eu/target: core-services
+
+chaimeleonViewer: 
+  registry: "harbor.chaimeleon-eu.i3m.upv.es/in-silico-validation/"
+  image: chaimeleon-viewer:v3.8
+  resources:
+    memory: "1Gi"
+    cpu: "200m"
+
+chaimeleonInSilicoApp: 
+  registry: "harbor.chaimeleon-eu.i3m.upv.es/in-silico-validation/"
+  image: chaimeleon-in-silico-app:v1.0
+  resources:
+    memory: "1Gi"
+    cpu: "200m"
+    
+orthanc:
+  image: orthancteam/orthanc:24.6.1
+  resources:
+    memory: "2Gi"
+    cpu: "200m"
+
+orthancIndex:
+  image: library/postgres:16.2
+  postgresqlPassword: XXXXXXXXXXXXXXXXXXX
+  resources:
+    memory: "4Gi"
+    cpu: "250m"
+
+instances:
+  prostate:
+    datasetID: 27a8d16a-c9f5-4e9a-89dc-ad94773d5995
+  breast:
+    datasetID: 07226d40-5ea3-4593-8e06-e67aa7f3053e
+  colon:
+    datasetID: 1547ca1f-9c0d-4259-889a-320f2dd81dc4
+  rectum:
+    datasetID: ec51bfa1-2e08-4c8e-81c6-ecfd7663cc9a
+  lung:
+    datasetID: b5335f44-c6c4-4748-b594-079045f44d47
