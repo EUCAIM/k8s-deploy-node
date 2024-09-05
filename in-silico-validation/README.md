@@ -49,7 +49,7 @@ Make a copy of the values file and adjust to your own deployment:
    helm repo add in-silico-validation https://harbor.chaimeleon-eu.i3m.upv.es/chartrepo/in-silico-validation \
                                       --username=robot\$insilicovalidationimagepuller --password=XXXXXXXXX
    helm repo update in-silico-validation
-   helm install in-silico-validation  in-silico-validation/in-silico-validation --version 0.2.10 \
+   helm install in-silico-validation  in-silico-validation/in-silico-validation --version 0.2.11 \
                 --namespace in-silico-validation -f values.private.yaml
    ```
 

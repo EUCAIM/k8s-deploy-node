@@ -14,6 +14,7 @@ authProxy:
   ## and then pass the access token to the uppstream in the header "x-auth-request-access-token".
   enabled: true
   oidcIssuerUrl: "https://chaimeleon-eu.i3m.upv.es/auth/realms/CHAIMELEON"
+  oidcIssuerDomain: "chaimeleon-eu.i3m.upv.es"
   clientID: "in-silico-validation"
   clientSecret: "XXXXXXXXXXXXXXXXXXXXXX"
   ## python -c 'import os,base64; print(base64.urlsafe_b64encode(os.urandom(16)))'
