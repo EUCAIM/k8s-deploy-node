@@ -3,19 +3,19 @@
 guacamole:
   image:
 #   repository: guacamole/guacamole
-    repository: harbor.chaimeleon-eu.i3m.upv.es/dockerhub/guacamole/guacamole
+    repository: harbor.eucaim-node.i3m.upv.es/dockerhub/guacamole/guacamole
 
 guacd:
   image:
 #   repository: guacamole/guacd
-    repository: harbor.chaimeleon-eu.i3m.upv.es/dockerhub/guacamole/guacd
+    repository: harbor.eucaim-node.i3m.upv.es/dockerhub/guacamole/guacd
 
 dbcreation:
   image:
 #   repository: bitnami/postgresql
     repository: harbor.chaimeleon-eu.i3m.upv.es/dockerhub/bitnami/postgresql
     tag: "11.12.0-debian-10-r5"  # 11.9.0-debian-10-r73
-  adminUsername: "XXXXXXXXXXXX"
+  adminUsername: "guacamole-admin"
   adminLocalPassword: "XXXXXXXXXXXX"
 
 serviceAccount:
@@ -27,25 +27,32 @@ ingress:
   annotations:
      kubernetes.io/ingress.class: nginx
 #    kubernetes.io/tls-acme: "true"
+     # https://guacamole.incubator.apache.org/doc/gug/reverse-proxy.html#adjusting-file-upload-limits
      nginx.ingress.kubernetes.io/proxy-body-size: 100000m
 #    nginx.ingress.kubernetes.io/rewrite-target: /guacamole/$1
+     # Default timeout is 5 seconds. It's better 10s or 15s to avoid the message of "disconnected" in slow networks.
+     nginx.ingress.kubernetes.io/proxy-connect-timeout: '10'
+     # This is to disable the uploads in 2 steps. 
+     # When it is 'on' (default), there is a first step when the file is uploaded entirely to a buffer in the proxy 
+     # and then in a 2nd step the content of buffer is transfered to the destination pod.
+     nginx.ingress.kubernetes.io/proxy-request-buffering: 'off'
   hosts:
-    - host: chaimeleon-eu.i3m.upv.es
+    - host: eucaim-node.i3m.upv.es
       paths:
         - '/guacamole/?(.*)'
 
+nodeSelector:
+  chaimeleon.eu/target: core-services
+
 priorityClassName: "core-applications"
 
-resources: 
+resources:
   requests:
     memory: '512Mi'
     cpu: '200m'
-  limits:
-    memory: '2Gi'
-    cpu: 1
-    
-nodeSelector:
-  chaimeleon.eu/target: core-services
+# limits:
+#   memory: '2Gi'
+#   cpu: 1
 
 postgres:
   hostname: "postgresql"
@@ -55,11 +62,11 @@ postgres:
   password: "XXXXXXXXXXX"
 
 OIDC:
-  authorization_endpoint: "https://chaimeleon-eu.i3m.upv.es/auth/realms/CHAIMELEON/protocol/openid-connect/auth/"
-  jwks_endpoint: "https://chaimeleon-eu.i3m.upv.es/auth/realms/CHAIMELEON/protocol/openid-connect/certs/"
-  issuer: "https://chaimeleon-eu.i3m.upv.es/auth/realms/CHAIMELEON"
+  authorization_endpoint: "https://eucaim-node.i3m.upv.es/auth/realms/EUCAIM-NODE/protocol/openid-connect/auth/"
+  jwks_endpoint: "https://eucaim-node.i3m.upv.es/auth/realms/EUCAIM-NODE/protocol/openid-connect/certs/"
+  issuer: "https://eucaim-node.i3m.upv.es/auth/realms/EUCAIM-NODE"
   clientID: "guacamole"
-  redirect_uri: "https://chaimeleon-eu.i3m.upv.es/guacamole/"
-  username_claim_type: "username"
+  redirect_uri: "https://eucaim-node.i3m.upv.es/guacamole/"
+  username_claim_type: "preferred_username"
   groups_claim_type: "groups"
 
