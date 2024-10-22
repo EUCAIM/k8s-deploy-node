@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: deployment-test-pypi
+spec:
+  selector:
+    matchLabels:
+      app: deployment-test-pypi
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: deployment-test-pypi
+    spec:
+      replicas: 1
+      priorityClassName: core-services
+      nodeSelector:
+        chaimeleon.eu/target: core-services
+      containers:
+      - image: python:3.13.0-alpine3.20
+        imagePullPolicy: IfNotPresent
+        name: deployment-test-pypi
+        command: ["tail"]
+        args: ["-f", "/dev/null"]
+        resources:
+          requests:
+            memory: "1Gi"
+            cpu: "1"
+          limits:
+            memory: "1Gi"
+            cpu: "1"

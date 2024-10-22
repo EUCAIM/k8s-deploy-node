@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: package-repos-proxy
+  namespace: package-repos-proxy
+spec:
+  selector:
+    matchLabels:
+      app: package-repos-proxy
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: package-repos-proxy
+    spec:
+      replicas: 1
+      priorityClassName: core-services
+      nodeSelector:
+        chaimeleon.eu/target: core-services
+      containers:
+      - image: nginx:1.27.2-alpine
+        imagePullPolicy: IfNotPresent
+        name: package-repos-proxy
+        resources:
+          requests:
+            memory: "1Gi"
+            cpu: "1"
+          limits:
+            memory: "1Gi"
+            cpu: "1"
+        ports:
+        - containerPort: 80
+          name: api
+        volumeMounts:
+        - name: package-repos-proxy-ps
+          mountPath: /data
+        - name: nginx-config
+          mountPath: /etc/nginx/nginx.conf
+          subPath: nginx.conf
+      volumes:
+      - name: package-repos-proxy-ps
+        persistentVolumeClaim:
+          claimName: package-repos-proxy-pvc
+      - name: nginx-config
+        configMap:
+          name: package-repos-proxy-config
