@@ -1,7 +1,7 @@
 kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
-  name: package-repos-proxy-pvc
+  name: devpi-pvc
   namespace: package-repos-proxy
 spec:
   storageClassName: cephfs
@@ -9,4 +9,4 @@ spec:
     - ReadWriteMany
   resources:
     requests:
-      storage: 1Gi
+      storage: 20Gi

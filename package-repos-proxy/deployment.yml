@@ -1,47 +1,41 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: package-repos-proxy
+  name: devpi
   namespace: package-repos-proxy
 spec:
   selector:
     matchLabels:
-      app: package-repos-proxy
+      app: devpi
   strategy:
     type: Recreate
   template:
     metadata:
       labels:
-        app: package-repos-proxy
+        app: devpi
     spec:
       replicas: 1
       priorityClassName: core-services
       nodeSelector:
         chaimeleon.eu/target: core-services
       containers:
-      - image: nginx:1.27.2-alpine
+      - image: harbor.chaimeleon-eu.i3m.upv.es/chaimeleon-services/devpi:6.3.1-2-1
         imagePullPolicy: IfNotPresent
-        name: package-repos-proxy
+        name: devpi
         resources:
           requests:
-            memory: "1Gi"
+            memory: "4Gi"
             cpu: "1"
           limits:
-            memory: "1Gi"
+            memory: "4Gi"
             cpu: "1"
         ports:
-        - containerPort: 80
+        - containerPort: 3141
           name: api
         volumeMounts:
-        - name: package-repos-proxy-ps
-          mountPath: /data
-        - name: nginx-config
-          mountPath: /etc/nginx/nginx.conf
-          subPath: nginx.conf
+        - name: devpi-pvc-ps
+          mountPath: /devpi
       volumes:
-      - name: package-repos-proxy-ps
+      - name: devpi-pvc-ps
         persistentVolumeClaim:
-          claimName: package-repos-proxy-pvc
-      - name: nginx-config
-        configMap:
-          name: package-repos-proxy-config
+          claimName: devpi-pvc
