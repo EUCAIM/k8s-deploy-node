@@ -11,7 +11,7 @@ spec:
     - host: eucaim-node.i3m.upv.es
       http:
         paths:
-          - path: /?(.*)
+          - path: /$
             pathType: ImplementationSpecific
             backend:
               service:

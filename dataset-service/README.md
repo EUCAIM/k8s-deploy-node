@@ -59,8 +59,9 @@ take the `kid` of the first key with `alg: RS256` and put it in
 Let's create now a client for the frontend, Dataset-explorer:
  - Type: `OIDC`
  - Client ID: `dataset-explorer`
- - Client authentication: `false`  (is a public client)
+ - Client authentication: `false`  (it's a public client)
  - Authentication flow: `Standard flow`
+   (optionally you may want to add `Direct access grants` for example to allow developers to get tokens with curl to call directly to the backend API)
  - Root URL: `https://eucaim-node.i3m.upv.es/dataset-service`
  - Home URL: `/`
  - Valid redirect URIs: `/*`
@@ -73,10 +74,14 @@ In the same tab, go to the dedicated scope, change to "Scope" tab and
  - and assign all the roles of the client 'dataset-service'.
 Now change to "Mappers" tab, "Configure a new mapper", type "Audience":
  - Name: `aud dataset-service`
- - Included Client Audience: empty (we use the custom field below because that includes a strange uid instead of the client id)
- - Included Custom Audience: `dataset-service`
+ - Included Client Audience: select `dataset-service`
  - Add to access token: true
 That last configuration is required because keycloak does not include the `aud` claim if the user have not any client role assigned.
+
+Finally the new roles created for the "dataset-service" client should be associated to the Realm roles...
+ - cloud-services-and-security-management: all
+ - dataset-administrator: admin_datasets
+ - data-scientists: use_datasets
 
 ### Tracer access
 Set the URL of Tracer service in `2-dataset-service.private.yaml` --> env `DATASET_SERVICE_CONFIG` --> `tracer` --> `url`.
@@ -89,6 +94,7 @@ Check the comments in this section in the [default config file](https://github.c
 
 ### Secret tokens
 Replace the pattern `XXXXXXXX` with random tokens in `2-dataset-service.private.yaml` --> env `DATASET_SERVICE_CONFIG` --> `self`.
+
 
 ## Deploy
 
