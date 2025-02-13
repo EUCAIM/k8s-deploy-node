@@ -26,6 +26,8 @@ Then, it is required to create the persistent volume claim (PVC) where all Harbo
 kubectl -n harbor apply -f pvc-harbor.yaml
 ```
 
+Then review the configuration in the "values.yaml" file. Create your own, with your private passwords. Check the previous chapter.
+
 Now you can deploy Harbor:
 ```console
 helm repo add harbor https://helm.goharbor.io
@@ -95,6 +97,30 @@ Note: the scope `offline_access` is required to access via CLI, otherwise an una
 # Other configurations
 You should go to Harbor Web UI go to "Configuration" -> "System Settings" tab and set "Project Creation" to "Admin Only".
 
+## Create the projects
+At least these projects are usually needed:
+ - library (private), for the interactive application container images
+ - library-batch (private), for the batch application container images
+ - library-batch-protected (private), for the protected batch application container images
+ - charts (public), for the interactive application helm charts
+
+There are separated projects for batch application images because we want to list only batch application with `jobman images`.  
+The libraries are private because we don't want to distribute publically third party applications, 
+we only want to make available for the platform users within the platform.
+There will be a robot account named "common-user" allowed to access to "library" and "library-batch" 
+and any user of platform will be able to use it through the [internal gatway](internal-gateway/readme.md).
+In the other hand, the library-batch-protected will be only accessible to the jobman-service, 
+it is for container images of applications which the owner doesn't want the user can see the contents (see [jobman-service]).
+
+## Robot accounts
+Name                  | Description                                                                                      | Access to projects
+----------------------|--------------------------------------------------------------------------------------------------|----------------------------
+robot$common-user     | Used by any chaimeleon user via internal-gateway to pull images from library and library-batch.  | library, library-batch
+robot$jobman-service  | Used to pull images from library-batch-protected for jobs in jobman-service-exec namespace.      | library-batch-protected
+
+The name in table is the complete form to be used when login, but when creating the robot account you only have to set the part after the `$`.
+The permissions to give for each project usually are: list artifact, repository and tag; pull repository; read artifact and repository.
+
 ## Dockerhub proxy cache
 Let's create a proxy-cache to docker-hub that will be used to pull the images of applications and services in the platform 
 to avoid reaching the limit of downloads from DockerHub.
@@ -129,3 +155,16 @@ kubectl get secret  harbor-core-internal-tls -n harbor -o jsonpath='{.data.tls\.
 And you will see that it expires in a year.  
 All those internal certificates are regenerated automatically when you do a `helm upgrade`.  
 So remember to do an upgrade at least once a year.
+
+# How to push a helm chart to OCI registry
+```
+helm registry login harbor.eucaim-node.i3m.upv.es
+helm push ubuntu-desktop-0.1.0.tgz  oci://harbor.eucaim-node.i3m.upv.es/charts/
+helm registry logout harbor.eucaim-node.i3m.upv.es
+```
+
+# How to install a helm chart from OCI registry
+```
+helm install myrelease oci://harbor.eucaim-node.i3m.upv.es/charts/ubuntu-desktop --version 0.1.0
+```
+

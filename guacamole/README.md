@@ -45,7 +45,6 @@ You have to create a client for Guacamole app in Keycloak (the auth service):
  - Client ID: `guacamole`
  - Client authentication: `false`  (it's a public client)
  - Authentication flow: `Standard flow`, `Implicit flow`
-   (optionally you may want to add `Direct access grants` for example to allow developers to get tokens with curl to call directly to the backend API)
  - Root URL: `https://eucaim-node.i3m.upv.es/guacamole`
  - Home URL: `/`
  - Valid redirect URIs: `/*`
@@ -68,7 +67,7 @@ This step only is required if persistence is enabled which is our case.
 ```console
 kubectl apply -f postgresql-pvc.yaml
 ```
-Then review the configuration in the "postgresql-values.yaml" file. Create your own, with your private passwords. Check the [previous chapter](#postgresql-values-yaml).
+Then review the configuration in the "postgresql-values.yaml" file. Create your own, with your private passwords. Check the [previous chapter](#postgresql-valuesyaml).
 
 After this, you are able to deploy the database installing the helm chart ([ref](https://artifacthub.io/packages/helm/bitnami/postgresql)):
 ```console
@@ -80,7 +79,7 @@ helm install postgresql oci://registry-1.docker.io/bitnamicharts/postgresql --ve
 
 ## Main service
 Finally, you can deploy Guacamole.  
-Review the configuration in the "guacamole-values.yaml" file. Create your own, with your private passwords. Check the [previous chapter](#guacamole-values-yaml).  
+Review the configuration in the "guacamole-values.yaml" file. Create your own, with your private passwords. Check the [previous chapter](#guacamole-valuesyaml).  
 Create the OIDC client, see the [previous chapter](#configure-the-oidc-client).  
 Then just download the helm chart and install:
 ```console

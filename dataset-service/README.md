@@ -86,8 +86,7 @@ Set the URL of Tracer service in `2-dataset-service.private.yaml` --> env `DATAS
 You can set it to empty to disable the notification to tracer.
 
 ### Zenodo access
-You should create an account in Zenodo and
-configure the zenodo access in `2-dataset-service.private.yaml` --> env `DATASET_SERVICE_CONFIG` --> `zenodo`.
+Set the URL of Zenodo to deposite datasets when published in `2-dataset-service.private.yaml` --> env `DATASET_SERVICE_CONFIG` --> `zenodo`. 
 Check the comments in this section in the [default config file](https://github.com/chaimeleon-eu/dataset-service/blob/main/etc/dataset-service.default.yaml).
 
 ### Secret tokens
