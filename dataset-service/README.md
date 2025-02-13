@@ -78,10 +78,8 @@ Now change to "Mappers" tab, "Configure a new mapper", type "Audience":
  - Add to access token: true
 That last configuration is required because keycloak does not include the `aud` claim if the user have not any client role assigned.
 
-Finally the new roles created for the "dataset-service" client should be associated to the Realm roles...
- - cloud-services-and-security-management: all
- - dataset-administrator: admin_datasets
- - data-scientists: use_datasets
+Finally the new roles created for the "dataset-service" client should be associated to the general realm roles.
+In our case the relation is defined in the [Keycloak deployment readme](../keycloak/README.md#realm-roles).
 
 ### Tracer access
 Set the URL of Tracer service in `2-dataset-service.private.yaml` --> env `DATASET_SERVICE_CONFIG` --> `tracer` --> `url`.
@@ -106,3 +104,7 @@ Create the database deployment and service: `kubectl apply -n dataset-service -f
 Create the main deployment and service: `kubectl apply -n dataset-service -f 2-dataset-service.private.yaml`  
 Create the ingress: `kubectl apply -n dataset-service -f 3-ingress.yaml`
 And finally the ingress: `kubectl apply -n dataset-service -f 4-ingress-for-redirect-from-root-path.yaml`
+
+## Add scripts to be executed on user creation/deletion
+See [here](user-management-jobs/README.md).
+
