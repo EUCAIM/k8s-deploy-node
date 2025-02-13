@@ -33,7 +33,7 @@ data:
 
             location / {
                 # You can generate the basic auth token with: 
-                #   echo -n "robot\$chaimeleon-user:<theCLITokenOfTheRobot>" | base64
+                #   echo -n "robot\$common-user:<theCLITokenOfTheRobot>" | base64
                 proxy_set_header   Authorization "Basic XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX";
                 proxy_pass         https://harbor;
             }

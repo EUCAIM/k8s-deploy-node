@@ -18,9 +18,9 @@ spec:
           name: internal-gateway-config
       - name: certs
         secret:
-          secretName: harbor.chaimeleon-eu.i3m.upv.es
+          secretName: harbor.eucaim-node.i3m.upv.es
       containers: 
-      - image: "harbor.chaimeleon-eu.i3m.upv.es/dockerhub/library/nginx:1.19-alpine"
+      - image: "harbor.eucaim-node.i3m.upv.es/dockerhub/library/nginx:1.19-alpine"
         name: internal-gateway
         env:
         command: 
@@ -40,7 +40,7 @@ spec:
         # httpget method don't check the certificate, so we use exec command method with curl
         livenessProbe:
           exec:
-            command: ['curl', 'https://harbor.chaimeleon-eu.i3m.upv.es:5000/healthz']
+            command: ['curl', 'https://harbor.eucaim-node.i3m.upv.es:5000/healthz']
           initialDelaySeconds: 10
           timeoutSeconds: 2
           periodSeconds: 30

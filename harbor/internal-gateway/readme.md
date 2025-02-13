@@ -1,18 +1,26 @@
 
-This is a solution to provide free access (whitout need of authentication) to some specific projects in the Harbor registry 
+This is a solution to provide free access (without need of authentication) to some specific projects in the Harbor registry 
 (to allow free download/use of the images) from inside the cluster network 
 but however require authentication to the external access (usually to upload images).
 
 # Harbor configuration
 
-To achieve that we have to make sure the project in harbor is private (uncheck the "public" option), 
-then create a "robot account" (named "chaimeleon-user" in our case) and give it access to the project.
+To achieve that we have to make sure the project in Harbor is private (uncheck the "public" option), 
+then create a "robot account" and give it access to the project.
+You can set that values...
+    Name: common-user
+    Description: Used by any common user via internal-gateway.
+    Expiration: never
+    Project permissions: for library and library-batch
+      - List artifact, repository, tag
+      - Pull repository
+      - Read artifact, repository
 
 # Deployment
 
 Now we deploy a small nginx service which will be accessible only from inside the cluster 
 and is just a proxy to the harbor service but it inserts the "Authorization" header in every message to the upstream 
-granting that way the access to protected projects/repositories whitout the need to provide the credentials.
+granting that way the access to protected projects/repositories without the need to provide the credentials.
 
 We will use the `harbor` namespace because this is a service directly related to our Harbor deployment.
 
@@ -23,8 +31,8 @@ vim configmap.private.yaml
 ```
 You can generate the basic auth token with: 
    echo -n "<username>:<userCLIToken>" | base64
-In our case, we use a "robot" account named "chaimeleon-user":
-   echo -n "robot\$chaimeleon-user:<theCLITokenOfTheRobot>" | base64
+In our case, we use a "robot" account named "common-user":
+   echo -n "robot\$common-user:<theCLITokenOfTheRobot>" | base64
 
 Then, create the configMap in k8s:
 ```console
@@ -49,14 +57,14 @@ You can comment out it until the end of the installation (until all the step are
 
 Finally we can add the public domain and the "harbor" subdomain to the hosts file of every k8s node (working nodes and front node):
 ``` 
-    sudo sed -i 's/kubeserver\r/kubeserver chaimeleon-eu.i3m.upv.es harbor.chaimeleon-eu.i3m.upv.es\r/' /etc/hosts
+    sudo sed -i 's/kubeserver\r/kubeserver eucaim-node.i3m.upv.es harbor.eucaim-node.i3m.upv.es\r/' /etc/hosts
 ```
 In our case we add the previous line as an ansible task in the cluster recipes.
 
 So now we can set the `image` property of the containers to deploy with the name instead of the public IP. 
 For example:
 ```
-    image: harbor.chaimeleon-eu.i3m.upv.es:5000/chaimeleon-library-batch/ubuntu-python
+    image: harbor.eucaim-node.i3m.upv.es:5000/library-batch/ubuntu-python
 ```
 
 # Add domain resolution in pods
@@ -69,7 +77,7 @@ We can configure the CoreDNS with:
 Add the `hosts` block with lines using the same format as in /etc/hosts file and followed by `fallthrough`:
 ```
     hosts {
-       192.168.3.35   chaimeleon-eu.i3m.upv.es harbor.chaimeleon-eu.i3m.upv.es
+       192.168.3.35   eucaim-node.i3m.upv.es harbor.eucaim-node.i3m.upv.es
        fallthrough
     }
 ```
@@ -88,7 +96,7 @@ The complete config should be like this:
            ttl 30
         }
         hosts {
-           192.168.3.35   chaimeleon-eu.i3m.upv.es harbor.chaimeleon-eu.i3m.upv.es
+           192.168.1.162   eucaim-node.i3m.upv.es harbor.eucaim-node.i3m.upv.es
            fallthrough
         }
         prometheus :9153
