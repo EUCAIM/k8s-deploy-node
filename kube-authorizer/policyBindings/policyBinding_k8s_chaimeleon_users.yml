@@ -1,9 +1,0 @@
-apiVersion: "v1"
-kind: "PolicyBinding"
-metadata:
-  name: "k8s_chaimeleon_users"
-spec: 
-  policyName: "k8s_chaimeleon_users"
-  subjects: 
-    groups: ["k8s-chaimeleon-users"]
-    tenants: []

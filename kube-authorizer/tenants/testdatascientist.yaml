@@ -1,8 +1,0 @@
-apiVersion: "v1"
-kind: "Tenant"
-spec:
-  username: "testdatascientist"
-  external_id: ""
-  email: ""
-  groups: ["k8s-chaimeleon-users"]
-  tenant_type: "oidc-user"

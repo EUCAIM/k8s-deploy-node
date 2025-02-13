@@ -1,5 +1,0 @@
-install-service/bak_v1
-install-client/*
-actions/*
-tenants/*
-!tenants/testdatascientist.yaml
