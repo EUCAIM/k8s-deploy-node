@@ -1,0 +1,105 @@
+
+priorityClassName: "core-services"
+nodeSelector: 
+  chaimeleon.eu/target: core-services                               
+
+serviceAccount:
+  annotations: {}
+  name: ""
+
+rbac:
+  role:
+    name: "dsws-operator-namespaced"
+  clusterRole:
+    name: "dsws-operator-cluster"
+  roleBinding:
+    name: "dsws-operator-rolebinding-namespaced"
+  clusterRoleBinding:
+    name: "dsws-operator-rolebinding-cluster"
+
+operatorConfiguration:
+  auth:
+    url: "https://eucaim-node.i3m.upv.es/auth/realms/EUCAIM-NODE/protocol/openid-connect/token"
+    client_id: "kubernetes-operator"
+    client_secret: "XXXXXXXXXXXXXXXX"
+    max_retries: 10
+
+  dataset_service:
+    url: "http://dataset-service-backend-service.dataset-service.svc.cluster.local:11000/"
+    test_url: ""
+    max_retries: 10
+
+  guacamole:
+    url: "https://eucaim-node.i3m.upv.es/guacamole/"
+    user: "service-account-kubernetes-operator"
+    password: "XXXXXXXXXXXXXXXX"
+    connections_creation:
+      backend_host: "guacamole-guacd.guacamole.svc.cluster.local"
+      vnc_port: "5900"
+      sftp_default_username: "ds"
+      sftp_port: "2222"
+
+  k8s:
+    user_prefix: "oidc:"
+    admins_group: "oidc:cloud-services-and-security-management"
+    namespace_prefix: "user-"
+    jobman_service_execution_namespace: "jobman-service-exec"
+
+    ceph_volumes:
+      monitors: ['192.168.10.230:6789', '192.168.10.3:6789', '192.168.10.4:6789']
+      user_prefix: "eucaim-user--"
+      auth_secret_name: "ceph-auth"
+      jobman_service_execution_user: "jobman-service-exec"
+      
+      datalake_path: "/datalake"
+      datasets_path: "/datasets"
+      test_datalake_path: "/datalake-test"
+      test_datasets_path: "/datasets-test"
+      persistent_homes_path: "/homes/users"
+      persistent_shared_folder_path: "/homes/shared-folder"
+
+    checks:
+      allowed_repo: "harbor.eucaim-node.i3m.upv.es"
+      not_allowed_repo_message: "The image must be one of our internal repository 'harbor.eucaim-node.i3m.upv.es'."
+
+      allowed_images_for_deployment: []
+      not_allowed_image_for_deployment_message: ""
+
+      allowed_users_to_deploy: []
+      not_allowed_users_to_deploy_message: ""
+
+      max_num_pods_per_user: 0
+    
+    openchallenge:
+      datasets: []
+      nfs_path: ""
+      nfs_server: ""
+
+service:
+  type: ClusterIP
+  port: 443
+
+image:
+  repository: "harbor.chaimeleon-eu.i3m.upv.es/chaimeleon-services/k8s-operator"
+  pullPolicy: Always
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: "2.5.2-kopf1.36.2"
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+
+podAnnotations: {}
+
+podSecurityContext: {}
+
+securityContext: {}
+
+resources:
+  requests:
+    cpu: "1000m"
+    memory: "1000Mi"
+  limits:
+    cpu: "1000m"
+    memory: "1000Mi"
