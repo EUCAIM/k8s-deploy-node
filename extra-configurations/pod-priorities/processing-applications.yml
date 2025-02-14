@@ -5,4 +5,4 @@ metadata:
 value: 1000000
 globalDefault: true
 preemptionPolicy: Never
-description: "This priority class should be used for processing applications that are deployed by the CHAIMELEON users."
+description: "This priority class should be used for processing applications that are deployed by the platform users."

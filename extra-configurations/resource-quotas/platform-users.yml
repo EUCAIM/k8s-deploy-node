@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: ResourceQuota
 metadata:
-  name: chaimeleon-users
+  name: platform-users
 spec:
   hard:
     requests.cpu: "4"

@@ -5,4 +5,4 @@ metadata:
 value: 1000100
 globalDefault: false
 preemptionPolicy: PreemptLowerPriority
-description: "This priority class should be used for the core service of the CHAIMELEON infrastructure."
+description: "This priority class should be used for the core services in the platform."
