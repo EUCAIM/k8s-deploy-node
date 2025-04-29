@@ -41,13 +41,13 @@ spec:
             mountPath: "/opt/keycloak/themes/eucaim-node/"
             subPath: "eucaim-node"
           - name: vol-standalone-deployments
-            mountPath: "/opt/keycloak/providers/event-listener-datasetservice-1.0.0.jar"
-            subPath: "event-listener-datasetservice-1.0.0.jar"
+            mountPath: "/opt/keycloak/providers/keycloak-event-listener-email-to-admin-1.0.6.jar"
+            subPath: "keycloak-event-listener-email-to-admin-1.0.6.jar"
             readOnly: false
-#         - name: vol-standalone-deployments
-#           mountPath: "/opt/keycloak/providers/event-listener-kubeauthorizer-1.1.0.jar"
-#           subPath: "event-listener-kubeauthorizer-1.1.0.jar"
-#           readOnly: false
+          - name: vol-standalone-deployments
+            mountPath: "/opt/keycloak/providers/keycloak-required-action-user-validated-1.0.5.jar"
+            subPath: "keycloak-required-action-user-validated-1.0.5.jar"
+            readOnly: false
         env:
         - name: KC_BOOTSTRAP_ADMIN_USERNAME
           value: "admin"
@@ -72,28 +72,23 @@ spec:
           value: "eucaim-node.i3m.upv.es"
 
         # Doc: https://www.keycloak.org/server/configuration-provider
-        - name: KC_SPI_EVENTS_LISTENER_EVENT_LISTENER_DATASETSERVICE_OIDCGROUPS
-          value: "application-developer,cloud-services-and-security-management,data-scientists,external-researcher"
-        - name: KC_SPI_EVENTS_LISTENER_EVENT_LISTENER_DATASETSERVICE_ADMIN_EVENT
-          value: "GROUP_MEMBERSHIP"
-        - name: KC_SPI_EVENTS_LISTENER_EVENT_LISTENER_DATASETSERVICE_KEYCLOAK_CLIENT
-          value: "kubeauthorizer-pod"
-        - name: KC_SPI_EVENTS_LISTENER_EVENT_LISTENER_DATASETSERVICE_KEYCLOAK_CLIENT_SECRET
-          value: "XXXXXXXXXX"
-        - name: KC_SPI_EVENTS_LISTENER_EVENT_LISTENER_DATASETSERVICE_KEYCLOAK_ENDPOINT
-          value: "https://eucaim-node.i3m.upv.es"
-        - name: KC_SPI_EVENTS_LISTENER_EVENT_LISTENER_DATASETSERVICE_DATASET_SERVICE_ENDPOINT
-          value: "https://eucaim-node.i3m.upv.es/dataset-service/api"
-#       - name: KC_SPI_EVENTS_LISTENER_EVENT_LISTENER_KUBEAUTHORIZER_OIDCGROUPS
-#         value: "admins,application-developer,cloud-services-and-security-management,data-scientists,external-researcher"
-#       - name: KC_SPI_EVENTS_LISTENER_EVENT_LISTENER_KUBEAUTHORIZER_ADMIN_EVENT
-#         value: "GROUP_MEMBERSHIP"
-#       - name: KC_SPI_EVENTS_LISTENER_EVENT_LISTENER_KUBEAUTHORIZER_KUBE_AUTHORIZER_ENDPOINT
-#         value: "XXXXXXXXXX"
-#       - name: KC_SPI_EVENTS_LISTENER_EVENT_LISTENER_KUBEAUTHORIZER_KUBE_AUTHORIZER_USER_CLAIM
-#         value: "username"
-#       - name: KC_SPI_EVENTS_LISTENER_EVENT_LISTENER_KUBEAUTHORIZER_KUBE_AUTHORIZER_TOKEN
-#         value: "XXXXXXXXXX"
+        - name: KC_SPI_EVENTS_LISTENER_EMAIL_TO_ADMIN_EMAIL_RECEIVERS
+          value: "admin@example.com"
+        - name: KC_SPI_EVENTS_LISTENER_EMAIL_TO_ADMIN_EMAIL_SUBJECT
+          value: "EUCAIM-Node - User account created or updated"
+          
+        - name: KC_SPI_REQUIRED_ACTION_USER_VALIDATED_ROLE_FOR_VALIDATED
+          value: "validated_user"
+        - name: KC_SPI_REQUIRED_ACTION_USER_VALIDATED_ROLE_FOR_REJECTED
+          value: "rejected_user"
+        - name: KC_SPI_REQUIRED_ACTION_USER_VALIDATED_MESSAGE_FOR_PENDING
+          value: "Your account is pending to be validated and assigned to a project to be able to access to the services. You will be notified when that occurs."
+        - name: KC_SPI_REQUIRED_ACTION_USER_VALIDATED_MESSAGE_FOR_REJECTED
+          value: "Your account request has not been accepted."
+          
+        - name: KC_SPI_EVENTS_LISTENER_EMAIL_INCLUDE_EVENTS
+          # This is to notify the user by email when the account is disabled due to brute force attack detection
+          value: "user_disabled_by_permanent_lockout,user_disabled_by_temporary_lockout"
 
         ports:
           - name: http
