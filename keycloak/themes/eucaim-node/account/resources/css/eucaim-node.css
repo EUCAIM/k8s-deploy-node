@@ -1,0 +1,10 @@
+
+/*header.pf-v5-c-page__header {*/
+header.pf-v5-c-masthead {
+    background-color: #27326b;
+    color: white;
+}
+div.pf-v5-c-toolbar  {
+    background-color: transparent;
+    color: white;
+}
