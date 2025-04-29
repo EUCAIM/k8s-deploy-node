@@ -27,15 +27,15 @@ spec:
             claimName: standalone-deployments
       containers:
       - name: keycloak
-        image: "quay.io/keycloak/keycloak:25.0.1"
-        args: ["start", "--http-relative-path=/auth"]
+        image: "quay.io/keycloak/keycloak:26.2.0"
+        args: ["start", "--http-relative-path=/auth", "--features=token-exchange", "--http-enabled=true", "--proxy-headers=xforwarded"]
         resources:
           requests:
             memory: "1000Mi"
             cpu: "1500m"
-          limits:
-            memory: "1000Mi"
-            cpu: "1500m"
+#         limits:
+#           memory: "1000Mi"
+#           cpu: "1500m"
         volumeMounts:
           - name: vol-themes-data
             mountPath: "/opt/keycloak/themes/eucaim-node/"
@@ -49,9 +49,9 @@ spec:
 #           subPath: "event-listener-kubeauthorizer-1.1.0.jar"
 #           readOnly: false
         env:
-        - name: KEYCLOAK_ADMIN
+        - name: KC_BOOTSTRAP_ADMIN_USERNAME
           value: "admin"
-        - name: KEYCLOAK_ADMIN_PASSWORD
+        - name: KC_BOOTSTRAP_ADMIN_PASSWORD
           value: "XXXXXXXXXX"
 
         # Doc: https://www.keycloak.org/server/all-config
@@ -96,14 +96,20 @@ spec:
 #         value: "XXXXXXXXXX"
 
         ports:
-        - name: http
-          containerPort: 8080
-        - name: https
-          containerPort: 8443
+          - name: http
+            containerPort: 8080
+          - name: https
+            containerPort: 8443
         readinessProbe:
+          failureThreshold: 3
           httpGet:
             path: /auth/realms/master
             port: 8080
+            scheme: HTTP
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 2
 
 ---
 apiVersion: v1
