@@ -1,0 +1,254 @@
+{
+  "attributes": [
+    {
+      "name": "username",
+      "displayName": "${username}",
+      "validations": {
+        "length": {
+          "min": "3",
+          "max": "24",
+          "trim-disabled": "false"
+        },
+        "pattern": {
+          "pattern": "^[0-9a-z][0-9a-z-]+[0-9a-z]$",
+          "error-message": "The length must be 3-24 characters, and must contain only lowercase alphanumeric characters or '-'. Examples: james, james-upv, james31"
+        }
+      },
+      "annotations": {
+        "inputHelperTextBefore": "Your unique name in the platform. You will not be able to change it later and short is usually preferred."
+      },
+      "permissions": {
+        "view": [
+          "admin",
+          "user"
+        ],
+        "edit": [
+          "admin",
+          "user"
+        ]
+      },
+      "multivalued": false
+    },
+    {
+      "name": "email",
+      "displayName": "${email}",
+      "validations": {
+        "email": {},
+        "length": {
+          "max": 255
+        }
+      },
+      "required": {
+        "roles": [
+          "user"
+        ]
+      },
+      "permissions": {
+        "view": [
+          "admin",
+          "user"
+        ],
+        "edit": [
+          "admin",
+          "user"
+        ]
+      },
+      "multivalued": false
+    },
+    {
+      "name": "firstName",
+      "displayName": "${firstName}",
+      "validations": {
+        "length": {
+          "max": 255
+        },
+        "person-name-prohibited-characters": {}
+      },
+      "required": {
+        "roles": [
+          "user"
+        ]
+      },
+      "permissions": {
+        "view": [
+          "admin",
+          "user"
+        ],
+        "edit": [
+          "admin",
+          "user"
+        ]
+      },
+      "multivalued": false
+    },
+    {
+      "name": "lastName",
+      "displayName": "${lastName}",
+      "validations": {
+        "length": {
+          "max": 255
+        },
+        "person-name-prohibited-characters": {}
+      },
+      "required": {
+        "roles": [
+          "user"
+        ]
+      },
+      "permissions": {
+        "view": [
+          "admin",
+          "user"
+        ],
+        "edit": [
+          "admin",
+          "user"
+        ]
+      },
+      "multivalued": false
+    },
+    {
+      "name": "companyOrOrganization",
+      "displayName": "Company or organization",
+      "validations": {},
+      "annotations": {},
+      "permissions": {
+        "view": [
+          "admin",
+          "user"
+        ],
+        "edit": [
+          "admin",
+          "user"
+        ]
+      },
+      "multivalued": false
+    },
+    {
+      "name": "projects",
+      "displayName": "Project (one or more) and working package (if applicable)",
+      "validations": {},
+      "annotations": {
+        "inputTypePlaceholder": "Examples: Primage, Leopard, Eucaim WP6",
+        "inputHelperTextAfter": "Your relation to the project will be checked (you can add anything you consider relevant on this in the section Z)"
+      },
+      "permissions": {
+        "view": [
+          "admin",
+          "user"
+        ],
+        "edit": [
+          "admin",
+          "user"
+        ]
+      },
+      "group": "project-member",
+      "multivalued": false
+    },
+    {
+      "name": "requiredRoles",
+      "displayName": "Required roles",
+      "validations": {
+        "options": {
+          "options": [
+            "authorized-technical-data-manager",
+            "clinical-staff",
+            "dataset-administrator",
+            "data-scientists",
+            "application-developer"
+          ]
+        }
+      },
+      "annotations": {
+        "inputOptionLabels": {
+          "authorized-technical-data-manager": "[Data ingester]: Ingest (manually or in-bulk) new patient cases (images or clinical data)",
+          "clinical-staff": "[Clinical staff]: Use or validate images, data or models in clinical environment",
+          "dataset-administrator": "[Dataset manager]: Create and manage datasets",
+          "data-scientists": "[Data scientist]: Run applications in the platform using datasets to develop and train AI models/tools",
+          "application-developer": "[Application developer]: Develop applications for the platform"
+        },
+        "inputType": "multiselect-checkboxes",
+        "inputHelperTextBefore": "What are you going to do in that projects?"
+      },
+      "permissions": {
+        "view": [
+          "admin",
+          "user"
+        ],
+        "edit": [
+          "admin",
+          "user"
+        ]
+      },
+      "group": "project-member",
+      "multivalued": true
+    },
+    {
+      "name": "eucaimNegotiationID",
+      "displayName": "EUCAIM negotiation ID",
+      "validations": {},
+      "annotations": {
+        "inputHelperTextAfter": "If you have not created a negotiation yet, please cancel this registration and go to: https://negotiator.eucaim.cancerimage.eu"
+      },
+      "permissions": {
+        "view": [
+          "admin",
+          "user"
+        ],
+        "edit": [
+          "admin",
+          "user"
+        ]
+      },
+      "group": "external-data-scientist",
+      "multivalued": false
+    },
+    {
+      "name": "additionalComments",
+      "displayName": "You can include here any additional comment related to your access request.",
+      "validations": {},
+      "annotations": {
+        "inputHelperTextAfter": "After your registration, your account must be validated according to the project or negotiation that you indicated in order to you are able to access the platform services. This is not an automated process. You will be notified if accepted.",
+        "inputType": "textarea"
+      },
+      "permissions": {
+        "view": [
+          "admin",
+          "user"
+        ],
+        "edit": [
+          "admin",
+          "user"
+        ]
+      },
+      "group": "additional-comments",
+      "multivalued": false
+    }
+  ],
+  "groups": [
+    {
+      "name": "user-metadata",
+      "displayHeader": "User metadata",
+      "displayDescription": "Attributes, which refer to user metadata"
+    },
+    {
+      "name": "project-member",
+      "displayHeader": "A) If you are member or collaborator of a project",
+      "displayDescription": "",
+      "annotations": {}
+    },
+    {
+      "name": "external-data-scientist",
+      "displayHeader": "B) If you are not member or collaborator of a project",
+      "displayDescription": "You want to access datasets as an external data scientist.",
+      "annotations": {}
+    },
+    {
+      "name": "additional-comments",
+      "displayHeader": "Z) Additional comments",
+      "displayDescription": "",
+      "annotations": {}
+    }
+  ],
+  "unmanagedAttributePolicy": "ADMIN_EDIT"
+}

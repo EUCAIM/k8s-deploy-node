@@ -85,10 +85,34 @@ And when EUCAIM-NODE realm is created...
 # Other configurations
 Create the realm `EUCAIM-NODE`...
 
-Create the roles...
+In tab "General", set "Unmanaged Attributes" to "Only administrators can write".  
+Unmanaged attributes are required by some platform services which check a secret token to authenticate users 
+and that token is created by the user creation scripts and stored here in keycloak as unmanaged attributes.
 
-Create the groups for roles and for projects.
+In tab "User profile", go to subtab "JSON editor" and copy-paste the contents of file `user-profile-attributes-and-groups.json`.
 
+## Realm roles
+Create the realm roles. We usually have these general roles:
+ | Name                                    | Description                                           | Associated roles
+ |-----------------------------------------|-------------------------------------------------------|-------------------------------------
+ | authorized-technical-data-manager       | Ingestion of studies in datalake.                     | qpinsights-backend:Coordinator
+ | dataset-administrator                   | Create and manage datasets.                           | qpinsights-backend:Sponsor, dataset-service:admin_datasets
+ | data-scientists                         | Explore datasets and deploy Kubernetes apps and jobs. | qpinsights-backend:Auditor, dataset-service:use_datasets
+ | application-developer                   | Access kubernetes dashboard.                          | qpinsights-backend:Auditor
+ | clinical-staff                          | Clinical validation.                                  | qpinsights-backend:Auditor
+ | cloud-services-and-security-management  | Admin of the platform.                                | qpinsights-backend:Admin, dataset-service:admin_users, dataset-service:superadmin_datasets, dataset-service:admin_datasetsAccess, dataset-service:admin_projects 
+
+Some of the associated roles may be not created yet, it will be created when the corresponding application/service is deployed.
+
+## Groups
+Some of the applications or services (like Kubernetes), which will use Keycloak for the authentication, 
+have an autorization based on the groups of the id token (instead of the roles of the access token, as usual).
+For those cases we are going to create a groups for each of the previous general roles. 
+Each of those groups will has the same name as the corresponding role and the role assigned to the group.
+
+We will create the projects also as groups but those will be named with the template "PROJECT-{project_name}".
+
+And in order to include the groups as a claim in the tokens we must create Client scope (that will be able to add to the clients).
 Go to Client scopes and create one with:
   Name: `groups`
   Type: `None`
@@ -104,10 +128,13 @@ And in "Mappers" tab add one "by configuration", select "Group Membership" and:
   Add to userinfo: `true`
   Add to token introspection: `true`
 
+## Configure Identity Providers 
 
-## CHAIMELEON EGI Check-in
-
+### EGI Check-in
 Client Management URL (Dev): https://aai-dev.egi.eu/federation/egi/home
+
+### LifeScienceRI
+...
 
 
 ## Control to allow only validated users login
@@ -146,7 +173,6 @@ then you will see the new Event Listener "email-to-admin" in the menu "Realm set
 You shoud "Enable" it just adding to the list of event listeners.
 
 To configure email receivers see the environment variable `KC_SPI_EVENTS_LISTENER_EMAIL_TO_ADMIN_EMAIL_RECEIVERS` in the file `dep3_keycloak_v4.private.yaml`.
-
 
 ---
 Privacy Policy: 
