@@ -41,7 +41,7 @@ spec:
             readOnly: false
       containers:
         - name: dataset-service-backend
-          image: harbor.chaimeleon-eu.i3m.upv.es/chaimeleon-services/dataset-service-backend:3.20.3
+          image: harbor.chaimeleon-eu.i3m.upv.es/chaimeleon-services/dataset-service-backend:3.21.1
           ports:
             - containerPort: 11000
               name: dssport
@@ -77,7 +77,9 @@ spec:
                           "token_issuer_public_keys_url": "https://eucaim-node.i3m.upv.es/auth/realms/EUCAIM-NODE/protocol/openid-connect/certs",
                           "kid": "T7yU60He9Irc8iNJ7zCBVUQEkXe9yq0XrHLu4fBi1gU",
                           "client_id": "dataset-service",
-                          "issuer": "https://eucaim-node.i3m.upv.es/auth/realms/EUCAIM-NODE"
+                          "issuer": "https://eucaim-node.i3m.upv.es/auth/realms/EUCAIM-NODE",
+                          "project_group_prefix": "PROJECT-",
+                          "project_admins_group_prefix": "ADMINS-PROJECT-"
                       },
                       "client": {
                           "auth_url": "https://eucaim-node.i3m.upv.es/auth/realms/EUCAIM-NODE/protocol/openid-connect/token",
@@ -86,7 +88,14 @@ spec:
                       },
                       "admin_api": {
                         "url": "https://eucaim-node.i3m.upv.es/auth/admin/realms/EUCAIM-NODE/",
-                        "client_id_to_request_user_tokens": "dataset-explorer"
+                        "client_id_to_request_user_tokens": "dataset-explorer",
+                        "parent_group_of_project_groups": "/PROJECTS"
+                      },  
+                      "user_management": {
+                        "prefix_for_roles_as_groups": "/",
+                        "prefix_for_projects_as_groups": "/PROJECTS/PROJECT-",
+                        "assignable_general_roles": ["application-developer", "authorized-technical-data-manager", "clinical-staff", 
+                                                   "cloud-services-and-security-management", "data-scientists", "dataset-administrator"]
                       }
                   },
                   "tracer": {
