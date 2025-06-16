@@ -18,7 +18,7 @@ docker run -d -p 3141:3141 -v <host_folder_root_devpi_full_data>:/devpi --name d
 ##  Deploy on Kube
 
 Upload the Docker image to your favorite repo.  
-Be shure to adjust the __image__ entry in the __deployment.yml__, you may have different values there.
+Be sure to adjust the __image__ entry in the __deployment.yml__, you may have different values there.
 
 Use the example YAMLs for a PVC, Service and Deployment. 
 Be careful when changing the namespace where it is deployed, the address of the repository will change too.
