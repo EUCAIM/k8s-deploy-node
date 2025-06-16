@@ -24,6 +24,13 @@ Use the example YAMLs for a PVC, Service and Deployment.
 Be careful when changing the namespace where it is deployed, the address of the repository will change too.
 Herein, the default namespace __package-repos-proxy__ is assumed.
 
+When using kubectl, you can use the following commands:
+
+kubectl create namespace package-repos-proxy
+kubectl apply -f pvc.yml
+kubectl apply -f deployment.yml
+kubectl apply -f service.yml
+
 ### Python configuration
 
 There are multiple ways to use our proxy, please see the next sub-chapters.
