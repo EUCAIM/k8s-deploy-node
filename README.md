@@ -61,7 +61,7 @@ Now the platform core services can be deployed in the following order to properl
  |-----------------------------------|--------------------------------------------------------------------|------------------------------------------------
  | Keycloak                          |                                                                    | [keycloak directory](/keycloak/)
  | Harbor                            | Depends on Keycloak                                                | [harbor directory](/harbor/)
- | Devpi                             | Depends on Harbor                                                  | [devpi directory] (/devpi/)
+ | Devpi                             | Depends on Harbor                                                  | [devpi directory](/devpi/)
  | Kubeapps                          | Depends on Keycloak, Harbor                                        | [kubeapps directory](/kubeapps/)
  | Access to K8s dashboard with OIDC | Depends on Keycloak, Kubeapps                                      | [kubernetes-dashboard-oidc-access directory](/kubernetes-dashboard-oidc-access/)
  | Tracer-service                    | Depends on Keycloak, Harbor                                        |
