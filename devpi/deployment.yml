@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: devpi
+  namespace: package-repos-proxy
+spec:
+  selector:
+    matchLabels:
+      app: devpi
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: devpi
+    spec:
+      replicas: 1
+      priorityClassName: core-services
+      nodeSelector:
+        chaimeleon.eu/target: core-services
+      containers:
+      - image: harbor.eucaim-node.i3m.upv.es/core-services/devpi:6.15.0
+        imagePullPolicy: IfNotPresent
+        name: devpi
+        resources:
+          requests:
+            memory: "4Gi"
+            cpu: "1"
+          limits:
+            memory: "4Gi"
+            cpu: "1"
+        ports:
+        - containerPort: 3141
+          name: api
+        volumeMounts:
+        - name: devpi-pvc-ps
+          mountPath: /devpi
+      volumes:
+      - name: devpi-pvc-ps
+        persistentVolumeClaim:
+          claimName: devpi-pvc
