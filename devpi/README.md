@@ -25,11 +25,12 @@ Be careful when changing the namespace where it is deployed, the address of the 
 Herein, the default namespace __package-repos-proxy__ is assumed.
 
 When using kubectl, you can use the following commands:
-
+```
 kubectl create namespace package-repos-proxy
 kubectl apply -f pvc.yml
 kubectl apply -f deployment.yml
 kubectl apply -f service.yml
+```
 
 ### Python configuration
 
