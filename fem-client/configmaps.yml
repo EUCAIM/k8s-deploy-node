@@ -1,0 +1,140 @@
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: fem-client-env
+  namespace: eucaim-fed-computation
+data:
+  .env: |
+    LOG_FILE=/app/logs/out.log
+    SANDBOX_PATH=/app/sandbox/test-eucaim-computation/FEM
+
+---
+
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: fem-client-launcher
+  namespace: eucaim-fed-computation
+data:
+  launcher.json: |
+    {
+      "submit_run": {
+        "method": "POST",
+        "url"    : "https://chaimeleon-eu.i3m.upv.es/jobman-service/api/v1/jobs",
+        "cmd"    : [
+            "curl -X '{method}' -H '{header}'  -d '{body}' '{url}' | jq '.jobName | {\"container_id\": .}'"
+        ],
+        "header" : [
+          "Content-Type: application/json",
+          "Authorization: ApiToken <Jobman API token>"
+        ],
+        "body" : {
+          "jobName"      : "%%execution_id%%",
+          "image"        : "%%DOCKER_IMAGE_NAME%%:%%DOCKER_IMAGE_TAG%%",
+          "commandArgs"  : "%%TASK_COMMAND%%",
+          "dryRun"       : false,
+          "datasetsList" : "<list of datatasets IDs separated by a single comma>",
+          "env": [
+              {
+                "name": "SANDBOX_PATH",
+                "value": "/home/chaimeleon/persistent-home/FEM"
+              }
+            ]
+        }
+      },
+      "cancel_run": {
+        "method" : "DELETE",
+        "url"    : "https://chaimeleon-eu.i3m.upv.es/jobman-service/api/v1/jobs/%%execution_id%%",
+        "cmd"    : [
+           "curl -X '{method}' '{url}' -H '{header}' &&",
+           "echo \"{\\\"status\\\": \\\"cancelled\\\", \\\"container_id\\\": \\\"%%CONTAINER_ID%%\\\"}\" | jq '.'"
+        ],
+        "header" : [
+          "Content-Type: application/json",
+          "Authorization: ApiToken <Jobman API token>"
+        ]
+      },
+      "run_status": {
+        "method": "GET",
+        "url"    : "https://chaimeleon-eu.i3m.upv.es/jobman-service/api/v1/jobs/%%execution_id%%/logs",
+        "cmd": [
+          "curl -X '{method}' -H '{header}'  '{url}' | tee >(jq -r '.stdOut' >  %%SANDBOX_PATH%%/%%user_id%%/%%execution_id%%/%%task_id%%.out) | jq '.stdOut | {\"container_id\": \"%%CONTAINER_ID%%\", \"logs\": .}'"
+        ],
+        "header" : [
+          "Content-Type: application/json",
+          "Authorization: ApiToken <Jobman API token>"
+        ]
+      },
+      "run_report": {
+        "method": "GET",
+        "url"    : "https://chaimeleon-eu.i3m.upv.es/jobman-service/api/v1/jobs/%%execution_id%%",
+        "cmd": [
+          "curl -X '{method}' -H '{header}'  '{url}' | jq '. | .exit_code = .exitCode | .start_time = .startedAt | .stop_time = .finishedAt | .elapsed_time_sec = .executionDuration | .error = (if (.errors | length) > 0 then .errors else null end) | del(.exitCode, .startedAt, .finishedAt, .executionDuration, .errors)'"
+        ],
+        "header" : [
+          "Content-Type: application/json",
+          "Authorization: ApiToken <Jobman API token>"
+        ]
+      },
+      "print_images": {
+        "method": "GET",
+        "url"    : "https://chaimeleon-eu.i3m.upv.es/jobman-service/api/v1/images/",
+        "cmd": [
+          "curl -X '{method}' -H '{header}' '{url}' | jq '[.data[] | .name as $repo | .artifacts[] | {repository: $repo, tag: .tags[], image_id: \"<none>\", sha256_digest: .digest}]'"
+        ],
+        "header" : [
+          "Content-Type: application/json",
+          "Authorization: ApiToken <Jobman API token>"
+        ]
+      },
+      "task_info_vars" : {
+        "DOCKER_IMAGE_NAME" : ["image", "name"],
+        "DOCKER_IMAGE_REPO": ["image", "repository"],
+        "DOCKER_IMAGE_TAG": ["image", "tag"],
+        "CONTAINER_ID": ["result", "container_id"]
+      }
+    }
+
+---
+
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: fem-client-config
+  namespace: eucaim-fed-computation
+data:
+  config.py: |
+    #!/usr/bin/env python
+    import os
+
+    # ----------------------------------------------------------------
+    # REPLACE THE FOLLOWING VARIABLES WITH YOUR OWN
+    # ----------------------------------------------------------------
+    node_name = 'CHAIMELEON'
+
+    data_path = '/app/data'
+    sandbox_path = '/home/chaimeleon/persistent-home/FEM/'
+    node_user = 'CHAIMELEONrmq'
+    node_password = ''
+    cert_phrase = ''
+
+    # ----------------------------------------------------------------
+    # DOCKER RELATIVE PATHS. KEEP UNMODIFIED
+    # ----------------------------------------------------------------
+    rabbitmq_folder='/app/config/rabbitmq-certificates'
+    json_launcher = '/app/config/launcher.json'
+
+    # ----------------------------------------------------------------
+    # KEEP THE FOLLOWING VARIABLES WITH THE PROJECT'S VALUES
+    # ----------------------------------------------------------------
+    ssl_active = True
+    ssl_central_server_port = 5671
+    ssl_cafile_path = f'{rabbitmq_folder}/rootCA_cert.pem'
+    ssl_client_cert_path = f'{rabbitmq_folder}/{node_name}_client_cert.pem'
+    ssl_client_keys_path = f'{rabbitmq_folder}/{node_name}_client_key.pem'
+
+    central_server_ip = 'fl.bsc.es'
+    central_server_port = 5671
+    central_rabbitmq_vhost = 'eucaim_server'
+    api_base_url = 'https://fl.bsc.es/eucaim-fem/API/v1'
+

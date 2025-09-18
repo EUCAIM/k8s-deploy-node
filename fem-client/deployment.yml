@@ -1,0 +1,100 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: fem-client
+  namespace: eucaim-fed-computation
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: fem-client
+  template:
+    metadata:
+      labels:
+        app: fem-client
+    spec:
+      volumes:
+        - name: homes
+          cephfs:
+            monitors:
+              - 192.168.3.37:6789
+              - 192.168.3.22:6789
+              - 192.168.3.49:6789
+            path: /homes/chaimeleon-users/
+            user: fem-client
+            secretRef:
+              name: ceph-auth
+        - name: fem-client-vol
+          persistentVolumeClaim:
+            claimName: fem-client-pvc
+        - name: config-env
+          configMap:
+            name: fem-client-env
+            items:
+              - key: .env
+                path: .env
+            defaultMode: 420
+        - name: config
+          projected:
+            sources:
+              - secret:
+                  name: fem-client-secrets
+                  items:
+                    - key: CHAIMELEON_client_cert.pem
+                      path: rabbitmq-certificates/CHAIMELEON_client_cert.pem
+                    - key: CHAIMELEON_client_csr.pem
+                      path: rabbitmq-certificates/CHAIMELEON_client_csr.pem
+                    - key: CHAIMELEON_client_key.pem
+                      path: rabbitmq-certificates/CHAIMELEON_client_key.pem
+                    - key: rootCA_cert.pem
+                      path: rabbitmq-certificates/rootCA_cert.pem
+              - configMap:
+                  name: fem-client-launcher
+                  items:
+                    - key: launcher.json
+                      path: launcher.json
+              - configMap:
+                  name: fem-client-config
+                  items:
+                    - key: config.py
+                      path: config.py
+            defaultMode: 420
+      containers:
+        - name: fem-client
+          image: registry.gitlab.bsc.es/fl/fem-client:v2.3-test
+          command:
+            - python
+            - receiver.py
+          workingDir: /app
+          env:
+            - name: TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: jobman-api-token-secret
+                  key: TOKEN
+          resources:
+            limits:
+              cpu: '2'
+              memory: 8Gi
+            requests:
+              cpu: '2'
+              memory: 8Gi
+          volumeMounts:
+            - name: config-env
+              mountPath: /app/.env
+              subPath: .env
+            - name: fem-client-vol
+              mountPath: /app/logs
+              subPath: logs/
+            - name: fem-client-vol
+              mountPath: /app/data
+              subPath: data/
+            - name: homes
+              mountPath: /app/sandbox
+            - name: config
+              mountPath: /app/config
+          imagePullPolicy: Always
+      restartPolicy: Always
+      nodeSelector:
+        chaimeleon.eu/target: core-services
+      priorityClassName: core-applications
