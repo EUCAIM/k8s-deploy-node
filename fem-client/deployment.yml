@@ -17,10 +17,10 @@ spec:
         - name: homes
           cephfs:
             monitors:
-              - 192.168.3.37:6789
-              - 192.168.3.22:6789
-              - 192.168.3.49:6789
-            path: /homes/chaimeleon-users/
+              - 192.168.10.230:6789
+              - 192.168.10.3:6789
+              - 192.168.10.4:6789
+            path: /homes/users/
             user: fem-client
             secretRef:
               name: ceph-auth
@@ -59,6 +59,17 @@ spec:
                     - key: config.py
                       path: config.py
             defaultMode: 420
+      initContainers:
+        - name: set-volume-permissions
+          image: busybox:1.33
+          command: ['sh', '-c', 'chown -R 1000:1000 /app/data && chown 1000:1000 /app/logs']
+          volumeMounts:
+            - mountPath: /app/logs
+              name: fem-client-vol
+              subPath: logs/
+            - mountPath: /app/data
+              name: fem-client-vol
+              subPath: data/
       containers:
         - name: fem-client
           image: registry.gitlab.bsc.es/fl/fem-client:v2.3-test
@@ -66,12 +77,6 @@ spec:
             - python
             - receiver.py
           workingDir: /app
-          env:
-            - name: TOKEN
-              valueFrom:
-                secretKeyRef:
-                  name: jobman-api-token-secret
-                  key: TOKEN
           resources:
             limits:
               cpu: '2'
