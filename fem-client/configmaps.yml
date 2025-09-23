@@ -20,7 +20,7 @@ data:
     {
       "submit_run": {
         "method": "POST",
-        "url"    : "https://chaimeleon-eu.i3m.upv.es/jobman-service/api/v1/jobs",
+        "url"    : "https://eucaim-node.i3m.upv.es/jobman-service/api/v1/jobs",
         "cmd"    : [
             "curl -X '{method}' -H '{header}'  -d '{body}' '{url}' | jq '.jobName | {\"container_id\": .}'"
         ],
@@ -44,7 +44,7 @@ data:
       },
       "cancel_run": {
         "method" : "DELETE",
-        "url"    : "https://chaimeleon-eu.i3m.upv.es/jobman-service/api/v1/jobs/%%execution_id%%",
+        "url"    : "https://eucaim-node.i3m.upv.es/jobman-service/api/v1/jobs/%%execution_id%%",
         "cmd"    : [
            "curl -X '{method}' '{url}' -H '{header}' &&",
            "echo \"{\\\"status\\\": \\\"cancelled\\\", \\\"container_id\\\": \\\"%%CONTAINER_ID%%\\\"}\" | jq '.'"
@@ -56,7 +56,7 @@ data:
       },
       "run_status": {
         "method": "GET",
-        "url"    : "https://chaimeleon-eu.i3m.upv.es/jobman-service/api/v1/jobs/%%execution_id%%/logs",
+        "url"    : "https://eucaim-node.i3m.upv.es/jobman-service/api/v1/jobs/%%execution_id%%/logs",
         "cmd": [
           "curl -X '{method}' -H '{header}'  '{url}' | tee >(jq -r '.stdOut' >  %%SANDBOX_PATH%%/%%user_id%%/%%execution_id%%/%%task_id%%.out) | jq '.stdOut | {\"container_id\": \"%%CONTAINER_ID%%\", \"logs\": .}'"
         ],
@@ -67,7 +67,7 @@ data:
       },
       "run_report": {
         "method": "GET",
-        "url"    : "https://chaimeleon-eu.i3m.upv.es/jobman-service/api/v1/jobs/%%execution_id%%",
+        "url"    : "https://eucaim-node.i3m.upv.es/jobman-service/api/v1/jobs/%%execution_id%%",
         "cmd": [
           "curl -X '{method}' -H '{header}'  '{url}' | jq '. | .exit_code = .exitCode | .start_time = .startedAt | .stop_time = .finishedAt | .elapsed_time_sec = .executionDuration | .error = (if (.errors | length) > 0 then .errors else null end) | del(.exitCode, .startedAt, .finishedAt, .executionDuration, .errors)'"
         ],
@@ -78,7 +78,7 @@ data:
       },
       "print_images": {
         "method": "GET",
-        "url"    : "https://chaimeleon-eu.i3m.upv.es/jobman-service/api/v1/images/",
+        "url"    : "https://eucaim-node.i3m.upv.es/jobman-service/api/v1/images/",
         "cmd": [
           "curl -X '{method}' -H '{header}' '{url}' | jq '[.data[] | .name as $repo | .artifacts[] | {repository: $repo, tag: .tags[], image_id: \"<none>\", sha256_digest: .digest}]'"
         ],
@@ -110,11 +110,11 @@ data:
     # ----------------------------------------------------------------
     # REPLACE THE FOLLOWING VARIABLES WITH YOUR OWN
     # ----------------------------------------------------------------
-    node_name = 'CHAIMELEON'
+    node_name = 'UPV'
 
     data_path = '/app/data'
     sandbox_path = '/home/chaimeleon/persistent-home/FEM/'
-    node_user = 'CHAIMELEONrmq'
+    node_user = 'UPVrmq'
     node_password = ''
     cert_phrase = ''
 
