@@ -41,6 +41,10 @@ Dataset administration and Traceability System:
 Authentication proxy:
 - OAuth2-proxy: deployed using the helm chart. URL: https://eucaim-node.i3m.upv.es/oauth2p/
 
+Package Repositories (like for Python's pip, or Java's maven):
+- Devpi: deployed using plain YAMLs
+   - URL (Platform internal only): http://devpi-service.package-repos-proxy:3141
+   - Deployment details in the [devpi directory](/devpi/)
 
 ## Deployment order
 First of all, go to the infrastructure recipes to create the infrastructure (a Kubernetes cluster) in a cloud provider
@@ -57,6 +61,7 @@ Now the platform core services can be deployed in the following order to properl
  |-----------------------------------|--------------------------------------------------------------------|------------------------------------------------
  | Keycloak                          |                                                                    | [keycloak directory](/keycloak/)
  | Harbor                            | Depends on Keycloak                                                | [harbor directory](/harbor/)
+ | Devpi                             | Depends on Harbor                                                  | [devpi directory](/devpi/)
  | Kubeapps                          | Depends on Keycloak, Harbor                                        | [kubeapps directory](/kubeapps/)
  | Access to K8s dashboard with OIDC | Depends on Keycloak, Kubeapps                                      | [kubernetes-dashboard-oidc-access directory](/kubernetes-dashboard-oidc-access/)
  | Tracer-service                    | Depends on Keycloak, Harbor                                        |
