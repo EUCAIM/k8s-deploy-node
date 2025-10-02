@@ -76,26 +76,26 @@ Also go to "Client scopes" tab and add scope `groups` as Default.
 In the same tab, go to the dedicated scope, change to "Scope" tab and disable "full scope allowed".
 
 Now in Harbor Web UI go to "Administration" -> "Configuration" -> "Authentication" tab:
-    Auth Mode: `OIDC`
-    Primary Auth Mode: false
-    OIDC Provider Name: `keycloak`
-    OIDC Endpoint: `https://eucaim-node.i3m.upv.es/auth/realms/EUCAIM-NODE`
-    OIDC Client ID: `harbor`
-    OIDC Client Secret: XXXXXX  (the secret annotated previously)
-    OIDC Group Filter: (empty)
-    Group Claim Name: `groups`
-    OIDC Admin Group: `cloud-services-and-security-management`
-    OIDC Scope: `openid,offline_access,groups,email,profile`
-    Verify Certificate: true
-    Automatic onboarding: true
-    Username Claim: `preferred_username`
+ -  Auth Mode: `OIDC`
+ -  Primary Auth Mode: false
+ -  OIDC Provider Name: `keycloak`
+ -  OIDC Endpoint: `https://eucaim-node.i3m.upv.es/auth/realms/EUCAIM-NODE`
+ -  OIDC Client ID: `harbor`
+ -  OIDC Client Secret: XXXXXX  (the secret annotated previously)
+ -  OIDC Group Filter: (empty)
+ -  Group Claim Name: `groups`
+ -  OIDC Admin Group: `cloud-services-and-security-management`
+ -  OIDC Scope: `openid,offline_access,groups,email,profile`
+ -  Verify Certificate: true
+ -  Automatic onboarding: true
+ -  Username Claim: `preferred_username`
 
 Note: the scope `offline_access` is required to access via CLI, otherwise an unauthorized error will be shown.
       On the other hand the scopes `groups`, `email` and `profile` are not strictly required in our case 
       because they are configured as `Default` in the client we configured in Keycloak.
 
 # Other configurations
-You should go to Harbor Web UI go to "Configuration" -> "System Settings" tab and set "Project Creation" to "Admin Only".
+You should go to Harbor Web UI, in the main menu (on the left) "Configuration" -> "System Settings" tab and set "Project Creation" to "Admin Only".
 
 ## Create the projects
 At least these projects are usually needed:
@@ -113,32 +113,37 @@ In the other hand, the library-batch-protected will be only accessible to the jo
 it is for container images of applications which the owner doesn't want the user can see the contents (see [jobman-service]).
 
 ## Robot accounts
+As mentioned in the previous chapter, you must create the following robot accounts:
 Name                  | Description                                                                                      | Access to projects
 ----------------------|--------------------------------------------------------------------------------------------------|----------------------------
 robot$common-user     | Used by any chaimeleon user via internal-gateway to pull images from library and library-batch.  | library, library-batch
 robot$jobman-service  | Used to pull images from library-batch-protected for jobs in jobman-service-exec namespace.      | library-batch-protected
 
+You can do it going to the Harbor Web UI, in the main menu (on the left) "Robot Accounts".
 The name in table is the complete form to be used when login, but when creating the robot account you only have to set the part after the `$`.
 The permissions to give for each project usually are: list artifact, repository and tag; pull repository; read artifact and repository.
+You should annotate the generated secrets in order to use 
+ - the first one for common-user in the deployment of the internal gateway (see below)
+ - and the last one in the deployment of jobman-service.
 
 ## Dockerhub proxy cache
 Let's create a proxy-cache to docker-hub that will be used to pull the images of applications and services in the platform 
 to avoid reaching the limit of downloads from DockerHub.
 
 Go to "Administration" -> "Registries", you should create a "New endpoint" like this:
-    Provider: Docker Hub
-    Name: dockerhub
-    Description: 
-    Endpoint URL: https://hub.docker.com
-    Access ID:
-    Access Secret:
-    Verify Remote Cert: true
+ - Provider: Docker Hub
+ - Name: dockerhub
+ - Description: 
+ - Endpoint URL: https://hub.docker.com
+ - Access ID:
+ - Access Secret:
+ - Verify Remote Cert: true
     
 Now go to Projects and create a new one with:
-    Project Name: dockerhub
-    Access Level: not public
-    Project quota limits: -1
-    Proxy Cache: true, and select the previously created endpoint
+ - Project Name: dockerhub
+ - Access Level: not public
+ - Project quota limits: -1
+ - Proxy Cache: true, and select the previously created endpoint
 
 As the project is not public we are going to create a robot account for Kubernetes to access...
 
