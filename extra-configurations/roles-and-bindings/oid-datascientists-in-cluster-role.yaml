@@ -1,0 +1,12 @@
+# The permissions for every user in the cluster (outside of his/her namespace).
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: oidc:data-scientists-in-cluster
+rules:
+  - apiGroups: ["*"]
+    resources: ["namespaces"]
+    verbs: ["get", "list","watch"]
+  - apiGroups: ["*"]
+    resources: ["persistentvolumes"]
+    verbs: ["get", "list", "watch"]

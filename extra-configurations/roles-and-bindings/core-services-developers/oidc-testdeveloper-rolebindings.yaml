@@ -1,0 +1,17 @@
+
+# Add the user to the group of "data-scientists" in keycloak
+# to get the role of "data-scientists-in-cluster".
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: oidc:testdeveloper-in-testapp-namespace
+  namespace: testapp
+subjects:
+- kind: User
+  name: oidc:testdeveloper
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: oidc:core-services-normal-developers-in-namespace

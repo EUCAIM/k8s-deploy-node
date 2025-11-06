@@ -1,0 +1,16 @@
+# The permissions for every user in his/her namespace.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: oidc:data-scientists-in-user-namespace
+rules:
+  - apiGroups: ["*"]
+    resources: ["deployments", "replicasets", "pods", "pods/log", "pods/exec", "jobs", "jobs/status", "container", 
+      "services", "configmaps", "secrets"]
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+  - apiGroups: ["*"]
+    resources: ["events", "ingresses", "persistentvolumeclaims"]
+    verbs: ["get", "list", "watch"]
+# - apiGroups: ["*"]
+#  resources: ["ingresses"]
+#  verbs: ["create", "update", "delete", "patch"]

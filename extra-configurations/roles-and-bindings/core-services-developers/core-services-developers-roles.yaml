@@ -1,0 +1,56 @@
+# Basic level of access to developers.
+# They can view the resources in the namespace of an application and see the logs, but cannot change anything.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: oidc:core-services-read-only-developers-in-namespace
+rules:
+- apiGroups: ["*"]
+  resources: ["pods","pods/log","pods/exec", "jobs", "deployments", "replicasets", "daemonsets", "replicationcontrollers", "statefulsets","configmaps", "container", "services"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: ["*"]
+  resources: ["events", "ingresses"]
+  verbs: ["get", "list", "watch"]
+---
+# Normal level of access to developers. 
+# They can view the resources in the namespace of an application and see the logs.
+# They usually upload changes to container images and then can delete pods to regenerate with the new image (if "imagePullPolicy: Always")
+# or even change deployments to update the image tag, command, parameters, mountPath of volumes...
+# They can also open a shell in pods to explore contents and execute commands.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: oidc:core-services-normal-developers-in-namespace
+rules:
+- apiGroups: ["*"]
+  resources: ["pods","pods/log","pods/exec", "jobs", "deployments", "replicasets", "daemonsets", "replicationcontrollers", "statefulsets","configmaps", "secrets", "container", "services"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: ["*"]
+  resources: ["events", "ingresses"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: ["*"]
+  resources: ["deployments", "configmaps", "secrets"]
+  verbs: ["update", "patch"]
+- apiGroups: ["*"]
+  resources: ["pods"]
+  verbs: ["delete"]
+- apiGroups: ["*"]
+  resources: ["pods/exec"]
+  verbs: ["create"]
+---
+# Advanced level of access to trusted developers. 
+# They can do the whole deployment of the application creating all the required resources in the namespace.
+# They can even create dangerous resources like ingresses and (nodeport) services which can conflict with hosts, paths and ports used by other core services.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: oidc:core-services-advanced-developers-in-namespace
+rules:
+- apiGroups: ["*"]
+  resources: ["pods","pods/log","pods/exec", "jobs", "deployments", "deployments/scale" , "replicasets", "daemonsets", "replicationcontrollers", "statefulsets", "statefulsets/scale", 
+    "cronjobs", "configmaps", "secrets", "container", "persistentvolumeclaims", "horizontalpodautoscalers", "services", "datasets-consumer", 
+    "ingresses", "serviceaccounts", "roles", "rolebindings"]
+  verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+- apiGroups: ["*"]
+  resources: ["events", "pods/status"]
+  verbs: ["get", "list", "watch"]
