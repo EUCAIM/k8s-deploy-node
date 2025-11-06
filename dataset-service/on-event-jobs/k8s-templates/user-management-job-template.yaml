@@ -1,0 +1,150 @@
+# This is the template of the k8s job launched whenever a user is created, updated or deleted.
+# Template variables that will be replaced by the launcher (the Dataset-service):
+#   __OPERATION__, __TENANT_USERNAME__, __TENANT_ROLES__, __TENANT_SITE__, __TENANT_PROJECTS__
+# __OPERATION__ will be "create" or "delete".
+# __TENANT_ROLES__ will be a list of roles separated by ":". Example: "dataset-administrator:data-scientists"
+# __TENANT_PROJECTS__ will be a list of projects separated by ":". Example: "CHAIMELEON:PRIMAGE"
+# __TENANT_SITE__ can be empty if the user has no site assigned (usually the site is mandatory only for some roles, those who upload data).
+# NOTE: the script for create (create-user.sh) should be idempotent, the result should be the same if called multiple times.
+
+apiVersion: batch/v1
+kind: Job
+metadata:
+  # name: it is set by the caller
+  # namespace: it is set by the caller
+spec:
+  template:
+    spec:
+      volumes:
+        - name: dataset-service-data-volume
+          persistentVolumeClaim:
+            claimName: dataset-service-data
+        - name: cephfs-volume
+          cephfs:
+            monitors: 
+              - "192.168.10.230:6789"
+              - "192.168.10.3:6789"
+              - "192.168.10.4:6789"
+            path: /homes/users
+            user: eucaim-user-creator
+            secretRef:
+              name: user-management-jobs-ceph-secret
+      containers:
+        - name: user-management
+          image: harbor.eucaim-node.i3m.upv.es/core-services/dataset-service-on-event-jobs:1.0
+          #imagePullPolicy: Always
+          workingDir: "/home/ubuntu/scripts"
+          command: ["/bin/bash"]
+          args: ["/home/ubuntu/scripts/__OPERATION__-user.sh"]
+          volumeMounts:
+            - mountPath: "/home/ubuntu/scripts"
+              subPath: "on-event-jobs/scripts"
+              name: dataset-service-data-volume
+            - name: cephfs-volume
+              mountPath: /mnt/homes
+          env:
+            - name: TENANT_NAME
+              value: "__TENANT_USERNAME__"
+            - name: TENANT_ROLES
+              value: "__TENANT_ROLES__"
+            - name: TENANT_SITE
+              value: "__TENANT_SITE__"
+            - name: TENANT_PROJECTS
+              value: "__TENANT_PROJECTS__"
+
+            - name: K8S_ENDPOINT
+              value: "https://eucaim-node.i3m.upv.es:6443"
+            - name: K8S_TOKEN
+              value: "XXXXXXXXXXXXXXXX"
+              
+            - name: CEPH_HOST
+              value: "[v2:192.168.10.230:3300/0,v1:192.168.10.230:6789/0] [v2:192.168.10.3:3300/0,v1:192.168.10.3:6789/0] [v2:192.168.10.4:3300/0,v1:192.168.10.4:6789/0]"
+            - name: CEPH_ADMIN_USER
+              # You must give permissions to that user with:
+              # ceph auth get-or-create client.eucaim-user-creator  mon "allow * fsname=eucaimnodedata"  mds "allow * fsname=eucaimnodedata"  osd "allow * tag cephfs data=eucaimnodedata"
+              value: "eucaim-user-creator"
+            - name: CEPH_ADMIN_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: user-management-jobs-ceph-secret
+                  key: key
+            - name: CEPH_FS_VOL_NAME
+              value: "eucaimnodedata"
+            - name: CEPH_PREFIX_ACCOUNT
+              # Example: "eucaim-user" 
+              # In this example, the ceph account created for the user "john" will be "eucaim-user--john"
+              value: "eucaim-user"
+              
+            - name: MOUNTED_DIR_PERSISTENT_HOMES
+              value: "/mnt/homes"
+            - name: DIR_PERSISTENT_HOMES
+              # Read and write permissions will be granted to the users for this directory appending the TENANT_NAME as a subdirectory
+              value: "/homes/users"
+            - name: DIR_PERSISTENT_SHARED
+              # Read and write permissions will be granted to the users for this directory
+              value: "/homes/shared-folder"
+            - name: DIR_DATA
+              # Read permission will be granted to the users for this directory
+              value: "/datalake" 
+            - name: DIR_DATASETS
+              # Read permission will be granted to the users for this directory
+              value: "/datasets"
+              
+            - name: KEYCLOAK_TOKEN_ENDPOINT
+              value: "https://eucaim-node.i3m.upv.es/auth/realms/EUCAIM-NODE/protocol/openid-connect/token"
+
+            - name: KEYCLOAK_ADMIN_ENDPOINT
+              value: "https://eucaim-node.i3m.upv.es/auth/admin/realms/EUCAIM-NODE/"
+            - name: KEYCLOAK_CLIENT
+              # You must create that client as a service account in Keycloak.
+              # In order to add API tokens as custom attributes in the users:
+              #  - Ensure that the "Unmanaged Attributes" are enabled in the "Realm settings" -> tab "General".
+              #  - The following roles must be added to the service account roles 
+              #    (and also in the "dedicated scope" of the client if "full scope" is not enabled): 
+              #     "realm-management/query-users", "realm-management/view-users", "realm-management/manage-users".
+              value: "dataset-service"
+            - name: KEYCLOAK_CLIENT_SECRET
+              value: "XXXXXXXXXXXXXXXX"
+
+            - name: QPI_ADMIN_ENDPOINT
+              #value: "http://gateway.quibim.svc.cluster.local/care/admin/"
+              value: "https://qpinsights.eucaim-node.i3m.upv.es/care/admin/"
+            - name: QPI_ADMIN_CLIENT_ID
+              value: "qpinsights"
+            - name: QPI_ADMIN_USERNAME
+              # This user should be created specially for that purpose in the auth service,
+              # with some email putting it in a new custom attribute named "qpi_id",
+              # with some first name (for example "-") and last name (for example "-"),
+              # with some password (put it in the next env var),
+              # and assign to it the roles "validated_user" and "qpinsights-backend:Admin".
+              # Finally the user must be created also in QP-Insights.
+              # NOTE: in that case we don't use the service account (as we do to access the keycloak admin endpoint) for two reasons:
+              #       - Because QPI admin endpoint requires some special claims in the role which are defined in mappers for its client,
+              #         so we have to use that client to get a user token, otherwise we would have to define again this mappers for the service account.
+              #       - For security reasons, avoid someone who gain access to QPI instance and catch the token to be able to manage users also in keycloak.
+              value: "qpi-user-creator"
+            - name: QPI_ADMIN_PASSWORD
+              value: "XXXXXXXXXXXXXXXX"
+
+            - name: GUACAMOLE_ENDPOINT
+              value: "http://guacamole-guacamole.guacamole.svc.cluster.local/guacamole/"
+            - name: GUACAMOLE_ADMIN_USER
+              # You must create that user in Guacamole
+              value: "eucaim-user-creator"
+            - name: GUACAMOLE_ADMIN_PASSWORD
+              value: "XXXXXXXXXXXXXXXX"
+              
+            - name: EXTERNAL_SHARING_SERVICE_ENDPOINT
+              value: "http://external-sharing-service.external-sharing-service.svc.cluster.local:80"
+              
+              # Following params are domains to be included in the network policy as allowed destinations from pods in the user namespace
+            - name: MAIN_DOMAIN_NAME
+              value: "eucaim-node.i3m.upv.es"
+            - name: HARBOR_DOMAIN_NAME
+              value: "harbor.eucaim-node.i3m.upv.es"
+            
+      restartPolicy: Never  # no restart container if fails
+      nodeSelector: 
+        chaimeleon.eu/target: core-services
+  backoffLimit: 0   # no retry to launch pod if fails
+  ttlSecondsAfterFinished: 86400   # auto remove the job 24 hours after finish

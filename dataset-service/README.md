@@ -29,7 +29,7 @@ Let's start with the backend, Dataset-service:
  - Type: `OIDC`
  - Client ID: `dataset-service`
  - Client authentication: `true`
- - Authentication flow: `Service account roles`
+ - Authentication flow: only `Service account roles` (the `Standard flow` is not required)
  - Root URL: `https://eucaim-node.i3m.upv.es/dataset-service/`
  - Home URL: `https://eucaim-node.i3m.upv.es/dataset-service/`
  
@@ -39,20 +39,21 @@ Now in the "Roles" tab create all the roles which are defined in the
 [default config file](https://github.com/chaimeleon-eu/dataset-service/blob/main/etc/dataset-service.default.yaml), 
 in auth.token_validation.roles.
 
-In the "Client scopes" tab, go to the dedicated scope, change to "Scope" tab and 
- - disable "full scope allowed"
- - and assign the roles: 
-    - `tracer-webservice:trace_writer`
+In the "Service account roles" tab assign the roles:
+    - `tracer-webservice:trace_writer` (only if you want to trace dataset events, see config param `tracer.url`)
+    - `realm-management:manage-users` (only if you want to auto-create groups for projects, see config param `auth.admin_api.parent_group_of_project_groups`)
     - `realm-management:view-clients`
     - `realm-management:view-users`
     - `realm-management:query-users`
     - `realm-management:query-groups`
- 
-In the "Service account roles" tab add also the same previous roles.
+
+In the "Client scopes" tab, go to the dedicated scope, change to "Scope" tab and 
+ - disable "full scope allowed"
+ - and assign the same previous roles assigned to the service account.
 
 Check all the URLs of the auth service in `2-dataset-service.private.yaml` --> env `DATASET_SERVICE_CONFIG` --> `auth`.
 
-Go to url set in `token_issuer_public_keys_url` (in this case is https://eucaim-node.i3m.upv.es/auth/realms/EUCAIM-NODE/protocol/openid-connect/certs),
+Go to the url you have set in `token_issuer_public_keys_url` (in this case is https://eucaim-node.i3m.upv.es/auth/realms/EUCAIM-NODE/protocol/openid-connect/certs),
 take the `kid` of the first key with `alg: RS256` and put it in 
 `2-dataset-service.private.yaml` --> env `DATASET_SERVICE_CONFIG` --> `auth` --> `token_validation` --> `kid`.
 
@@ -102,8 +103,8 @@ Create the service account, role and roleBinding: `kubectl apply -n dataset-serv
 Create the database deployment and service: `kubectl apply -n dataset-service -f 1-db-service.private.yaml`  
 Create the main deployment and service: `kubectl apply -n dataset-service -f 2-dataset-service.private.yaml`  
 Create the ingress: `kubectl apply -n dataset-service -f 3-ingress.yaml`
-And finally the ingress: `kubectl apply -n dataset-service -f 4-ingress-for-redirect-from-root-path.yaml`
+And finally the ingress for redirect: `kubectl apply -n dataset-service -f 4-ingress-for-redirect-from-root-path.yaml`
 
-## Add scripts to be executed on user creation/deletion
-See [here](user-management-jobs/README.md).
+## Add scripts to be executed on some events
+See [here](on-event-jobs/README.md).
 

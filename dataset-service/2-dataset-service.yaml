@@ -41,7 +41,7 @@ spec:
             readOnly: false
       containers:
         - name: dataset-service-backend
-          image: harbor.chaimeleon-eu.i3m.upv.es/chaimeleon-services/dataset-service-backend:3.21.1
+          image: harbor.eucaim-node.i3m.upv.es/core-services/dataset-service-backend:3.22.1
           ports:
             - containerPort: 11000
               name: dssport
@@ -49,8 +49,8 @@ spec:
             - mountPath: "/var/log/dataset-service"
               subPath: "log"
               name: dataset-service-data-volume
-            - mountPath: "/var/user-management-jobs"
-              subPath: "user-management-jobs"
+            - mountPath: "/var/on-event-jobs"
+              subPath: "on-event-jobs"
               name: dataset-service-data-volume
             - mountPath: "/var/www/dataset-service-ui"
               subPath: "ui"
@@ -104,8 +104,10 @@ spec:
                   "zenodo": {
                       "url": "https://zenodo.org/"
                   },
-                  "user_management_scripts": {
-                      "job_template_file_path": "/var/user-management-jobs/job-template.private.yaml"
+                  "on_event_scripts": {
+                      "user_management_job_template_file_path": "/var/on-event-jobs/user-management-job-template.private.yaml",
+                      "site_management_job_template_file_path": "/var/on-event-jobs/site-management-job-template.private.yaml",
+                      "subproject_management_job_template_file_path": "/var/on-event-jobs/subproject-management-job-template.private.yaml"
                   },
                   "self": { 
                       "port": 11000, 
