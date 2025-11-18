@@ -124,7 +124,7 @@ And with `rolebinding` and `clusterrolebinding` you can assign roles to OIDC use
 The roles defined for the platform and the bindings to some OID groups are in the directory [/extra-configurations/role-bindings/](/extra-configurations/role-bindings/).
 Now it's a good moment to go there and apply the manifests.
 
-# Add the package repository as OCI (not fully supported yet, so it's difficult to get it working, not recommended, not yet)
+# Add the package repository as OCI (not fully supported, so it's difficult to get it working, not recommended)
 Go to Kubeapps web portal and then to the menú "Administration" -> "Package repositories".
 You should add one in "Global repositories" with:
   Name: `eucaim-node`
@@ -147,7 +147,6 @@ and put the credentials of the robot in a secret in that namespace and give perm
 And finally you will have to upload the tgz files of charts to somewhere 
 and put the link to it in the first entry of the "sources" section in the Chart.yaml for each chart,
 and cross the fingers for everything goes well.
-
 
 # Add the package repository as Helm Repository
 Go to Kubeapps web portal and then to the menú "Administration" -> "Package repositories".
