@@ -138,7 +138,8 @@ class QPInsightsAdminAPIClient:
             self._POST_JSON("users", data)
         else:        
             logging.root.debug('Updating the existing user with QPInsightsAdminAPI...')
-            data = { "site": user_site_id,
+            data = { "name": user_name,
+                     "site": user_site_id,
                      "position": user_position,
                      "projects": user_projects_ids }
             logging.root.debug('Data: ' + json.dumps(data))
@@ -157,9 +158,9 @@ class QPInsightsAdminAPIClient:
                 "name": name,
                 "code": code,
                 "description": description,
-                "timepoints": ["Diagnosis"]
+                "timepoints": [{"order":0, "value":"Diagnosis"}]
             })
-            return result["id"]
+            return result
         else:
             logging.root.debug('Updating the existing project with QPInsightsAdminAPI...')
             result = self._PATCH_JSON("projects/"+project["id"], {
