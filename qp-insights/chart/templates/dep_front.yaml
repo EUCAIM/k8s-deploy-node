@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: front
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: front
+  template:
+    metadata:
+      labels:
+        app: front
+    spec:
+      containers: 
+      - name: front
+        image: "{{ .Values.quibimRegistry }}{{ .Values.front.image }}"
+        env:
+{{ include "quibim-precision.quibimValuesAsEnvItems" . | indent 8 }}
+
+        ports:
+          - containerPort: 80
+            name: frontport
+
+        resources:
+          requests:
+            memory: "{{ .Values.front.resources.memory }}"
+            cpu:    "{{ .Values.front.resources.cpu }}"
+            
+      nodeSelector:
+        {{- toYaml .Values.nodeSelector | nindent 8 }}
+      priorityClassName: {{ .Values.priorityClassName }}
+      imagePullSecrets:
+      - name: regcred
+      restartPolicy: Always
+      
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: front
+spec:
+  selector:
+    app: front
+  ports:
+  - protocol: TCP
+    port: {{ .Values.front.port }}
+    targetPort: frontport
+

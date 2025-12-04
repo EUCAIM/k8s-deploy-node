@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: qpinsights-front-angular-public-shared-config
+data:
+  front-config: |
+    {
+      "clientId": "{{ .Values.front.oidcClientId }}",
+      "backendClientId": "{{ .Values.back.oidcClientId }}",
+      "qpLinkClientId": "{{ .Values.qplink.oidcClientId }}",
+      "authorityUrl": "{{ .Values.auth.oidcIssuerUrl }}/"
+    }

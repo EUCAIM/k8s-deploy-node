@@ -1,0 +1,90 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mongodb
+spec:
+  replicas: 1
+  strategy: 
+    type: Recreate
+  selector:
+    matchLabels:
+      app: mongodb
+  template:
+    metadata:
+      labels:
+        app: mongodb
+    spec:
+      volumes:
+        - name: task-pv-database
+          persistentVolumeClaim:
+            claimName: {{ .Values.persistence.mongoPVCName }}
+            
+      containers: 
+      - name: mongodb
+        image: "{{ .Values.dockerhubRegistry }}library/mongo:{{ .Values.mongodb.imageTag }}"
+#       args: ["--dbpath /mnt/cephfs/database"]
+        env:
+        - name: MONGO_INITDB_ROOT_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: quibim-secrets
+              key: MONGO_INITDB_ROOT_USERNAME
+        - name: MONGO_INITDB_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: quibim-secrets
+              key: MONGO_INITDB_ROOT_PASSWORD
+              
+        ports:
+          - containerPort: 27017
+            name: mongoport
+            
+        volumeMounts:
+          - mountPath: "/data/db"
+            name: task-pv-database
+            
+        readinessProbe:
+          exec:
+            command:
+            - '/bin/sh'
+            - '-c'
+            - >-
+              mongosh --quiet --eval "db.adminCommand('ping').ok" | grep 1
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 10
+          failureThreshold: 20
+        livenessProbe:
+          exec:
+            command:
+            - '/bin/sh'
+            - '-c'
+            - >-
+              mongosh --quiet --eval "db.adminCommand('ping').ok" | grep 1
+          initialDelaySeconds: 30
+          periodSeconds: 120
+          timeoutSeconds: 10
+          failureThreshold: 3
+          
+        resources:
+          requests:
+            memory: "{{ .Values.mongodb.resources.memory }}"
+            cpu:    "{{ .Values.mongodb.resources.cpu }}"
+            
+      nodeSelector:
+        {{- toYaml .Values.nodeSelector | nindent 8 }}
+      priorityClassName: {{ .Values.priorityClassName }}
+      restartPolicy: Always
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongodb
+spec:
+  selector:
+    app: mongodb
+  ports:
+  - protocol: TCP
+    port: {{ .Values.mongodb.port }}
+    targetPort: mongoport

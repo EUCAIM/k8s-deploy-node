@@ -1,0 +1,46 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: task-dbload-pod
+spec:
+  volumes:
+    - name: task-pv-quibim
+      persistentVolumeClaim:
+        claimName: {{ .Values.persistence.quibimPVCName }}
+
+  initContainers:
+    - name: wait-for-db
+      image: "{{ .Values.dockerhubRegistry }}library/busybox:1.33"
+      command: ['sh', '-c', "until nc -z -w 4 mongodb 27017; do echo Waiting for database...; sleep 4; done; echo Ready."]
+  
+  containers:
+    - name: task-dbload-container
+      image: "{{ .Values.dockerhubRegistry }}library/mongo:{{ .Values.mongodb.imageTag }}"
+      env:
+{{ include "quibim-precision.MongoURLAsEnvItem" . | indent 8 }}
+        - name: QUIBIM_BASE_PATH
+          value: "{{ .Values.quibim.QUIBIM_BASE_PATH }}"
+      # command: [ "/bin/bash", "-c" , "tail -f /dev/null" ]
+      command: 
+        - '/bin/sh'
+        - '-c'
+        - >-
+          if [ "$(mongosh "${MONGO_URL}" --quiet --eval "db.projects.countDocuments()")" = "0" ]; then
+             /bin/bash ${QUIBIM_BASE_PATH}/scripts/load_dump.sh ${QUIBIM_BASE_PATH}/scripts/data/dumps;
+             until [ "$(mongosh "${MONGO_URL}" --quiet --eval 'db.runCommand({serverStatus:1}).ok')" = "1" ]; do 
+                echo Waiting for database restart...; sleep 6; 
+             done;
+             #echo "Setting prefix...";
+             #echo 'db.configs.updateMany({},{$set: {"prefix": "/omni"}})';
+             #mongosh "${MONGO_URL}" --quiet --eval 'db.configs.updateMany({},{$set: {"prefix": "/omni"}})';
+          else
+             echo "Database is not empty, dumps will not be loaded.";
+          fi;
+          echo "Info:";
+          echo "$(mongosh "${MONGO_URL}" --quiet --eval 'db.projects.countDocuments()') projects";
+          #echo "$(mongosh "${MONGO_URL}" --quiet --eval 'db.configs.countDocuments()') configs";
+          #echo "$(mongosh "${MONGO_URL}" --quiet --eval 'db.configs.countDocuments({"prefix": "/omni"})') configs with prefix";
+      volumeMounts:
+        - mountPath: "{{ .Values.quibim.QUIBIM_BASE_PATH }}"
+          name: task-pv-quibim
+  restartPolicy: Never

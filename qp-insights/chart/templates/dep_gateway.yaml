@@ -1,0 +1,80 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gateway
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: gateway
+  template:
+    metadata:
+      labels:
+        app: gateway
+    spec:
+      volumes:
+        - name: nginx-config
+          configMap:
+            name: nginx-template-config
+        - name: front-config
+          configMap:
+            name: qpinsights-front-angular-public-shared-config
+        - name: viewer-config
+          configMap:
+            name: viewer-front-angular-public-shared-config
+
+      initContainers:
+      - name: wait-for-services
+        image: "{{ .Values.dockerhubRegistry }}library/busybox:1.33"
+        command: 
+          - '/bin/sh'
+          - '-c'
+          - >-
+            until nc -z -w 4 front {{ .Values.front.port }}; do echo Waiting for front service...; sleep 4; done;
+            until nc -z -w 4 back {{ .Values.back.port }}; do echo Waiting for back service...; sleep 4; done;
+            until nc -z -w 4 viewer {{ .Values.viewer.port }}; do echo Waiting for viewer service...; sleep 4; done;
+            until nc -z -w 4 qplink {{ .Values.qplink.port }}; do echo Waiting for qplink service...; sleep 4; done;
+            
+      containers: 
+      - image: "{{ .Values.dockerhubRegistry }}library/nginx:1.26-alpine"
+        name: gateway
+        command: 
+        - '/bin/sh'
+        - '-c'
+        - >-
+          exec nginx -g 'daemon off;'
+        ports:
+          - containerPort: 80
+            name: gatewayport
+        volumeMounts:
+          - mountPath: "/etc/nginx/nginx.conf"
+            name: nginx-config
+            subPath: nginx-config
+          - mountPath: "/usr/share/nginx/html/qpinsights-front-angular-public-shared-config.json"
+            name: front-config
+            subPath: front-config
+          - mountPath: "/usr/share/nginx/html/viewer-front-angular-public-shared-config.json"
+            name: viewer-config
+            subPath: front-config
+        resources:
+          requests:
+            memory: "250Mi"
+            cpu: "250m"
+            
+      nodeSelector:
+        {{- toYaml .Values.nodeSelector | nindent 8 }}
+      priorityClassName: {{ .Values.priorityClassName }}
+      restartPolicy: Always
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: gateway
+spec:
+  selector:
+    app: gateway
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: gatewayport

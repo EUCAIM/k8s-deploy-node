@@ -1,0 +1,144 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: qplink
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: qplink
+  template:
+    metadata:
+      labels:
+        app: qplink
+    spec:
+      volumes:
+        - name: task-pv-quibim
+          persistentVolumeClaim:
+            claimName: {{ .Values.persistence.quibimPVCName }}
+        - name: datalake-volume
+{{ include "quibim-precision.datalakeVolumeDefinition" . | indent 10 }}
+
+{{ include "quibim-precision.initContainerWaitDB" . | indent 6 }}
+      
+      containers: 
+      - name: qplink
+        image: "{{ .Values.quibimRegistry }}{{ .Values.qplink.image }}"
+        env:
+        - name: STORAGE_TYPE
+          value: "{{ .Values.qplink.storageType }}"
+        - name: FILESYSTEM_PATH
+          value: "{{ .Values.qplink.filesystemPath }}"
+        - name: APP_ENVIRONMENT
+          value: "{{ .Values.qplink.appEnvironment }}"
+        - name: SITE_NAME
+          value: quibim
+        - name: APP_URL
+          value: {{ include "quibim-precision.AppURL" . | quote }}
+        - name: EMAIL_APIKEY
+          value: ""
+#       - name: AZURE_CLIENT_ID
+#         value: "{{ .Values.qplink.oidcClientId }}"
+#       - name: AZURE_CLIENT_SECRET
+#         valueFrom:
+#           secretKeyRef:
+#             name: quibim-secrets
+#             key: QPLINK_CLIENT_SECRET
+#       - name: AZURE_DIRECTORY_ID
+#         value: ""
+        - name: JWT_ISSUER_URI
+          value: "{{ .Values.auth.oidcIssuerUrl }}"
+        - name: JWT_KEYS_URI
+          value: "{{ .Values.auth.oidcJwksUri }}"
+        - name: QP_LINK_SCOPE
+          value: "api://{{ .Values.qplink.oidcClientId }}/.default"
+        - name: QP_CARE_BACKEND_SCOPE
+          value: ""
+        - name: K8_CLUSTER_NAME
+          value: ""
+        - name: K8_RESOURCE_GROUP
+          value: ""
+        - name: K8_SUBSCRIPTION_ID
+          value: ""
+        - name: K8_NAMESPACE
+          value: "{{ .Release.Namespace }}"
+        - name: ENV_PIPELINE_RETURN_URL
+          value: "{{ .Values.qplink.envPipelineReturnUrl }}"
+        - name: ENV_PVB_RETURN_URL
+          value: ""
+        - name: KOS_INFO_ACTIVE
+          value: "true"
+        - name: JOBRUNR_DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              name: quibim-secrets
+              key: MONGO_URL
+{{ include "quibim-precision.quibimValuesAsEnvItems" . | indent 8 }}
+
+        ports:
+          - containerPort: 9201
+            name: qplinkport
+            
+        volumeMounts:
+          - mountPath: "{{ .Values.quibim.QUIBIM_BASE_PATH }}"
+            name: task-pv-quibim
+          - mountPath: "{{ .Values.qplink.filesystemPath }}"
+            name: datalake-volume
+            
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 9201
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 10
+          failureThreshold: 20
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 9201
+          initialDelaySeconds: 30
+          periodSeconds: 120
+          timeoutSeconds: 10
+          failureThreshold: 3
+          
+        resources:
+          requests:
+            memory: "{{ .Values.qplink.resources.memory }}"
+            cpu:    "{{ .Values.qplink.resources.cpu }}"
+            
+      nodeSelector:
+        {{- toYaml .Values.nodeSelector | nindent 8 }}
+      priorityClassName: {{ .Values.priorityClassName }}
+      imagePullSecrets:
+      - name: regcred
+      serviceAccountName: qpi
+      restartPolicy: Always
+      affinity:
+        podAffinity:
+          # preferred schedule this pod onto the node where mongodb is running (a pod with label "app: mongodb")
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                  - mongodb
+              topologyKey: "kubernetes.io/hostname"
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: qplink
+spec:
+  selector:
+    app: qplink
+  ports:
+  - protocol: TCP
+    name: port1
+    port: {{ .Values.qplink.port }}
+    targetPort: qplinkport
+

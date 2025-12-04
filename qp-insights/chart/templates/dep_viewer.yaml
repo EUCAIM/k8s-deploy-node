@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: viewer
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: viewer
+  template:
+    metadata:
+      labels:
+        app: viewer
+    spec:
+      containers: 
+      - name: viewer
+        image: "{{ .Values.quibimRegistry }}{{ .Values.viewer.image }}"
+        env:
+{{ include "quibim-precision.quibimValuesAsEnvItems" . | indent 8 }}
+
+        ports:
+          - containerPort: 80
+            name: viewerport
+
+        resources:
+          requests:
+            memory: "{{ .Values.viewer.resources.memory }}"
+            cpu:    "{{ .Values.viewer.resources.cpu }}"
+            
+      nodeSelector:
+        {{- toYaml .Values.nodeSelector | nindent 8 }}
+      priorityClassName: {{ .Values.priorityClassName }}
+      imagePullSecrets:
+      - name: regcred
+      restartPolicy: Always
+      
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: viewer
+spec:
+  selector:
+    app: viewer
+  ports:
+  - protocol: TCP
+    port: {{ .Values.viewer.port }}
+    targetPort: viewerport
+

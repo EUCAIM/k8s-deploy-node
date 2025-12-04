@@ -1,0 +1,116 @@
+# Default values for quibim-precision.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+ingress:
+  includeCertManagerAnnotation: true
+  # If you want to generate automatically certificates for the domains, set the previous to true and the next to an existent cluster-issuer
+  clusterIssuer: "letsencrypt-prod"
+  discoveryHost: "qpinsights.eucaim-node.i3m.upv.es"
+  viewerHost: "qpviewer.eucaim-node.i3m.upv.es"
+
+# You can set here the endpoint of a proxy cache (empty to use official dockerhub endpoint)
+dockerhubRegistry: "harbor.eucaim-node.i3m.upv.es/dockerhub/"
+quibimRegistry: "harbor.eucaim-node.i3m.upv.es/quibim/"
+
+privateRegistryCredentials:
+  registry: harbor.eucaim-node.i3m.upv.es
+  username: robot$quibimimagepuller
+  password: THE_PASSWORD
+
+privateRegistryCredentialsForAnalysis:
+  registry: harbor.eucaim-node.i3m.upv.es
+  username: robot$quibimanalysisimagepuller
+  password: THE_PASSWORD
+
+persistence:
+  # quibim volume
+  quibimPVCName: "qpi-data"
+  # db volume
+  mongoPVCName: "qpi-database"
+  # datalake volume
+  datalakeCephAccess:
+    monitors:
+      - "192.168.10.230:6789"
+      - "192.168.10.3:6789"
+      - "192.168.10.4:6789"
+    path: "/datalake"
+    user: "qp-insights"
+    password: "XXXXXXXXXXXXXXXXXXXXXX"
+
+nodeSelector:
+  chaimeleon.eu/target: core-services
+priorityClassName: "core-services"
+
+mongodb:
+  imageTag: "6.0"
+  port: 27017
+  username: "quibim"
+  password: "XXXXXX"
+  db: "modb-qpinsights"
+  resources:
+    memory: "2Gi"
+    cpu: "400m"
+
+auth:
+  oidcIssuerUrl: "https://eucaim-node.i3m.upv.es/auth/realms/EUCAIM-NODE"
+  oidcJwksUri: https://eucaim-node.i3m.upv.es/auth/realms/EUCAIM-NODE/protocol/openid-connect/certs
+
+front:
+  image: "qp_discovery:2.0.1"
+  port: 80
+  oidcClientId: qpinsights
+# # The url of dataset-service for creating datasets
+# datasetServiceUrl: "https://eucaim-node.i3m.upv.es/dataset-service/api/"
+  resources:
+    memory: "1Gi"
+    cpu: "100m"
+
+viewer:
+  image: "viewer:0.18.0"
+  port: 80
+# oidcClientId: qpinsights-viewer
+  oidcClientId: qpinsights
+  resources:
+    memory: "1Gi"
+    cpu: "100m"
+
+back:
+  image: "qp_discovery_backend:2.0.0"
+  port: 3003
+  aetitle: "quibim"
+  oidcClientId: qpinsights-backend
+  oidcClientSecret: XXXXXX
+# productVersion: "1.8.2"
+  resources:
+    memory: "1Gi"
+    cpu: "250m"
+
+qplink:
+  image: "miuc_cloud:3.0.5"
+  port: 9201
+  oidcClientId: qpinsights-link
+  oidcClientSecret: XXXXXX
+  storageType: filesystem
+  filesystemPath: "/quibim/filesystem"    # Where the datalake volume will be mounted in the container
+  appEnvironment: "qpdisuat"
+  envPipelineReturnUrl: "https://qpinsights.eucaim-node.i3m.upv.es/miuccloud/pipeline/execution/{center}/{pipelineExecutionId}"
+  resources:
+    memory: "4Gi"
+    cpu: "250m"
+
+# Environment variables (included in some pods) that will be stored as a secret
+quibimSecrets:
+# MONGO_INITDB_ROOT_USERNAME: "quibim"
+# MONGO_INITDB_ROOT_PASSWORD: "changeme"
+
+# Common environment variables included in some pods (front, back, viewer and qplink)
+quibim:
+  COMPOSE_PROJECT_NAME: "qp-insights"
+  
+# Persistence -----------------------------------------------------------------#
+  QUIBIM_BASE_PATH: "/quibim"       # Where the quibim volume will be mounted in containers
+  
+  # NodeJS environment
+  NODE_ENV: "production"
+

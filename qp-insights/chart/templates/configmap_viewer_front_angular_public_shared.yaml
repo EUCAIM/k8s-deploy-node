@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: viewer-front-angular-public-shared-config
+data:
+  front-config: |
+    {
+      "clientId": "{{ .Values.viewer.oidcClientId }}",
+      "qpLinkClientId": "{{ .Values.qplink.oidcClientId }}",
+      "authorityUrl": "{{ .Values.auth.oidcIssuerUrl }}/"
+    }

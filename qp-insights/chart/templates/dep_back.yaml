@@ -1,0 +1,108 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: back
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: back
+  template:
+    metadata:
+      labels:
+        app: back
+    spec:
+      volumes:
+        - name: task-pv-quibim
+          persistentVolumeClaim:
+            claimName: {{ .Values.persistence.quibimPVCName }}
+
+{{ include "quibim-precision.initContainerWaitDB" . | indent 6 }}
+      
+      containers: 
+      - name: back
+        image: "{{ .Values.quibimRegistry }}{{ .Values.back.image }}"
+        env:
+        - name: AE_TITLE
+          value: "{{ .Values.back.aetitle }}"
+        - name: CLIENT_ID
+          value: "{{ .Values.back.oidcClientId }}"
+        - name: CLIENT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: quibim-secrets
+              key: BACK_CLIENT_SECRET
+        - name: JWKS_URI
+          value: "{{ .Values.auth.oidcJwksUri }}"
+        - name: MIUC_URL
+          value: "http://localhost/miuccloud"
+        - name: MIUC_CLIENT_ID
+          value: "{{ .Values.qplink.oidcClientId }}"
+#       - name: PRODUCT_VERSION
+#         value: "{{ .Values.back.productVersion }}"
+{{ include "quibim-precision.quibimValuesAsEnvItems" . | indent 8 }}
+
+        ports:
+          - containerPort: 3003
+            name: backport
+            
+        volumeMounts:
+          - mountPath: "{{ .Values.quibim.QUIBIM_BASE_PATH }}"
+            name: task-pv-quibim
+            
+        readinessProbe:
+          httpGet:
+            path: /care
+            port: 3003
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 10
+          failureThreshold: 20
+        livenessProbe:
+          httpGet:
+            path: /care
+            port: 3003
+          initialDelaySeconds: 30
+          periodSeconds: 120
+          timeoutSeconds: 10
+          failureThreshold: 3
+          
+        resources:
+          requests:
+            memory: "{{ .Values.back.resources.memory }}"
+            cpu:    "{{ .Values.back.resources.cpu }}"
+            
+      nodeSelector:
+        {{- toYaml .Values.nodeSelector | nindent 8 }}
+      priorityClassName: {{ .Values.priorityClassName }}
+      imagePullSecrets:
+      - name: regcred
+      restartPolicy: Always
+      affinity:
+        podAffinity:
+          # preferred schedule this pod onto the node where mongodb is running (a pod with label "app: mongodb")
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                  - mongodb
+              topologyKey: "kubernetes.io/hostname"
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: back
+spec:
+  selector:
+    app: back
+  ports:
+  - protocol: TCP
+    name: port1
+    port: {{ .Values.back.port }}
+    targetPort: backport
+

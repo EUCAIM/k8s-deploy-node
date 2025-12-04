@@ -1,0 +1,4 @@
+values-*.yaml
+*.tgz
+compose/
+dep-mongo-desktop*
