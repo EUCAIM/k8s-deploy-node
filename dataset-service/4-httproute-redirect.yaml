@@ -1,0 +1,27 @@
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: dataset-service-root-redirect
+  namespace: dataset-service
+  annotations:
+    description: "Redirect from root path to Dataset Explorer"
+spec:
+  parentRefs:
+    - name: main-gateway
+      namespace: default
+      sectionName: https
+  hostnames:
+    - "mininode.imaging.i3m.upv.es"
+  rules:
+    - matches:
+        - path:
+            type: Exact
+            value: /
+      filters:
+        - type: RequestRedirect
+          requestRedirect:
+            scheme: https
+            path:
+              type: ReplaceFullPath
+              replaceFullPath: /dataset-service
+            statusCode: 302
