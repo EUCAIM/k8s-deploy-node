@@ -1,0 +1,48 @@
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: keycloak-route
+  namespace: keycloak
+  annotations:
+    description: "HTTPRoute for Keycloak authentication service"
+spec:
+  parentRefs:
+    - name: main-gateway
+      namespace: default
+      sectionName: https
+  hostnames:
+    - "yourdomain"
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /auth
+      filters:
+        - type: ResponseHeaderModifier
+          responseHeaderModifier:
+            add:
+              - name: Access-Control-Allow-Origin
+                value: "*"
+              - name: Access-Control-Allow-Methods
+                value: "GET, POST, PUT, DELETE, OPTIONS, PATCH"
+              - name: Access-Control-Allow-Headers
+                value: "Authorization, Content-Type, Accept, Origin, X-Requested-With"
+              - name: Access-Control-Max-Age
+                value: "3600"
+      backendRefs:
+        - name: keycloak
+          port: 8080
+---
+apiVersion: gateway.networking.k8s.io/v1beta1
+kind: ReferenceGrant
+metadata:
+  name: allow-gateway-to-keycloak-cert
+  namespace: keycloak
+spec:
+  from:
+    - group: gateway.networking.k8s.io
+      kind: Gateway
+      namespace: default
+  to:
+    - group: ""
+      kind: Secret
