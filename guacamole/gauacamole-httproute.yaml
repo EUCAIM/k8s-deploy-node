@@ -1,0 +1,52 @@
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: guacamole-route
+  namespace: guacamole
+  annotations:
+    description: "HTTPRoute for Guacamole remote desktop gateway"
+spec:
+  parentRefs:
+    - name: main-gateway
+      namespace: default
+      sectionName: https
+  hostnames:
+    - "yourdomain"
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /guacamole
+      filters:
+        - type: URLRewrite
+          urlRewrite:
+            path:
+              type: ReplacePrefixMatch
+              replacePrefixMatch: /guacamole
+      backendRefs:
+        - name: guacamole
+          port: 8080
+---
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: guacamole-buffering
+  namespace: guacamole
+spec:
+  buffering:
+    maxRequestBodyBytes: 104857600000  # 100GB for file uploads through RDP/VNC
+    memRequestBodyBytes: 10485760      # 10MB in memory
+    retryExpression: "IsNetworkError() && Attempts() < 2"
+---
+apiVersion: traefik.io/v1alpha1
+kind: ServersTransport
+metadata:
+  name: guacamole-transport
+  namespace: guacamole
+spec:
+  serverName: ""
+  insecureSkipVerify: false
+  forwardingTimeouts:
+    dialTimeout: 10s
+    responseHeaderTimeout: 300s
+    idleConnTimeout: 90s
