@@ -1,7 +1,7 @@
 
 priorityClassName: "core-services"
 nodeSelector: 
-  chaimeleon.eu/target: core-services                               
+  chaimeleon.eu/target: core-services
 
 serviceAccount:
   annotations: {}
@@ -45,11 +45,13 @@ operatorConfiguration:
     namespace_prefix: "user-"
     jobman_service_execution_namespace: "jobman-service-exec"
 
-    ceph_volumes:
-      monitors: ['192.168.10.230:6789', '192.168.10.3:6789', '192.168.10.4:6789']
-      user_prefix: "eucaim-user--"
-      auth_secret_name: "ceph-auth"
-      jobman_service_execution_user: "jobman-service-exec"
+    volumes:
+      type: "cephfs"
+      cephfs:
+        monitors: ['192.168.12.210:6789', '192.168.12.211:6789']
+        user_prefix: "eucaim-user--"
+        auth_secret_name: "ceph-auth"
+        jobman_service_execution_user: "jobman-service-exec"
       
       datalake_path: "/datalake"
       datasets_path: "/datasets"
@@ -57,6 +59,7 @@ operatorConfiguration:
       test_datasets_path: "/datasets-test"
       persistent_homes_path: "/homes/users"
       persistent_shared_folder_path: "/homes/shared-folder"
+      persistent_shared_folder_read_only: true
 
     checks:
       allowed_repo: "harbor.eucaim-node.i3m.upv.es"
@@ -68,6 +71,7 @@ operatorConfiguration:
       allowed_users_to_deploy: []
       not_allowed_users_to_deploy_message: ""
 
+      max_num_deployments_per_user: 5
       max_num_pods_per_user: 0
     
     openchallenge:
@@ -75,6 +79,45 @@ operatorConfiguration:
       nfs_path: ""
       nfs_server: ""
 
+    resource_flavors:
+      jobs:
+        flavors:
+          - name: "small-gpu"
+            resources: { target_node: "small-gpu", cpu: "3", max_cpu: "6", memory_gb: 28,  gpu: true }
+          - name: "medium-gpu"
+            resources: { target_node: "medium-gpu", cpu: "7", max_cpu: "8", memory_gb: 60,  gpu: true }
+          - name: "large-gpu"
+            resources: { target_node: "large-gpu", cpu: "7", max_cpu: "8", memory_gb: 60,  gpu: true }
+          - name: "no-gpu"
+            resources: { target_node: "no-gpu", cpu: "7", max_cpu: "8", memory_gb: 60,  gpu: false }
+        default_flavor_name: "medium-gpu"
+      deployments:
+        flavors:
+          - name: "desktop"
+            tool_match: "desktop-tensorflow|desktop-pytorch|jupyter-tensorflow|jupyter-pytorch"
+            resources: { target_node: "desktops",  cpu: "900m",  max_cpu: "2",  memory_gb: 7,  gpu: false }
+          - name: "app-service-cpu300"
+            tool_match: "nifi"
+            name_match: "nifi-nifi|nifi-registry"
+            # nifi has 4 deployments, the nifi and registry needs more cpu
+            resources: { target_node: "desktops",  cpu: "300m",  max_cpu: "1",  memory_gb: 1,  gpu: false }
+          - name: "app-service-cpu200"
+            tool_match: "analytic-engine"
+            name_match: "ai-layer-ws|ai-layer-trino"
+            # analytical-engine has 7 deployments, the ws and trino needs more cpu
+            resources: { target_node: "desktops",  cpu: "200m",  max_cpu: "1",  memory_gb: 1,  gpu: false }
+          - name: "app-service-cpu100"
+            tool_match: "analytic-engine|nifi"
+            resources: { target_node: "desktops",  cpu: "100m",  max_cpu: "500m",  memory_gb: 1,  gpu: false }
+          - name: "app-service-cpu400"
+            tool_match: "chaimeleon-superset"
+            # superset has 1 deployment with 2 containers
+            resources: { target_node: "desktops",  cpu: "400m",  max_cpu: "1",  memory_gb: 3,  gpu: false }
+          - name: "other"
+            # This entry at the end match anything and assigns the minimum resources to any unknown deployment.
+            tool_match: ".*"
+            resources: { target_node: "desktops",  cpu: "100m",  max_cpu: "200m",  memory_gb: 1,  gpu: false }
+    
 service:
   type: ClusterIP
   port: 443
@@ -83,7 +126,7 @@ image:
   repository: "harbor.chaimeleon-eu.i3m.upv.es/chaimeleon-services/k8s-operator"
   pullPolicy: Always
   # Overrides the image tag whose default is the chart appVersion.
-  tag: "2.5.2-kopf1.36.2"
+  tag: "2.5.6-kopf1.36.2"
 
 imagePullSecrets: []
 nameOverride: ""
