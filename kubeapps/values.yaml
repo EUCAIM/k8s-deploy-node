@@ -91,7 +91,7 @@ authProxy:
 
 frontend:
   image:
-    registry: "harbor.eucaim-node.i3m.upv.es/dockerhub"
+    registry: "harbor.eucaim-node.i3m.upv.es/core-services/bitnami/nginx@sha256:5833b4d2da11e05857d19f05fd792a728be6a7c04f9332542cf5952c61508161"
   replicaCount: 1
   resources:
     requests:
