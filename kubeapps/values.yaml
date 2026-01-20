@@ -1,19 +1,18 @@
-# Doc: https://github.com/kubeapps/kubeapps/tree/master/chart/kubeapps#parameters
-
 postgresql:
   enabled: true
   image:
-    registry: "harbor.eucaim-node.i3m.upv.es/dockerhub"
+    registry: harbor.eucaim-node.i3m.upv.es/core-services
+    repository: bitnami/postgresql
   auth:
-    username: "postgres"
-    password: "XXXXXXXXXXXXX"
+    username: postgres
+    password: lHmXy1aTD66zkCWh
   architecture: standalone
   primary:
     persistence:
       enabled: true
       size: 1Gi
-      storageClass: cephfs
-    priorityClassName: "core-applications"
+      storageClass: standard
+    priorityClassName: core-applications
   resources:
     requests:
       memory: 200Mi
@@ -21,30 +20,19 @@ postgresql:
     limits:
       memory: 200Mi
       cpu: 200m
-
 ingress:
-  enabled: true
-  hostname: "eucaim-node.i3m.upv.es"
-  path: "/apps/?(.*)"
-# tls: true
-# extraTls:
-# - hosts:
-#   - "eucaim-node.i3m.upv.es"
-#   secretName: "eucaim-node.i3m.upv.es"
-# secrets:
-# - name: "eucaim-node.i3m.upv.es"
-  ingressClassName: "nginx"
+  enabled: false
+  hostname: mininode.imaging.i3m.upv.es
+  path: /apps/?(.*)
+  ingressClassName: nginx
   annotations:
-    # The following line is needed when the proxy returns "502 - bad gateway" 
-    # and in the proxy log apears: ERROR upstream sent too big header while reading response header from upstream
     nginx.ingress.kubernetes.io/proxy-buffer-size: 128k
-
-## https://github.com/kubeapps/kubeapps/blob/master/docs/user/using-an-OIDC-provider.md
 authProxy:
   enabled: true
   external: false
   image:
-    registry: "harbor.eucaim-node.i3m.upv.es/dockerhub"
+    registry: harbor.eucaim-node.i3m.upv.es/core-services
+    repository: bitnami/oauth2-proxy
   resources:
     requests:
       memory: 128Mi
@@ -52,46 +40,38 @@ authProxy:
     limits:
       memory: 128Mi
       cpu: 100m
-  oauthLoginURI: "/apps/oauth2/start?rd=%2Fapps%2F"
-  oauthLogoutURI: "/apps/oauth2/sign_out?rd=https%3A%2F%2Feucaim-node.i3m.upv.es%2Fauth%2Frealms%2FEUCAIM-NODE%2Fprotocol%2Fopenid-connect%2Flogout%3Fclient_id%3Dkubernetes%26post_logout_redirect_uri%3Dhttps%3A%2F%2Feucaim-node.i3m.upv.es%2Fapps%2F"
-# oauthLoginURI: "/apps/oauth2/login"
-# oauthLogoutURI: "/apps/oauth2/logout"
+  oauthLoginURI: /apps/oauth2/start?rd=%2Fapps%2F
+  oauthLogoutURI: /apps/oauth2/sign_out?rd=https%3A%2F%2Fmininode%2Eimaging%2Ei3m%2Eupv%2Ees%2Fauth%2Frealms%2FEUCAIM-NODE%2Fprotocol%2Fopenid-connect%2Flogout%3Fclient_id%3Dkubernetes%26post_logout_redirect_uri%3Dhttps%3A%2F%2Fmininode%2Eimaging%2Ei3m%2Eupv%2Ees%2Fapps%2F
   skipKubeappsLoginPage: false
   provider: oidc
-  clientID: "kubernetes"
-  clientSecret: XXXXXXXXXXXXX
-  ## Generate a cookie secret with: python3 -c 'import os,base64; print(base64.urlsafe_b64encode(os.urandom(16)))'
-  cookieSecret: XXXXXXXXXXXXX
+  clientID: kubernetes
+  clientSecret: llOqmNpqaXcsVvifWCfV4sNQGI699utI
+  cookieSecret: qfvutCl11omGgsc42aMpUQ==
   extraFlags:
-    - "--oidc-issuer-url=https://eucaim-node.i3m.upv.es/auth/realms/EUCAIM-NODE"
-    - "--proxy-prefix=/apps/oauth2"
-    - "--scope=openid email groups"
-    - "--set-authorization-header=true"
-    - "--cookie-name=oauth2kubeapps"
-    - "--cookie-path=/apps/"
-    - "--skip-provider-button=true"
-    - "--whitelist-domain=eucaim-node.i3m.upv.es"
-    - "--cookie-csrf-per-request=true"
-    - "--skip-auth-regex=^\\/apps\\/config\\.json$"
-    - "--skip-auth-regex=^\\/apps\\/site\\.webmanifest$"
-    - "--skip-auth-regex=^\\/apps\\/custom_style\\.css$"
-    - "--skip-auth-regex=^\\/apps\\/clr-ui\\.min\\.css$"
-    - "--skip-auth-regex=^\\/apps\\/clr-ui-dark\\.min\\.css$"
-    - "--skip-auth-regex=^\\/apps\\/custom_locale\\.json$"
-    - "--skip-auth-regex=^\\/apps\\/favicon.*\\.png$"
-    - "--skip-auth-regex=^\\/apps\\/favicon.*\\.ico$"
-    - "--skip-auth-regex=^\\/apps\\/android-chrome-.*\\.png$"
-    - "--skip-auth-regex=^\\/apps\\/static\\/"
-    - "--skip-auth-regex=^\\/apps\\/apis\\/core\\/plugins\\/v1alpha1\\/configured-plugins$"
-    - "--skip-auth-regex=^\\/apps\\/apis\\/kubeappsapis\\.core\\.plugins\\.v1alpha1\\.PluginsService\\/"
-    - "--skip-auth-regex=^\\/apps\\/$"
-    - "--allowed-group=data-scientists"
-    - "--allowed-group=cloud-services-and-security-management"
-    - "--allowed-group=application-developer"
-
+  - --oidc-issuer-url=https://mininode.imaging.i3m.upv.es/auth/realms/EUCAIM-NODE
+  - --proxy-prefix=/apps/oauth2
+  - --scope=openid email
+  - --set-authorization-header=true
+  - --cookie-name=_oauth2_kubeapps_v2
+  - --cookie-path=/apps/
+  - --whitelist-domain=mininode.imaging.i3m.upv.es
+  - --skip-auth-regex=^\/apps\/config\.json$
+  - --skip-auth-regex=^\/apps\/site\.webmanifest$
+  - --skip-auth-regex=^\/apps\/custom_style\.css$
+  - --skip-auth-regex=^\/apps\/clr-ui.min\.css$
+  - --skip-auth-regex=^\/apps\/clr-ui-dark.min\.css$
+  - --skip-auth-regex=^\/apps\/custom_locale\.json$
+  - --skip-auth-regex=^\/apps\/favicon.*\.png$
+  - --skip-auth-regex=^\/apps\/favicon.*\.ico$
+  - --skip-auth-regex=^\/apps\/android-chrome-.*\.png$
+  - --skip-auth-regex=^\/apps\/static\/
+  - --skip-auth-regex=^\/apps\/apis/core/plugins/v1alpha1/configured-plugins$
+  - --skip-auth-regex=^\/apps\/apis/kubeappsapis.core.plugins.v1alpha1.PluginsService/GetConfiguredPlugins$
+  - --skip-auth-regex=^\/apps\/$
 frontend:
   image:
-    registry: "harbor.eucaim-node.i3m.upv.es/core-services/bitnami/nginx@sha256:5833b4d2da11e05857d19f05fd792a728be6a7c04f9332542cf5952c61508161"
+    registry: harbor.eucaim-node.i3m.upv.es/core-services
+    repository: bitnami/nginx
   replicaCount: 1
   resources:
     requests:
@@ -100,13 +80,13 @@ frontend:
     limits:
       memory: 128Mi
       cpu: 250m
-  priorityClassName: "core-applications"
+  priorityClassName: core-applications
   nodeSelector:
     chaimeleon.eu/target: core-services
-
 dashboard:
   image:
-    registry: "harbor.eucaim-node.i3m.upv.es/dockerhub"
+    registry: harbor.eucaim-node.i3m.upv.es/core-services
+    repository: bitnami/kubeapps-dashboard
   replicaCount: 1
   resources:
     requests:
@@ -115,41 +95,33 @@ dashboard:
     limits:
       memory: 128Mi
       cpu: 250m
-  priorityClassName: "core-applications"
+  priorityClassName: core-applications
   nodeSelector:
     chaimeleon.eu/target: core-services
-
 apprepository:
   image:
-    registry: "harbor.eucaim-node.i3m.upv.es/dockerhub"
+    registry: harbor.eucaim-node.i3m.upv.es/core-services
+    repository: bitnami/kubeapps-apprepository-controller
   syncImage:
-    registry: "harbor.eucaim-node.i3m.upv.es/dockerhub"
+    registry: harbor.eucaim-node.i3m.upv.es/core-services
+    repository: bitnami/kubeapps-asset-syncer
   resources:
     requests:
       memory: 128Mi
       cpu: 250m
     limits:
       memory: 128Mi
-      cpu: 250m  
-  initialRepos:
-##  - name: bitnami
-##    url: "https://charts.bitnami.com/bitnami"
-##  - name: eucaim-node
-##    url: "https://harbor.eucaim-node.i3m.upv.es/chartrepo/charts"
-#   - name: eucaim-node
-#     type: oci
-#     url: "https://harbor.eucaim-node.i3m.upv.es/charts"
-#     ociRepositories:
-#       - desktop-tensorflow
-    - name: eucaim-node-apps
-      url: "http://eucaim-node.i3m.upv.es/dataset-service/output-files/charts/"
-  priorityClassName: "core-applications"
+      cpu: 250m
+  priorityClassName: core-applications
   nodeSelector:
     chaimeleon.eu/target: core-services
-
+  initialRepos:
+  - name: eucaim-node-apps
+    url: http://mininode.imaging.i3m.upv.es/dataset-service/output-files/charts/
 kubeappsapis:
   image:
-    registry: "harbor.eucaim-node.i3m.upv.es/dockerhub"
+    registry: harbor.eucaim-node.i3m.upv.es/core-services
+    repository: bitnami/kubeapps-apis
   replicaCount: 1
   resources:
     requests:
@@ -158,6 +130,9 @@ kubeappsapis:
     limits:
       memory: 128Mi
       cpu: 250m
-  priorityClassName: "core-applications"
+  priorityClassName: core-applications
   nodeSelector:
     chaimeleon.eu/target: core-services
+global:
+  security:
+    allowInsecureImages: true
