@@ -14,136 +14,94 @@ spec:
     spec:
       serviceAccountName: dataset-service-backend
       volumes:
-        - name: dataset-service-data-volume
-          persistentVolumeClaim:
-            claimName: dataset-service-data
-        - name: datalake-volume
-          cephfs:
-            path: "/datalake"
-            monitors: 
-              - "192.168.10.230:6789"
-              - "192.168.10.3:6789"
-              - "192.168.10.4:6789"
-            user: dataset-service
-            secretRef:
-              name: dataset-service-ceph-user-secret
-            readOnly: false
-        - name: datasets-volume
-          cephfs:
-            path: "/datasets"
-            monitors: 
-              - "192.168.10.230:6789"
-              - "192.168.10.3:6789"
-              - "192.168.10.4:6789"
-            user: dataset-service
-            secretRef:
-              name: dataset-service-ceph-user-secret
-            readOnly: false
+      - name: dataset-service-data-volume
+        persistentVolumeClaim:
+          claimName: dataset-service-data
+      - name: datalake-volume
+        persistentVolumeClaim:
+          claimName: datalake-data
+      - name: datasets-volume
+        persistentVolumeClaim:
+          claimName: datasets-data
       containers:
-        - name: dataset-service-backend
-          image: harbor.eucaim-node.i3m.upv.es/core-services/dataset-service-backend:3.22.1
-          ports:
-            - containerPort: 11000
-              name: dssport
-          volumeMounts:
-            - mountPath: "/var/log/dataset-service"
-              subPath: "log"
-              name: dataset-service-data-volume
-            - mountPath: "/var/on-event-jobs"
-              subPath: "on-event-jobs"
-              name: dataset-service-data-volume
-            - mountPath: "/var/www/dataset-service-ui"
-              subPath: "ui"
-              name: dataset-service-data-volume
-            - mountPath: "/var/www/project-logos"
-              subPath: "project-logos"
-              name: dataset-service-data-volume
-            - mountPath: "/var/www/output-files"
-              subPath: "output-files"
-              name: dataset-service-data-volume
-            - mountPath: "/var/www/datalakeinfo"
-              subPath: "datalakeinfo"
-              name: dataset-service-data-volume
-            - mountPath: "/mnt/datalake"
-              name: datalake-volume
-            - mountPath: "/mnt/datasets"
-              name: datasets-volume
-          env:
-            - name: DATASET_SERVICE_CONFIG
-              value: |
-                { "db": { "host": "db", "port": 5432, "dbname": "dataset-service", "user": "dataset-service-user", "password": "XXXXXX" },
-                  "auth": {
-                      "token_validation": {
-                          "token_issuer_public_keys_url": "https://eucaim-node.i3m.upv.es/auth/realms/EUCAIM-NODE/protocol/openid-connect/certs",
-                          "kid": "T7yU60He9Irc8iNJ7zCBVUQEkXe9yq0XrHLu4fBi1gU",
-                          "client_id": "dataset-service",
-                          "issuer": "https://eucaim-node.i3m.upv.es/auth/realms/EUCAIM-NODE",
-                          "project_group_prefix": "PROJECT-",
-                          "project_admins_group_prefix": "ADMINS-PROJECT-"
-                      },
-                      "client": {
-                          "auth_url": "https://eucaim-node.i3m.upv.es/auth/realms/EUCAIM-NODE/protocol/openid-connect/token",
-                          "client_id": "dataset-service",
-                          "client_secret": "XXXXXXXX"
-                      },
-                      "admin_api": {
-                        "url": "https://eucaim-node.i3m.upv.es/auth/admin/realms/EUCAIM-NODE/",
-                        "client_id_to_request_user_tokens": "dataset-explorer",
-                        "parent_group_of_project_groups": "/PROJECTS"
-                      },  
-                      "user_management": {
-                        "prefix_for_roles_as_groups": "/",
-                        "prefix_for_projects_as_groups": "/PROJECTS/PROJECT-",
-                        "assignable_general_roles": ["application-developer", "authorized-technical-data-manager", "clinical-staff", 
-                                                   "cloud-services-and-security-management", "data-scientists", "dataset-administrator"]
-                      }
-                  },
-                  "tracer": {
-                      "url": "https://eucaim-node.i3m.upv.es/tracer-service/tracer/"
-                  },
-                  "zenodo": {
-                      "url": "https://zenodo.org/"
-                  },
-                  "on_event_scripts": {
-                      "user_management_job_template_file_path": "/var/on-event-jobs/user-management-job-template.private.yaml",
-                      "site_management_job_template_file_path": "/var/on-event-jobs/site-management-job-template.private.yaml",
-                      "subproject_management_job_template_file_path": "/var/on-event-jobs/subproject-management-job-template.private.yaml"
-                  },
-                  "self": { 
-                      "port": 11000, 
-                      "root_url": "https://eucaim-node.i3m.upv.es/dataset-service",
-                      "log": { 
-                          "main_service": {
-                              "level": "DEBUG", 
-                              "file_path": "/var/log/dataset-service/dataset-service.log"
-                          },
-                          "dataset_creation_job": {
-                              "level": "DEBUG", 
-                              "file_path": "/var/log/dataset-service/dataset-creation-job-%s.log"
-                          }
-                      },
-                      "static_files_dir_path": "/var/www/dataset-service-ui",
-                      "static_files_logos_dir_path": "/var/www/project-logos",
-                      "static_files_output_dir_path": "/var/www/output-files",
-                      "datalakeinfo_dir_path": "/var/www/datalakeinfo",
-                      "datalakeinfo_token": "XXXXXXXX",
-                      "datalake_mount_path": "/mnt/datalake",
-                      "datasets_mount_path": "/mnt/datasets",
-                      "dataset_link_format": "https://eucaim-node.i3m.upv.es/dataset-service/datasets/%s/details",
-                      "eucaim_search_token": "XXXXXXXX",
-                      "series_hash_cache_life_days": 30,
-                      "dataset_integrity_check_life_days": 40
-                  }
-                }
-          resources:
-            requests:
-              memory: "320Mi"
-              cpu: "300m"
+      - name: dataset-service-backend
+        image: harbor.eucaim-node.i3m.upv.es/core-services/dataset-service-backend:3.22.1
+        ports:
+        - containerPort: 11000
+          name: dssport
+        volumeMounts:
+        - mountPath: /var/log/dataset-service
+          subPath: log
+          name: dataset-service-data-volume
+        - mountPath: /var/on-event-jobs
+          subPath: on-event-jobs
+          name: dataset-service-data-volume
+        - mountPath: /var/www/dataset-service-ui
+          subPath: ui
+          name: dataset-service-data-volume
+        - mountPath: /var/www/project-logos
+          subPath: project-logos
+          name: dataset-service-data-volume
+        - mountPath: /var/www/output-files
+          subPath: output-files
+          name: dataset-service-data-volume
+        - mountPath: /var/www/datalakeinfo
+          subPath: datalakeinfo
+          name: dataset-service-data-volume
+        - mountPath: /mnt/datalake
+          name: datalake-volume
+        - mountPath: /mnt/datasets
+          name: datasets-volume
+        env:
+        - name: DATASET_SERVICE_CONFIG
+          value: "{\n  \"db\": {\n    \"host\": \"db\",\n    \"port\": 5432,\n   \
+            \ \"dbname\": \"dataset-service\",\n    \"user\": \"dataset-service-user\"\
+            ,\n    \"password\": \"yourdbpassword\"\n  },\n  \"auth\": {\n    \"ssl_verify\"\
+            : false,\n    \"token_validation\": {\n      \"token_issuer_public_keys_url\"\
+            : \"https://mininode.imaging.i3m.upv.es/auth/realms/EUCAIM-NODE/protocol/openid-connect/certs\"\
+            ,\n      \"kid\": \"y5mN6lvIkWQrxoU_myN5qVY_kb_TuzDcHtb2dPlEUR8\",\n \
+            \     \"client_id\": \"dataset-service\",\n      \"issuer\": \"https://mininode.imaging.i3m.upv.es/auth/realms/EUCAIM-NODE\"\
+            ,\n      \"project_group_prefix\": \"PROJECT-\",\n      \"project_admins_group_prefix\"\
+            : \"ADMINS-PROJECT-\"\n    },\n    \"client\": {\n      \"auth_url\":\
+            \ \"https://mininode.imaging.i3m.upv.es/auth/realms/EUCAIM-NODE/protocol/openid-connect/token\"\
+            ,\n      \"client_id\": \"dataset-service\",\n      \"client_secret\"\
+            : \"Wgq4kpBLa0Stjx6FtHoMoT1yBNd02ErT\"\n    },\n    \"admin_api\": {\n\
+            \      \"url\": \"https://mininode.imaging.i3m.upv.es/auth/admin/realms/EUCAIM-NODE/\"\
+            ,\n      \"client_id_to_request_user_tokens\": \"dataset-explorer\",\n\
+            \      \"parent_group_of_project_groups\": \"/PROJECTS\"\n    },\n   \
+            \ \"user_management\": {\n      \"prefix_for_roles_as_groups\": \"/\"\
+            ,\n      \"prefix_for_projects_as_groups\": \"/PROJECTS/PROJECT-\",\n\
+            \      \"assignable_general_roles\": [\n        \"application-developer\"\
+            ,\n        \"authorized-technical-data-manager\",\n        \"clinical-staff\"\
+            ,\n        \"cloud-services-and-security-management\",\n        \"data-scientists\"\
+            ,\n        \"dataset-administrator\"\n      ]\n    }\n  },\n  \"zenodo\"\
+            : {\n    \"url\": \"https://zenodo.org/\"\n  },\n  \"on_event_scripts\"\
+            : {\n    \"user_management_job_template_file_path\": \"/var/on-event-jobs/user-management-job-template.private.yaml\"\
+            ,\n    \"site_management_job_template_file_path\": \"\",\n    \"subproject_management_job_template_file_path\"\
+            : \"\"\n  },\n  \"self\": {\n    \"port\": 11000,\n    \"root_url\": \"\
+            https://mininode.imaging.i3m.upv.es/dataset-service\",\n    \"log\": {\n\
+            \      \"main_service\": {\n        \"level\": \"DEBUG\",\n        \"\
+            file_path\": \"/var/log/dataset-service/dataset-service.log\"\n      },\n\
+            \      \"dataset_creation_job\": {\n        \"level\": \"DEBUG\",\n  \
+            \      \"file_path\": \"/var/log/dataset-service/dataset-creation-job-%s.log\"\
+            \n      }\n    },\n    \"static_files_dir_path\": \"/var/www/dataset-service-ui\"\
+            ,\n    \"static_files_logos_dir_path\": \"/var/www/project-logos\",\n\
+            \    \"static_files_output_dir_path\": \"/var/www/output-files\",\n  \
+            \  \"datalakeinfo_dir_path\": \"/var/www/datalakeinfo\",\n    \"datalakeinfo_token\"\
+            : \"duxQ8zh7OVQuoe7O\",\n    \"datalake_mount_path\": \"/mnt/datalake\"\
+            ,\n    \"datasets_mount_path\": \"/mnt/datasets\",\n    \"dataset_link_format\"\
+            : \"https://mininode.imaging.i3m.upv.es/dataset-service/datasets/%s/details\"\
+            ,\n    \"eucaim_search_token\": \"5prUSbfGMMtfu4VX\",\n    \"series_hash_cache_life_days\"\
+            : 30,\n    \"dataset_integrity_check_life_days\": 40\n  },\n  \"tracer\"\
+            : {\n    \"url\": \"\"\n  }\n}"
+        resources:
+          requests:
+            memory: 320Mi
+            cpu: 300m
       priorityClassName: core-services
-      nodeSelector: 
+      nodeSelector:
         chaimeleon.eu/target: core-services
       restartPolicy: Always
-      
 ---
 apiVersion: v1
 kind: Service
@@ -153,6 +111,6 @@ spec:
   selector:
     app: dataset-service-backend
   ports:
-    - port: 11000
-      protocol: TCP
-      targetPort: dssport
+  - port: 11000
+    protocol: TCP
+    targetPort: dssport
