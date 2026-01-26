@@ -3,7 +3,9 @@
 postgresql:
   enabled: true
   image:
-    registry: "harbor.eucaim-node.i3m.upv.es/dockerhub"
+    registry: "harbor.eucaim-node.i3m.upv.es/core-services"
+    repository: "bitnami/postgresql"
+    tag: "17.2.0-debian-12-r5"
   auth:
     username: "postgres"
     password: "XXXXXXXXXXXXX"
@@ -91,7 +93,8 @@ authProxy:
 
 frontend:
   image:
-    registry: "harbor.eucaim-node.i3m.upv.es/dockerhub"
+    registry: "harbor.eucaim-node.i3m.upv.es/core-services"
+    repository: "bitnami/nginx"
   replicaCount: 1
   resources:
     requests:
@@ -106,7 +109,8 @@ frontend:
 
 dashboard:
   image:
-    registry: "harbor.eucaim-node.i3m.upv.es/dockerhub"
+    registry: "harbor.eucaim-node.i3m.upv.es/core-services"
+    repository: "bitnami/kubeapps-dashboard"
   replicaCount: 1
   resources:
     requests:
@@ -121,9 +125,10 @@ dashboard:
 
 apprepository:
   image:
-    registry: "harbor.eucaim-node.i3m.upv.es/dockerhub"
+    registry: "harbor.eucaim-node.i3m.upv.es/core-services"
+    repository: "bitnami/kubeapps-apprepository-controller"
   syncImage:
-    registry: "harbor.eucaim-node.i3m.upv.es/dockerhub"
+    registry: "harbor.eucaim-node.i3m.upv.es/core-services"
   resources:
     requests:
       memory: 128Mi
@@ -149,7 +154,8 @@ apprepository:
 
 kubeappsapis:
   image:
-    registry: "harbor.eucaim-node.i3m.upv.es/dockerhub"
+    registry: "harbor.eucaim-node.i3m.upv.es/core-services"
+    repository: "bitnami/kubeapps-apis"
   replicaCount: 1
   resources:
     requests:
