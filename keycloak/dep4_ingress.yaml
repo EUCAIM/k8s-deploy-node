@@ -4,24 +4,26 @@ metadata:
   name: proxy-keycloak
   namespace: keycloak
   annotations:
-#   kubernetes.io/ingress.class: nginx
-#   nginx.ingress.kubernetes.io/rewrite-target: /$1
-    nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
-#   nginx.ingress.kubernetes.io/ssl-redirect: "false"
-    # The following line is needed when the proxy returns "502 - bad gateway" 
-    # and in the proxy log apears: ERROR upstream sent too big header while reading response header from upstream
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    nginx.ingress.kubernetes.io/backend-protocol: HTTP
+    nginx.ingress.kubernetes.io/enable-cors: 'true'
+    nginx.ingress.kubernetes.io/use-regex: 'true'
     nginx.ingress.kubernetes.io/proxy-buffer-size: 128k
+    nginx.ingress.kubernetes.io/ssl-redirect: 'true'
 spec:
   ingressClassName: nginx
+  tls:
+  - hosts:
+    - mininode.imaging.i3m.upv.es
+    secretName: mininode.imaging.i3m.upv.es
   rules:
-    - host: eucaim-node.i3m.upv.es
-      http:
-        paths:
-#         - path: /
-          - path: /auth/?(.*)
-            pathType: ImplementationSpecific
-            backend:
-              service:
-                name: keycloak
-                port:
-                  number: 8080
+  - host: mininode.imaging.i3m.upv.es
+    http:
+      paths:
+      - path: /auth
+        pathType: Prefix
+        backend:
+          service:
+            name: keycloak
+            port:
+              number: 8080
