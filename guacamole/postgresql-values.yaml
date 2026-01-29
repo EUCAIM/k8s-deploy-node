@@ -3,11 +3,11 @@
 
 image:
 # registry: docker.io
-  registry: harbor.eucaim-node.i3m.upv.es/dockerhub
+  registry: harbor.eucaim-node.i3m.upv.es/dockerhub/bitnamilegacy/postgresql
   # Fixed image version because the new major versions of PostgreSQL typically introduce some user-visible incompatibilities, so application programming changes might be required. 
   # ref: https://www.postgresql.org/docs/current/upgrading.html
   # Last version is 17. Pending to know if Guacamole is compatible with it and then do the upgrade with pg_dumpall or pg_upgrade.
-  tag: 16.4.0-debian-12-r8
+  tag: 17.2.0-debian-12-r5
 
 auth:
   postgresPassword: XXXXXXXXXXXX
@@ -41,3 +41,4 @@ volumePermissions:
   image:
 #   registry: docker.io
     registry: harbor.eucaim-node.i3m.upv.es/dockerhub
+
