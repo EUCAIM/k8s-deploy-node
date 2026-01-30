@@ -40,5 +40,7 @@ volumePermissions:
   enabled: true
   image:
 #   registry: docker.io
-    registry: harbor.eucaim-node.i3m.upv.es/dockerhub
+    registry: harbor.eucaim-node.i3m.upv.es/core-services/bitnami/os-shell
+    tag: 12-debian-12-r30
+
 
