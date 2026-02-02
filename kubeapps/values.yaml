@@ -50,7 +50,7 @@ authProxy:
   extraFlags:
   - --oidc-issuer-url=https://mininode.imaging.i3m.upv.es/auth/realms/EUCAIM-NODE
   - --proxy-prefix=/apps/oauth2
-  - --scope=openid email
+  - --scope=openid email groups
   - --set-authorization-header=true
   - --cookie-name=_oauth2_kubeapps_v2
   - --cookie-path=/apps/
@@ -68,6 +68,7 @@ authProxy:
   - --skip-auth-regex=^\/apps\/apis/core/plugins/v1alpha1/configured-plugins$
   - --skip-auth-regex=^\/apps\/apis/kubeappsapis.core.plugins.v1alpha1.PluginsService/GetConfiguredPlugins$
   - --skip-auth-regex=^\/apps\/$
+  - --skip-provider-button=true
 frontend:
   image:
     registry: harbor.eucaim-node.i3m.upv.es/core-services
