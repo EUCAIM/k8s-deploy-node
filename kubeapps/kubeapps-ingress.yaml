@@ -1,0 +1,30 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: kubeapps-ingress
+  namespace: kubeapps
+  annotations:
+    description: "Ingress for Kubeapps application catalog"
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/rewrite-target: /$1
+    nginx.ingress.kubernetes.io/backend-protocol: HTTP
+    nginx.ingress.kubernetes.io/proxy-body-size: 128m
+    nginx.ingress.kubernetes.io/proxy-read-timeout: '300'
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: breastscan.imaging.i3m.upv.es
+      http:
+        paths:
+          - path: /apps/?(.*)
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: kubeapps
+                port:
+                  number: 80
+  tls:
+    - hosts:
+        - breastscan.imaging.i3m.upv.es
+      secretName: breastscan.imaging.i3m.upv.es
+---
