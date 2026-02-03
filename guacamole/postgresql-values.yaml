@@ -1,22 +1,13 @@
-# ref: https://artifacthub.io/packages/helm/bitnami/postgresql/15.5.29#parameters
-# https://github.com/bitnami/bitnami-docker-postgresql/blob/master/README.md
-
 image:
-# registry: docker.io
-  registry: harbor.eucaim-node.i3m.upv.es/dockerhub/bitnamilegacy/postgresql
-  # Fixed image version because the new major versions of PostgreSQL typically introduce some user-visible incompatibilities, so application programming changes might be required. 
-  # ref: https://www.postgresql.org/docs/current/upgrading.html
-  # Last version is 17. Pending to know if Guacamole is compatible with it and then do the upgrade with pg_dumpall or pg_upgrade.
+  registry: harbor.eucaim-node.i3m.upv.es
+  repository: dockerhub/bitnamilegacy/postgresql
   tag: 17.2.0-debian-12-r5
-
 auth:
   postgresPassword: XXXXXXXXXXXX
-  username: XXXXXXXXXX
-  password: XXXXXXXXXXXX
+  username: guacamole
+  password: password
   database: guacamole
-
-#postgresqlDataDir: /bitnami/postgresql/data
-
+  adminPassword: xxxxxxxxx
 primary:
   resources:
     requests:
@@ -31,18 +22,9 @@ primary:
   persistence:
     enabled: true
     existingClaim: guacamole-postgresql
-#   mountPath: /bitnami/postgresql
-#   storageClass: "cephfs"
-#   size: 1Gi
-
-## This enables an init container that changes the owner and group of the persistent volume 
 volumePermissions:
   enabled: true
   image:
-#   registry: docker.io
-    registry: harbor.eucaim-node.i3m.upv.es/core-services/bitnami
-    repository: os-shell
-    tag: 12-debian-12-r30
-
-
-
+    registry: harbor.eucaim-node.i3m.upv.es
+    repository: core-services/bitnami/os-shell
+    digest: sha256:6311d07df0957a0bdb467838c93ba1f4f6c58a741c02f9ede618f17d60982828
