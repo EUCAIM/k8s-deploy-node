@@ -52,8 +52,9 @@ authProxy:
   - --proxy-prefix=/apps/oauth2
   - --scope=openid email groups
   - --set-authorization-header=true
-  - --cookie-name=_oauth2_kubeapps_v2
+  - --cookie-name=oauth2kubeapps
   - --cookie-path=/apps/
+  - --cookie-csrf-per-request=true
   - --whitelist-domain=mininode.imaging.i3m.upv.es
   - --skip-auth-regex=^\/apps\/config\.json$
   - --skip-auth-regex=^\/apps\/site\.webmanifest$
@@ -68,6 +69,9 @@ authProxy:
   - --skip-auth-regex=^\/apps\/apis/core/plugins/v1alpha1/configured-plugins$
   - --skip-auth-regex=^\/apps\/apis/kubeappsapis.core.plugins.v1alpha1.PluginsService/GetConfiguredPlugins$
   - --skip-auth-regex=^\/apps\/$
+  - --allowed-group=data-scientists
+  - --allowed-group=cloud-services-and-security-management
+  - --allowed-group=application-developer
   - --skip-provider-button=true
 frontend:
   image:
@@ -119,6 +123,10 @@ apprepository:
   initialRepos:
   - name: eucaim-node-apps
     url: http://mininode.imaging.i3m.upv.es/dataset-service/output-files/charts/
+  priorityClassName: "core-applications"
+  nodeSelector:
+    chaimeleon.eu/target: core-services
+    
 kubeappsapis:
   image:
     registry: harbor.eucaim-node.i3m.upv.es/core-services
