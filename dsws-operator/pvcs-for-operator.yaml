@@ -1,0 +1,27 @@
+---
+
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv-user-homes
+spec:
+  capacity:
+    storage: 200Gi
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  hostPath:
+    path: /var/hostpath-provisioner/data/homes/users
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: user-homes-data
+  namespace: dataset-service  # It must be in dataset-service with the rest of the shared pvcs
+spec:
+  storageClassName: ""
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 200Gi
