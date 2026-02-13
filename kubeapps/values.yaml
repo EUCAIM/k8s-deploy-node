@@ -48,31 +48,31 @@ authProxy:
   clientSecret: llOqmNpqaXcsVvifWCfV4sNQGI699utI
   cookieSecret: qfvutCl11omGgsc42aMpUQ==
   extraFlags:
-  - --oidc-issuer-url=https://mininode.imaging.i3m.upv.es/auth/realms/EUCAIM-NODE
+  - --oidc-issuer-url=https://breastscan-node.imaging.i3m.upv.es/auth/realms/EUCAIM-NODE
   - --proxy-prefix=/apps/oauth2
   - --scope=openid email groups
   - --set-authorization-header=true
   - --cookie-name=oauth2kubeapps
   - --cookie-path=/apps/
+  - --skip-provider-button=true
+  - --whitelist-domain=breastscan-node.imaging.i3m.upv.es
   - --cookie-csrf-per-request=true
-  - --whitelist-domain=mininode.imaging.i3m.upv.es
-  - --skip-auth-regex=^\\/apps\\/config\\.json$
-  - --skip-auth-regex=^\\/apps\\/site\\.webmanifest$
-  - --skip-auth-regex=^\\/apps\\/custom_style\\.css$
-  - --skip-auth-regex=^\\/apps\\/clr-ui\\.min\\.css$
-  - --skip-auth-regex=^\\/apps\\/clr-ui-dark\\.min\\.css$
-  - --skip-auth-regex=^\\/apps\\/custom_locale\\.json$
-  - --skip-auth-regex=^\\/apps\\/favicon.*\\.png$
-  - --skip-auth-regex=^\\/apps\\/favicon.*\\.ico$
-  - --skip-auth-regex=^\\/apps\\/android-chrome-.*\\.png$
-  - --skip-auth-regex=^\\/apps\\/static\\/
-  - --skip-auth-regex=^\\/apps\\/apis\\/core\\/plugins\\/v1alpha1\\/configured-plugins$
-  - --skip-auth-regex=^\\/apps\\/apis\\/kubeappsapis\\.core\\.plugins\\.v1alpha1\\.PluginsService\\/GetConfiguredPlugins$
-  - --skip-auth-regex=^\\/apps\\/$
+  - --skip-auth-regex=^\/apps\/config\.json$
+  - --skip-auth-regex=^\/apps\/site\.webmanifest$
+  - --skip-auth-regex=^\/apps\/custom_style\.css$
+  - --skip-auth-regex=^\/apps\/clr-ui\.min\.css$
+  - --skip-auth-regex=^\/apps\/clr-ui-dark\.min\.css$
+  - --skip-auth-regex=^\/apps\/custom_locale\.json$
+  - --skip-auth-regex=^\/apps\/favicon.*\.png$
+  - --skip-auth-regex=^\/apps\/favicon.*\.ico$
+  - --skip-auth-regex=^\/apps\/android-chrome-.*\.png$
+  - --skip-auth-regex=^\/apps\/static\/
+  - --skip-auth-regex=^\/apps\/apis\/core\/plugins\/v1alpha1\/configured-plugins$
+  - --skip-auth-regex=^\/apps\/apis\/kubeappsapis\.core\.plugins\.v1alpha1\.PluginsService\/
+  - --skip-auth-regex=^\/apps\/$
   - --allowed-group=data-scientists
   - --allowed-group=cloud-services-and-security-management
   - --allowed-group=application-developer
-  - --skip-provider-button=true
 frontend:
   image:
     registry: harbor.eucaim-node.i3m.upv.es/core-services
