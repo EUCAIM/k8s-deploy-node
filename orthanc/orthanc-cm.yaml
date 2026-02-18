@@ -1,0 +1,32 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: orthanc-config
+  namespace: orthanc-ohif
+data:
+  ORTHANC_JSON: |
+    {
+      "Name": "Orthanc OHIF",
+      "RemoteAccessAllowed": true,
+      "AuthenticationEnabled": true,
+      "RegisteredUsers": {
+        "admin": "admon"
+      },
+      "DicomWeb": {
+        "Enable": true,
+        "Root": "/dicom-web/"
+      },
+      "Indexer" : {
+        "Enable" : true,
+        "Folders" : [ "/var/lib/orthanc/dicom/" ],
+        "Interval" : 10
+      },
+      "OrthancExplorer2": {
+        "Enable": true,
+        "UiOptions": {
+          "EnableDownloadZip": false,
+          "EnableDownloadDicomDir": false,
+          "EnableDownloadDicomFile": false
+        }
+      }
+    }
