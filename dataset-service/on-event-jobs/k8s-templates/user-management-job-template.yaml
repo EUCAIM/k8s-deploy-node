@@ -48,18 +48,18 @@ spec:
               value: "__TENANT_PROJECTS__"
 
             # - name: K8S_ENDPOINT
-            #   value: "https://mininode.imaging.i3m.upv.es:6443"
+            #   value: "__K8S_ENDPOINT__"
             # - name: K8S_TOKEN
-            #   value: "eyJhbGciOiJSUzI1NiIsImtpZCI6IkxvM19kZlFNNzRwbGhCRWJmVWR2ck15S3Vtb19CR0V1MEpGRmxhaUhXWkUifQ.eyJpc3MiOiJrdWJlcm5ldGVzL3NlcnZpY2VhY2NvdW50Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9uYW1lc3BhY2UiOiJkYXRhc2V0LXNlcnZpY2UiLCJrdWJlcm5ldGVzLmlvL3NlcnZpY2VhY2NvdW50L3NlY3JldC5uYW1lIjoidXNlci1tYW5hZ2VtZW50LXNhLXRva2VuIiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9zZXJ2aWNlLWFjY291bnQubmFtZSI6InVzZXItbWFuYWdlbWVudC1zYSIsImt1YmVybmV0ZXMuaW8vc2VydmljZWFjY291bnQvc2VydmljZS1hY2NvdW50LnVpZCI6ImRiYTRiODM5LWU4MzUtNGQ1MC04ZmM2LTEzOTFhZDRkYjgzMiIsInN1YiI6InN5c3RlbTpzZXJ2aWNlYWNjb3VudDpkYXRhc2V0LXNlcnZpY2U6dXNlci1tYW5hZ2VtZW50LXNhIn0.UcoZr4H6WwwFYFG874Mwu7ixM-rN4et9FxsOuKhMkQ45kiSPjMTYGYAoo0cWLC1mj4WmiDB2YIosPKvvnnLlOpq4YFxhl3sHb2S_eOxXxnl2gfHvE8nE60GYRSBYFKKjxvhVFJlP05ATu30CybAOXtDDKavPTVCrS-Kt9x2SphC4EW_uoEn3HCdPthKPf000rc7wrCum7Eif2tYr-bTtXN0wNtZblheB7vzt7t9PQsa19IYOfEgGOWYHXdotM2rJ01O4TR-EZqERYoh8vlUdpLcVFpa9Mp4f7d-6dNQgzJ-kX_mw-N07qDaNNwH0BVfpMBzmqa1_xl_VYTT-onWkwg"
+            #   value: "__K8S_TOKEN__"
               
             - name: MOUNTED_DIR_PERSISTENT_HOMES
               value: "/mnt/homes"
               
             - name: KEYCLOAK_TOKEN_ENDPOINT
-              value: "https://mininode.imaging.i3m.upv.es/auth/realms/EUCAIM-NODE/protocol/openid-connect/token"
+              value: "__KEYCLOAK_TOKEN_ENDPOINT__"
 
             - name: KEYCLOAK_ADMIN_ENDPOINT
-              value: "https://mininode.imaging.i3m.upv.es/auth/admin/realms/EUCAIM-NODE/"
+              value: "__KEYCLOAK_ADMIN_ENDPOINT__"
             - name: KEYCLOAK_CLIENT
               # You must create that client as a service account in Keycloak.
               # In order to add API tokens as custom attributes in the users:
