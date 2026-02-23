@@ -21,7 +21,7 @@ postgresql:
       memory: 200Mi
       cpu: 200m
 ingress:
-  enabled: false
+  enabled: true
   hostname: mininode.imaging.i3m.upv.es
   path: /apps/?(.*)
   ingressClassName: nginx
