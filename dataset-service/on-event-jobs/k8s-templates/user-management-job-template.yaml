@@ -15,20 +15,15 @@ metadata:
 spec:
   template:
     spec:
+      serviceAccountName: user-management-sa
       volumes:
         - name: dataset-service-data-volume
           persistentVolumeClaim:
             claimName: dataset-service-data
-        - name: cephfs-volume
-          cephfs:
-            monitors: 
-              - "192.168.10.230:6789"
-              - "192.168.10.3:6789"
-              - "192.168.10.4:6789"
-            path: /homes/users
-            user: eucaim-user-creator
-            secretRef:
-              name: user-management-jobs-ceph-secret
+        - name: homes-volume
+          hostPath:
+            path: /var/hostpath-provisioner/data/homes/users
+            type: Directory
       containers:
         - name: user-management
           image: harbor.eucaim-node.i3m.upv.es/core-services/dataset-service-on-event-jobs:1.0
@@ -40,7 +35,7 @@ spec:
             - mountPath: "/home/ubuntu/scripts"
               subPath: "on-event-jobs/scripts"
               name: dataset-service-data-volume
-            - name: cephfs-volume
+            - name: homes-volume
               mountPath: /mnt/homes
           env:
             - name: TENANT_NAME
@@ -52,49 +47,19 @@ spec:
             - name: TENANT_PROJECTS
               value: "__TENANT_PROJECTS__"
 
-            - name: K8S_ENDPOINT
-              value: "https://eucaim-node.i3m.upv.es:6443"
-            - name: K8S_TOKEN
-              value: "XXXXXXXXXXXXXXXX"
-              
-            - name: CEPH_HOST
-              value: "[v2:192.168.10.230:3300/0,v1:192.168.10.230:6789/0] [v2:192.168.10.3:3300/0,v1:192.168.10.3:6789/0] [v2:192.168.10.4:3300/0,v1:192.168.10.4:6789/0]"
-            - name: CEPH_ADMIN_USER
-              # You must give permissions to that user with:
-              # ceph auth get-or-create client.eucaim-user-creator  mon "allow * fsname=eucaimnodedata"  mds "allow * fsname=eucaimnodedata"  osd "allow * tag cephfs data=eucaimnodedata"
-              value: "eucaim-user-creator"
-            - name: CEPH_ADMIN_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: user-management-jobs-ceph-secret
-                  key: key
-            - name: CEPH_FS_VOL_NAME
-              value: "eucaimnodedata"
-            - name: CEPH_PREFIX_ACCOUNT
-              # Example: "eucaim-user" 
-              # In this example, the ceph account created for the user "john" will be "eucaim-user--john"
-              value: "eucaim-user"
+            # - name: K8S_ENDPOINT
+            #   value: "https://mininode.imaging.i3m.upv.es:6443"
+            # - name: K8S_TOKEN
+            #   value: "eyJhbGciOiJSUzI1NiIsImtpZCI6IkxvM19kZlFNNzRwbGhCRWJmVWR2ck15S3Vtb19CR0V1MEpGRmxhaUhXWkUifQ.eyJpc3MiOiJrdWJlcm5ldGVzL3NlcnZpY2VhY2NvdW50Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9uYW1lc3BhY2UiOiJkYXRhc2V0LXNlcnZpY2UiLCJrdWJlcm5ldGVzLmlvL3NlcnZpY2VhY2NvdW50L3NlY3JldC5uYW1lIjoidXNlci1tYW5hZ2VtZW50LXNhLXRva2VuIiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9zZXJ2aWNlLWFjY291bnQubmFtZSI6InVzZXItbWFuYWdlbWVudC1zYSIsImt1YmVybmV0ZXMuaW8vc2VydmljZWFjY291bnQvc2VydmljZS1hY2NvdW50LnVpZCI6ImRiYTRiODM5LWU4MzUtNGQ1MC04ZmM2LTEzOTFhZDRkYjgzMiIsInN1YiI6InN5c3RlbTpzZXJ2aWNlYWNjb3VudDpkYXRhc2V0LXNlcnZpY2U6dXNlci1tYW5hZ2VtZW50LXNhIn0.UcoZr4H6WwwFYFG874Mwu7ixM-rN4et9FxsOuKhMkQ45kiSPjMTYGYAoo0cWLC1mj4WmiDB2YIosPKvvnnLlOpq4YFxhl3sHb2S_eOxXxnl2gfHvE8nE60GYRSBYFKKjxvhVFJlP05ATu30CybAOXtDDKavPTVCrS-Kt9x2SphC4EW_uoEn3HCdPthKPf000rc7wrCum7Eif2tYr-bTtXN0wNtZblheB7vzt7t9PQsa19IYOfEgGOWYHXdotM2rJ01O4TR-EZqERYoh8vlUdpLcVFpa9Mp4f7d-6dNQgzJ-kX_mw-N07qDaNNwH0BVfpMBzmqa1_xl_VYTT-onWkwg"
               
             - name: MOUNTED_DIR_PERSISTENT_HOMES
               value: "/mnt/homes"
-            - name: DIR_PERSISTENT_HOMES
-              # Read and write permissions will be granted to the users for this directory appending the TENANT_NAME as a subdirectory
-              value: "/homes/users"
-            - name: DIR_PERSISTENT_SHARED
-              # Read and write permissions will be granted to the users for this directory
-              value: "/homes/shared-folder"
-            - name: DIR_DATA
-              # Read permission will be granted to the users for this directory
-              value: "/datalake" 
-            - name: DIR_DATASETS
-              # Read permission will be granted to the users for this directory
-              value: "/datasets"
               
             - name: KEYCLOAK_TOKEN_ENDPOINT
-              value: "https://eucaim-node.i3m.upv.es/auth/realms/EUCAIM-NODE/protocol/openid-connect/token"
+              value: "https://mininode.imaging.i3m.upv.es/auth/realms/EUCAIM-NODE/protocol/openid-connect/token"
 
             - name: KEYCLOAK_ADMIN_ENDPOINT
-              value: "https://eucaim-node.i3m.upv.es/auth/admin/realms/EUCAIM-NODE/"
+              value: "https://mininode.imaging.i3m.upv.es/auth/admin/realms/EUCAIM-NODE/"
             - name: KEYCLOAK_CLIENT
               # You must create that client as a service account in Keycloak.
               # In order to add API tokens as custom attributes in the users:
@@ -104,27 +69,7 @@ spec:
               #     "realm-management/query-users", "realm-management/view-users", "realm-management/manage-users".
               value: "dataset-service"
             - name: KEYCLOAK_CLIENT_SECRET
-              value: "XXXXXXXXXXXXXXXX"
-
-            - name: QPI_ADMIN_ENDPOINT
-              #value: "http://gateway.quibim.svc.cluster.local/care/admin/"
-              value: "https://qpinsights.eucaim-node.i3m.upv.es/care/admin/"
-            - name: QPI_ADMIN_CLIENT_ID
-              value: "qpinsights"
-            - name: QPI_ADMIN_USERNAME
-              # This user should be created specially for that purpose in the auth service,
-              # with some email putting it in a new custom attribute named "qpi_id",
-              # with some first name (for example "-") and last name (for example "-"),
-              # with some password (put it in the next env var),
-              # and assign to it the roles "validated_user" and "qpinsights-backend:Admin".
-              # Finally the user must be created also in QP-Insights.
-              # NOTE: in that case we don't use the service account (as we do to access the keycloak admin endpoint) for two reasons:
-              #       - Because QPI admin endpoint requires some special claims in the role which are defined in mappers for its client,
-              #         so we have to use that client to get a user token, otherwise we would have to define again this mappers for the service account.
-              #       - For security reasons, avoid someone who gain access to QPI instance and catch the token to be able to manage users also in keycloak.
-              value: "qpi-user-creator"
-            - name: QPI_ADMIN_PASSWORD
-              value: "XXXXXXXXXXXXXXXX"
+              value: "Wgq4kpBLa0Stjx6FtHoMoT1yBNd02ErT"
 
             - name: GUACAMOLE_ENDPOINT
               value: "http://guacamole-guacamole.guacamole.svc.cluster.local/guacamole/"
@@ -132,14 +77,14 @@ spec:
               # You must create that user in Guacamole
               value: "eucaim-user-creator"
             - name: GUACAMOLE_ADMIN_PASSWORD
-              value: "XXXXXXXXXXXXXXXX"
+              value: "hCbsows1wS89rnCI5QIDGFT9"
               
             - name: EXTERNAL_SHARING_SERVICE_ENDPOINT
               value: "http://external-sharing-service.external-sharing-service.svc.cluster.local:80"
               
               # Following params are domains to be included in the network policy as allowed destinations from pods in the user namespace
             - name: MAIN_DOMAIN_NAME
-              value: "eucaim-node.i3m.upv.es"
+              value: "mininode.imaging.i3m.upv.es"
             - name: HARBOR_DOMAIN_NAME
               value: "harbor.eucaim-node.i3m.upv.es"
             
