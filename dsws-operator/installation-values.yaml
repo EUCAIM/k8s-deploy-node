@@ -59,7 +59,6 @@ service:
 image:
   repository: harbor.chaimeleon-eu.i3m.upv.es/chaimeleon-services/k8s-operator
   pullPolicy: Always
-  tag: 2.5.2-kopf1.36.2
 imagePullSecrets: []
 nameOverride: ''
 fullnameOverride: ''
