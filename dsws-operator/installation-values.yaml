@@ -46,19 +46,19 @@ operatorConfiguration:
     jobman_service_execution_namespace: "jobman-service-exec"
 
     volumes:
-      type: "cephfs"
+      type: "hostPath"
       cephfs:
         monitors: ['192.168.12.210:6789', '192.168.12.211:6789']
         user_prefix: "eucaim-user--"
         auth_secret_name: "ceph-auth"
         jobman_service_execution_user: "jobman-service-exec"
       
-      datalake_path: "/datalake"
-      datasets_path: "/datasets"
-      test_datalake_path: "/datalake-test"
-      test_datasets_path: "/datasets-test"
-      persistent_homes_path: "/homes/users"
-      persistent_shared_folder_path: "/homes/shared-folder"
+      datalake_path: ""
+      datasets_path: "/mnt/datasets"
+      test_datalake_path: ""
+      test_datasets_path: "/mnt/datasets-test"
+      persistent_homes_path: "/mnt/cephfs/data/homes/users"
+      persistent_shared_folder_path: "/mnt/cephfs/data/homes/shared-folder"
       persistent_shared_folder_read_only: true
 
     checks:
@@ -98,9 +98,9 @@ operatorConfiguration:
             resources: { target_node: "desktops",  cpu: "900m",  max_cpu: "2",  memory_gb: 7,  gpu: false }
           - name: "app-service-cpu300"
             tool_match: "nifi"
-            name_match: "nifi-nifi|nifi-registry"
-            # nifi has 4 deployments, the nifi and registry needs more cpu
-            resources: { target_node: "desktops",  cpu: "300m",  max_cpu: "1",  memory_gb: 1,  gpu: false }
+            name_match: "nifi-nifi"
+            # nifi has 4 deployments, the nifi-nifi needs more cpu
+            resources: { target_node: "desktops",  cpu: "300m",  max_cpu: "1",  memory_gb: 2,  gpu: false }
           - name: "app-service-cpu200"
             tool_match: "analytic-engine"
             name_match: "ai-layer-ws|ai-layer-trino"
@@ -126,7 +126,7 @@ image:
   repository: "harbor.chaimeleon-eu.i3m.upv.es/chaimeleon-services/k8s-operator"
   pullPolicy: Always
   # Overrides the image tag whose default is the chart appVersion.
-  tag: "2.5.6-kopf1.36.2"
+  #tag: "2.5.7-kopf1.36.2"
 
 imagePullSecrets: []
 nameOverride: ""
