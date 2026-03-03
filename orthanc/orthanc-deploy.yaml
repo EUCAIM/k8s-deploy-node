@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
       - name: orthanc
-        image: orthancteam/orthanc:latest
+        image:  harbor.eucaim.cancerimage.eu/library/orthanc/orthanc@sha256:6977e8a7e37c7d866d94f51b6a3fcdcdb1b0c6d46bd792c8c823dea5de0c9201
         ports:
         - containerPort: 8042
           name: http-web
