@@ -20,34 +20,33 @@ spec:
         imagePullPolicy: Always
         env:
         - name: API_KEY
-          valueFrom: 
+          valueFrom:
             secretKeyRef:
               name: api-keys
               key: FOCUS_API_KEY
         - name: BEAM_PROXY_URL
           value: http://beam-proxy-service:8081
         - name: BEAM_APP_ID_LONG
-          value: focus.YOUR_PROV.broker.eucaim.cancerimage.eu
+          value: focus.YOUR_PROVIDER.broker.eucaim.cancerimage.eu
         - name: RETRY_COUNT
           value: "10"
         - name: ENDPOINT_URL
-          #value: http://responder-service:1337
           value: http://dataset-service-backend-service.dataset-service.svc.cluster.local:11000/api/datasets/eucaimSearch
         - name: AUTH_HEADER
-          valueFrom: 
+          valueFrom:
             secretKeyRef:
               name: api-keys
               key: DATASET_SERVICE_AUTH_HEADER
         - name: ENDPOINT_TYPE
           value: omop
         - name: PROVIDER
-          value: YOUR_PROV
+          value: YOUR_PROVIDER
         - name: PROVIDER_ICON
-
           value: ""
+        resources:
           requests:
-            memory: "100Mi"
-            cpu: "50m"
-      priorityClassName: core-services
-      nodeSelector: 
-        chaimeleon.eu/target: core-services
+            cpu: 50m
+            memory: 100Mi
+          limits:
+            cpu: 200m
+            memory: 256Mi
