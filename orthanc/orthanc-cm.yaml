@@ -2,7 +2,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: orthanc-config
-  namespace: orthanc-ohif
+  namespace: dataset-service
 data:
   ORTHANC_JSON: |
     {
