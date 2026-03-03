@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: orthanc
-  namespace: orthanc-ohif
+  namespace: dataset-service
   labels:
     app: orthanc
 spec:
@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
       - name: orthanc
-        image:  harbor.eucaim.cancerimage.eu/library/orthanc/orthanc@sha256:6977e8a7e37c7d866d94f51b6a3fcdcdb1b0c6d46bd792c8c823dea5de0c9201
+        image: harbor.eucaim.cancerimage.eu/library/orthanc/orthanc@sha256:6977e8a7e37c7d866d94f51b6a3fcdcdb1b0c6d46bd792c8c823dea5de0c9201
         ports:
         - containerPort: 8042
           name: http-web
@@ -36,18 +36,22 @@ spec:
         - name: OHIF_PLUGIN_ENABLED
           value: 'true'
         volumeMounts:
-        - name: storage
-          mountPath: /var/lib/orthanc
+        - name: datalake-storage
+          mountPath: /var/lib/orthanc/db
+          subPath: orthanc/db
+        - name: datalake-storage
+          mountPath: /var/lib/orthanc/dicom
+          subPath: orthanc/dicom
       volumes:
-      - name: storage
+      - name: datalake-storage
         persistentVolumeClaim:
-          claimName: orthanc-storage-pvc
+          claimName: datalake-data
 ---
 apiVersion: v1
 kind: Service
 metadata:
   name: orthanc-service
-  namespace: orthanc-ohif
+  namespace: dataset-service
 spec:
   type: ClusterIP
   selector:
