@@ -13,7 +13,7 @@ spec:
     - host: breastscan-node.imaging.i3m.upv.es
       http:
         paths:
-          - path: /
+          - path: /orthanc
             pathType: Prefix
             backend:
               service:
