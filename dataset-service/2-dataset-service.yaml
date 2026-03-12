@@ -95,7 +95,7 @@ spec:
                         "prefix_for_roles_as_groups": "/",
                         "prefix_for_projects_as_groups": "/PROJECTS/PROJECT-",
                         "assignable_general_roles": ["application-developer", "authorized-technical-data-manager", "clinical-staff", 
-                                                   "cloud-services-and-security-management", "data-scientists", "dataset-administrator"]
+                                                     "cloud-services-and-security-management", "data-scientists", "dataset-administrator"]
                       }
                   },
                   "tracer": {
