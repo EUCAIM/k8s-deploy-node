@@ -115,7 +115,7 @@ if echo ${TENANT_ROLES} | grep -i "data-scientist" > /dev/null; then
     #${KUBECTL_CMD} apply -f /tmp/ciliumNetworkPolicy-deny-egress.yml
 
     echo -e "\n##############################################################################"
-    echo "=============== NAMESPACE ROLE BINDING (user namespace and zz-shared)"
+    echo "=============== NAMESPACE ROLE BINDING (user namespace)"
     resource=namespace-role-binding.yml
     cp templates/${resource}.tpl /tmp/${resource}
     sed -i 's/{{ TENANT_NAME }}/'${TENANT_NAME}'/g' /tmp/${resource}

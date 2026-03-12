@@ -43,15 +43,6 @@ if echo ${TENANT_ROLES} | grep -i "data-scientist" > /dev/null; then
            delete user "${TENANT_NAME}"
 
     echo -e "\n##############################################################################"
-    echo "=============== Delete the namespaced role bindings"
-    if ${KUBECTL_CMD} -n zz-shared get rolebinding oidc:${TENANT_NAME}-in-zz-shared-namespace; then
-        ${KUBECTL_CMD} -n zz-shared delete rolebinding oidc:${TENANT_NAME}-in-zz-shared-namespace;
-    else
-        echo rolebinding oidc:${TENANT_NAME}-in-zz-shared-namespace does not exist in namespace zz-shared;
-    fi
-    echo -e "\n---------------------------------------------------------------"
-
-    echo -e "\n##############################################################################"
     echo "=============== Delete the k8s namespace of the user"
     ${KUBECTL_CMD} delete namespace ${TENANT_NAMESPACE}
 fi
