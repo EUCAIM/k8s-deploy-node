@@ -93,6 +93,12 @@ class KeycloakAdminAPIClient:
             attributeValues = user["attributes"][attributeName]
             attributeValues[0] = attributeValue
         user["attributes"][attributeName] = attributeValues
-        logging.root.debug('Setting user attribute with KeycloakAdminAPI...')
-        self._PUT_JSON("users/"+userId, json.dumps(user))
-
+        try:
+            logging.root.debug('Setting user attribute with KeycloakAdminAPI...')
+            self._PUT_JSON("users/"+userId, json.dumps(user))
+        except KeycloakAdminAPIException as e:
+            if e.error_code == 400:
+                logging.root.error('Error setting the user attribute, '
+                    + 'it can be due to a new required user attribute recetly added to the regitration form but still not set for this user '
+                    + '(try to login with the user account to fill in all the required attributes).')
+            raise e
