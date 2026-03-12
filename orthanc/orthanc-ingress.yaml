@@ -2,21 +2,24 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: orthanc-ingress
-  namespace: dataset-service
+  namespace: orthanc
   annotations:
-    nginx.ingress.kubernetes.io/proxy-body-size: '0'
-    nginx.ingress.kubernetes.io/proxy-read-timeout: '600'
-    nginx.ingress.kubernetes.io/proxy-send-timeout: '600'
+    nginx.ingress.kubernetes.io/use-regex: "true"
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+    nginx.ingress.kubernetes.io/proxy-body-size: "0"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "600"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "600"
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
 spec:
   ingressClassName: nginx
   rules:
-    - host: breastscan-node.imaging.i3m.upv.es
-      http:
-        paths:
-          - path: /orthanc
-            pathType: Prefix
-            backend:
-              service:
-                name: orthanc-service
-                port:
-                  name: web-ui
+  - host: breastscan-node.imaging.i3m.upv.es
+    http:
+      paths:
+      - path: /orthanc(/|$)(.*)
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: orthanc-service
+            port:
+              number: 8042
