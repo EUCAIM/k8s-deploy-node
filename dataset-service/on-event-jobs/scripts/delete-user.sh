@@ -119,20 +119,18 @@ if echo ${TENANT_ROLES} | grep -i "data-scientist" > /dev/null; then
     # echo "=============== Delete the cluster role binding"
     # python3 delete_clusterrolebinding.py ${K8S_ENDPOINT} ${K8S_TOKEN} ${TENANT_TYPE} oidc:${TENANT_NAME} chaimeleon-users-role-cluster
 
-    echo -e "\n##############################################################################"
-    echo "=============== Delete the namespaced role bindings"
-    # The entire user namespace will deleted, so that line is not really needed.
-    #   python3 delete_rolebinding.py ${K8S_ENDPOINT} ${K8S_TOKEN} ${TENANT_TYPE} oidc:${TENANT_NAME} ${TENANT_NAMESPACE} chaimeleon-users-role-namespace
-    # That method to remove is dangerous because some rolebinding for this user can include other users.
-    #   python3 delete_rolebinding.py ${K8S_ENDPOINT} ${K8S_TOKEN} ${TENANT_TYPE} oidc:${TENANT_NAME} zz-shared chaimeleon-users-read-shared-namespace
-    # it is better to delete de rolebinding by name:
-    echo -e "\nDeleting the user-configmap  ... "
-    if ${KUBECTL_CMD} -n zz-shared get rolebinding oidc:${TENANT_NAME}-in-zz-shared-namespace; then
-        ${KUBECTL_CMD} -n zz-shared delete rolebinding oidc:${TENANT_NAME}-in-zz-shared-namespace;
-    else
-        echo rolebinding oidc:${TENANT_NAME}-in-zz-shared-namespace does not exist in namespace zz-shared;
-    fi
-    echo -e "\n---------------------------------------------------------------"
+    # The entire user namespace will be deleted, so this block is not really needed.
+    # echo -e "\n##############################################################################"
+    # echo "=============== Delete the namespaced role bindings"
+    # #  python3 delete_rolebinding.py ${K8S_ENDPOINT} ${K8S_TOKEN} ${TENANT_TYPE} oidc:${TENANT_NAME} ${TENANT_NAMESPACE} chaimeleon-users-role-namespace
+    # #That method to remove is dangerous because some rolebinding for this user can include other users.
+    # #It is better to delete de rolebinding by name:
+    # if ${KUBECTL_CMD} -n ${TENANT_NAMESPACE} get rolebinding oidc:${TENANT_NAME}; then
+    #     ${KUBECTL_CMD} -n ${TENANT_NAMESPACE} delete rolebinding oidc:${TENANT_NAME};
+    # else
+    #     echo rolebinding oidc:${TENANT_NAME} does not exist in namespace ${TENANT_NAMESPACE};
+    # fi
+    # echo -e "\n---------------------------------------------------------------"
 
 
     # The entire user namespace will be deleted, so this block is not really needed.
