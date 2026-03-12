@@ -1,11 +1,28 @@
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv-orthanc-storage
+spec:
+  storageClassName: othanc-datalake
+  capacity:
+    storage: 10Gi
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  hostPath:
+    path: /var/hostpath-provisioner/dataset-service/datalake
+---
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: orthanc-storage-pvc
-  namespace: orthanc-ohif
+  namespace: orthanc
 spec:
+  storageClassName: othanc-datalake
+  volumeName: pv-orthanc-storage  
   accessModes:
-    - ReadWriteOnce
+    - ReadWriteMany
   resources:
     requests:
-      storage: 20Gi
+      storage: 8Gi
