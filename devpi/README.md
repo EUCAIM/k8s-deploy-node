@@ -1,4 +1,9 @@
 
+It is a python packages repository which automatically download missing packages from PyPI.org.
+So in fact it is a mirror which acts as a local cache.
+The final purpose is to allow the users install any python package with the command `pip` but without give them access to the Internet,
+because some projects don't want to allow the users to extract (upload) data from the platform.
+
 ## Build
 
 Derived work based on the excellent docker Github repo at https://github.com/LordGaav/docker-devpi

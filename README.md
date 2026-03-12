@@ -41,7 +41,7 @@ Dataset administration and Traceability System:
 Authentication proxy:
 - OAuth2-proxy: deployed using the helm chart. URL: https://eucaim-node.i3m.upv.es/oauth2p/
 
-Package Repositories (like for Python's pip, or Java's maven):
+Python packages repository:
 - Devpi: deployed using plain YAMLs
    - URL (Platform internal only): http://devpi-service.package-repos-proxy:3141
    - Deployment details in the [devpi directory](/devpi/)

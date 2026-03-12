@@ -113,20 +113,20 @@ Each of those groups will has the same name as the corresponding role and the ro
 We will create the projects also as groups but those will be named with the template "PROJECT-{project_name}".
 
 And in order to include the groups as a claim in the tokens we must create Client scope (that will be able to add to the clients).
-Go to Client scopes and create one with:
-  Name: `groups`
-  Type: `None`
-  Display on consent screen: `false`
-  Include in token scope: `true`
-And in "Mappers" tab add one "by configuration", select "Group Membership" and:
-  Name: `groups`
-  Token Claim Name: `groups`
-  Full group path: `false`
-  Add to ID token: `true`
-  Add to access token: `true`
-  Add to lightweight access token: `false`
-  Add to userinfo: `true`
-  Add to token introspection: `true`
+Go to Client scopes and create one with:  
+ - Name: `groups`
+ - Type: `None`
+ - Display on consent screen: `false`
+ - Include in token scope: `true`
+And in "Mappers" tab add one "by configuration", select "Group Membership" and:  
+ - Name: `groups`
+ - Token Claim Name: `groups`
+ - Full group path: `false`
+ - Add to ID token: `true`
+ - Add to access token: `true`
+ - Add to lightweight access token: `false`
+ - Add to userinfo: `true`
+ - Add to token introspection: `true`
 
 ## Configure Identity Providers 
 

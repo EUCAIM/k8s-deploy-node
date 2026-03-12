@@ -100,17 +100,21 @@ You should go to Harbor Web UI, in the main menu (on the left) "Configuration" -
 ## Create the projects
 At least these projects are usually needed:
  - library (private), for the interactive application container images
+ - library-public (public), for the public images from the previous project to be shared with mininode instances
  - library-batch (private), for the batch application container images
+ - library-batch-public (public), for the public images from the previous project to be shared with mininode instances
  - library-batch-protected (private), for the protected batch application container images
  - charts (public), for the interactive application helm charts
 
-There are separated projects for batch application images because we want to list only batch application with `jobman images`.  
-The libraries are private because we don't want to distribute publically third party applications, 
-we only want to make available for the platform users within the platform.
-There will be a robot account named "common-user" allowed to access to "library" and "library-batch" 
-and any user of platform will be able to use it through the [internal gatway](internal-gateway/readme.md).
-In the other hand, the library-batch-protected will be only accessible to the jobman-service, 
-it is for container images of applications which the owner doesn't want the user can see the contents (see [jobman-service]).
+There are projects for batch application images, separated from non-batch, because we want to list only batch application with `jobman images`.  
+There are three levels of access to the application images:
+ - The images in library and library-batch are private because we don't want to distribute publically third party applications, 
+   we only want to make available for the platform users within the platform.
+   There will be a robot account named "common-user" allowed to access to "library" and "library-batch" 
+   and any user of platform will be able to use it through the [internal gatway](internal-gateway/readme.md).
+ - The images in library-public and library-batch-public are publically accessible from outside.
+ - And the more restrictive: the images in library-batch-protected will be only accessible to the jobman-service.
+   It is for container images of applications which the author doesn't want the user can see the contents (see [jobman-service]).
 
 ## Robot accounts
 As mentioned in the previous chapter, you must create the following robot accounts:
@@ -128,7 +132,7 @@ You should annotate the generated secrets in order to use
 
 ## Dockerhub proxy cache
 Let's create a proxy-cache to docker-hub that will be used to pull the images of applications and services in the platform 
-to avoid reaching the limit of downloads from DockerHub.
+to avoid reaching the limit of downloads from DockerHub and maintain the artifacts in case of deletion or disconnection to docker-hub.
 
 Go to "Administration" -> "Registries", you should create a "New endpoint" like this:
  - Provider: Docker Hub
@@ -142,8 +146,13 @@ Go to "Administration" -> "Registries", you should create a "New endpoint" like 
 Now go to Projects and create a new one with:
  - Project Name: dockerhub
  - Access Level: not public
- - Project quota limits: -1
+ - Project quota limits: 16 GiB
  - Proxy Cache: true, and select the previously created endpoint
+
+And adjust the retention policy, going to the "Policy" tab in the project, select "TAG RETENTION" and add or edit the rule:
+ - For the repositories: `matching` `**`
+ - `retain the most recently pushed # artifacts`, `2`
+ - Tags: `matching` `**`
 
 As the project is not public we are going to create a robot account for Kubernetes to access...
 
