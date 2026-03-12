@@ -111,7 +111,9 @@
       "name": "companyOrOrganization",
       "displayName": "Company or organization",
       "validations": {},
-      "annotations": {},
+      "annotations": {
+        "inputHelperTextAfter": "Next, you must fill in one of the sections A or B."
+      },
       "permissions": {
         "view": [
           "admin",
@@ -168,7 +170,7 @@
           "application-developer": "[Application developer]: Develop applications for the platform"
         },
         "inputType": "multiselect-checkboxes",
-        "inputHelperTextBefore": "What are you going to do in that projects?"
+        "inputHelperTextBefore": "What are you going to do in that projects?   (Options: authorized-technical-data-manager. clinical-staff, dataset-administrator, data-scientists, application-developer)"
       },
       "permissions": {
         "view": [
@@ -210,6 +212,43 @@
       "annotations": {
         "inputHelperTextAfter": "After your registration, your account must be validated according to the project or negotiation that you indicated in order to you are able to access the platform services. This is not an automated process. You will be notified if accepted.",
         "inputType": "textarea"
+      },
+      "permissions": {
+        "view": [
+          "admin",
+          "user"
+        ],
+        "edit": [
+          "admin",
+          "user"
+        ]
+      },
+      "group": "additional-comments",
+      "multivalued": false
+    },
+    {
+      "name": "confirmation",
+      "displayName": "Do you have filled in the section A or B?",
+      "validations": {
+        "options": {
+          "options": [
+            "yes",
+            "no"
+          ]
+        }
+      },
+      "annotations": {
+        "inputOptionLabels": {
+          "yes": "yes I do",
+          "no": "no, this is a special case I explain in Z) Additional comments"
+        },
+        "inputType": "select-radiobuttons"
+      },
+      "required": {
+        "roles": [
+          "admin",
+          "user"
+        ]
       },
       "permissions": {
         "view": [
