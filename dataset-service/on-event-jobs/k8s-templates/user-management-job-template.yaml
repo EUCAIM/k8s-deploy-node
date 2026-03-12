@@ -26,7 +26,7 @@ spec:
             type: Directory
       containers:
         - name: user-management
-          image: harbor.eucaim-node.i3m.upv.es/core-services/dataset-service-on-event-jobs:1.0
+          image: harbor.eucaim-node.i3m.upv.es/core-services/dataset-service-on-event-jobs:1.0-1
           #imagePullPolicy: Always
           workingDir: "/home/ubuntu/scripts"
           command: ["/bin/bash"]

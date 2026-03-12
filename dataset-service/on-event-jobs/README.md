@@ -39,7 +39,6 @@ so the container image must be rebuilt...
 Download the Dockerfile from the Dataset-service source code repository:
 ```
 curl -LO https://github.com/chaimeleon-eu/dataset-service/raw/refs/heads/main/on-event-jobs/Dockerfile
-curl -LO https://github.com/chaimeleon-eu/dataset-service/raw/refs/heads/main/on-event-jobs/Dockerfile_version
 ```
 And build your container image and upload to the platform repository:
 (the files "requirements-apt.txt" and "requirements-pip.txt" will be taken for the building)
