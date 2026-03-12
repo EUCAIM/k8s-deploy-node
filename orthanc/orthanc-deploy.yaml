@@ -1,8 +1,122 @@
+Conversación abierta. 1 mensaje no leído.
+
+Ir al contenido
+Uso de Gmail con lectores de pantalla
+7 de 12.397
+Los YAMLs que te comentaba por TEAMS
+Recibidos
+
+Ignacio Blanquer Espert
+Archivos adjuntos
+mié, 11 mar, 16:48 (hace 17 horas)
+para mí
+
+Parece que este mensaje está en inglés
+
+ 3 archivos adjuntos
+  •  Analizados por Gmail
+# ORTHANC queda disponible en https://breastscan-node.imaging.i3m.upv.es/orthanc/ui/app/index.html#/
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: orthanc
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: orthanc-extra-config
+  namespace: orthanc
+data:
+  prefix.json: |
+    {
+      "HttpServerPrefix": "/orthanc"
+    }
+---
+#Removed
+#"HttpServerPrefix": "/orthanc",
+#        "PathPrefix": "/orthanc",
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: orthanc-config
+  namespace: orthanc
+data:
+  ORTHANC_JSON: |
+    {
+      "Name": "Breast Scan",
+      "RemoteAccessAllowed": true,
+      "AuthenticationEnabled": true,
+      "HttpServerEnabled": true,
+      "HttpPort": 8042,
+      "BehindReverseProxy": true,
+      "HttpRoot": "/orthanc/",
+      "RegisteredUsers": {
+        "admin": "admon"
+      },
+      "Plugins" : [
+        "/usr/share/orthanc/plugins/",
+        "/usr/share/orthanc/plugins-available/libStorageLink_ChangeCallback.so"
+      ],
+      "StorageLink" : {
+        "LinkDirectory": "/var/lib/orthanc/storage_link/"
+      },
+      "DicomWeb": {
+        "Enable": true,
+        "Root": "/dicom-web/"
+      },
+      "OrthancExplorer2": {
+        "Enable": true,
+        "Theme": "dark",
+        "UiOptions": {
+          "EnableUpload": true,
+          "EnableDeleteResources": false,
+          "EnableAnonymization": false,
+          "EnableModification": false,
+          "EnableSendTo": false,
+          "EnableSettings": false,
+          "EnableLinkToLegacyUi": false,
+          "EnableEditLabels": false,
+          "EnableAddSeries": true,
+          "EnableDownloadZip": false,
+          "EnableDownloadDicomDir": false,
+          "EnableDownloadDicomFile": false
+        }
+      }
+    }
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv-orthanc-storage
+spec:
+  storageClassName: othanc-datalake
+  capacity:
+    storage: 10Gi
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  hostPath:
+    path: /var/hostpath-provisioner/dataset-service/datalake
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: orthanc-storage-pvc
+  namespace: orthanc
+spec:
+  storageClassName: othanc-datalake
+  volumeName: pv-orthanc-storage  
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 8Gi
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: orthanc
-  namespace: dataset-service
+  namespace: orthanc
   labels:
     app: orthanc
 spec:
@@ -17,18 +131,21 @@ spec:
     spec:
       containers:
       - name: orthanc
-        image: harbor.eucaim.cancerimage.eu/library/orthanc/orthanc@sha256:6977e8a7e37c7d866d94f51b6a3fcdcdb1b0c6d46bd792c8c823dea5de0c9201
+        image: harbor.eucaim.cancerimage.eu/library/orthanc/orthanc:26.1.0
+        #image: orthancteam/orthanc:24.2.0
         ports:
         - containerPort: 8042
           name: http-web
         - containerPort: 4242
           name: dicom
         env:
-        - name: ORTHANC_JSON
-          valueFrom:
-            configMapKeyRef:
-              name: orthanc-config
-              key: ORTHANC_JSON
+        - name: ORTHANC_CONFIG
+          value: '/etc/orthanc/orthanc.json'
+          #        - name: ORTHANC_JSON
+          #          valueFrom:
+          #            configMapKeyRef:
+          #              name: orthanc-config
+          #              key: ORTHANC_JSON
         - name: ORTHANC__DICOM_AET
           value: ORTHANC_K8S
         - name: DICOM_WEB_PLUGIN_ENABLED
@@ -36,22 +153,36 @@ spec:
         - name: OHIF_PLUGIN_ENABLED
           value: 'true'
         volumeMounts:
-        - name: datalake-storage
-          mountPath: /var/lib/orthanc/db
-          subPath: orthanc/db
-        - name: datalake-storage
-          mountPath: /var/lib/orthanc/dicom
-          subPath: orthanc/dicom
+        - name: storage
+          mountPath: /var/lib/orthanc
+        - name: orthanc-config
+          mountPath: /etc/orthanc
+            #          mountPath: /etc/orthanc/orthanc.json
+            #       subPath: orthanc.json
+            #        - name: config-volume
+            #          mountPath: /etc/orthanc/prefix.json
+            #          subPath: prefix.json
       volumes:
-      - name: datalake-storage
+      - name: storage
         persistentVolumeClaim:
-          claimName: datalake-data
+          claimName: orthanc-storage-pvc
+          #          claimName: datalake-data
+          #namespace: dataset-service
+      - name: orthanc-config
+        configMap:
+          name: orthanc-config
+          items:
+          - key: ORTHANC_JSON
+            path: orthanc.json
+            #      - name: config-volume
+            #        configMap:
+            #          name: orthanc-extra-config
 ---
 apiVersion: v1
 kind: Service
 metadata:
   name: orthanc-service
-  namespace: dataset-service
+  namespace: orthanc
 spec:
   type: ClusterIP
   selector:
@@ -66,3 +197,30 @@ spec:
     port: 4242
     targetPort: 4242
 ---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: orthanc-ingress
+  namespace: orthanc
+  annotations:
+    nginx.ingress.kubernetes.io/use-regex: "true"
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+    nginx.ingress.kubernetes.io/proxy-body-size: "0"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "600"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "600"
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: breastscan-node.imaging.i3m.upv.es
+    http:
+      paths:
+      - path: /orthanc(/|$)(.*)
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: orthanc-service
+            port:
+              number: 8042
+orthanc-si-va.yaml
+Mostrando orthanc-si-va.yaml.
