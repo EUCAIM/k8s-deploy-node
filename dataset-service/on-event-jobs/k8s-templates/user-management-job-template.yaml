@@ -1,3 +1,4 @@
+
 # This is the template of the k8s job launched whenever a user is created, updated or deleted.
 # Template variables that will be replaced by the launcher (the Dataset-service):
 #   __OPERATION__, __TENANT_USERNAME__, __TENANT_ROLES__, __TENANT_SITE__, __TENANT_PROJECTS__
@@ -15,7 +16,6 @@ metadata:
 spec:
   template:
     spec:
-      serviceAccountName: user-management-sa
       volumes:
         - name: dataset-service-data-volume
           persistentVolumeClaim:
@@ -47,19 +47,19 @@ spec:
             - name: TENANT_PROJECTS
               value: "__TENANT_PROJECTS__"
 
-            # - name: K8S_ENDPOINT
-            #   value: "__K8S_ENDPOINT__"
-            # - name: K8S_TOKEN
-            #   value: "__K8S_TOKEN__"
+            - name: K8S_ENDPOINT
+              value: "https://eucaim-node.i3m.upv.es:6443"
+            - name: K8S_TOKEN
+              value: "XXXXXXXXXXXXXXXX"
               
             - name: MOUNTED_DIR_PERSISTENT_HOMES
               value: "/mnt/homes"
               
             - name: KEYCLOAK_TOKEN_ENDPOINT
-              value: "__KEYCLOAK_TOKEN_ENDPOINT__"
+              value: "https://eucaim-node.i3m.upv.es/auth/realms/EUCAIM-NODE/protocol/openid-connect/token"
 
             - name: KEYCLOAK_ADMIN_ENDPOINT
-              value: "__KEYCLOAK_ADMIN_ENDPOINT__"
+              value: "https://eucaim-node.i3m.upv.es/auth/admin/realms/EUCAIM-NODE/"
             - name: KEYCLOAK_CLIENT
               # You must create that client as a service account in Keycloak.
               # In order to add API tokens as custom attributes in the users:
@@ -69,7 +69,7 @@ spec:
               #     "realm-management/query-users", "realm-management/view-users", "realm-management/manage-users".
               value: "dataset-service"
             - name: KEYCLOAK_CLIENT_SECRET
-              value: "Wgq4kpBLa0Stjx6FtHoMoT1yBNd02ErT"
+              value: "XXXXXXXXXXXXXXXX"
 
             - name: GUACAMOLE_ENDPOINT
               value: "http://guacamole-guacamole.guacamole.svc.cluster.local/guacamole/"
@@ -77,14 +77,14 @@ spec:
               # You must create that user in Guacamole
               value: "eucaim-user-creator"
             - name: GUACAMOLE_ADMIN_PASSWORD
-              value: "hCbsows1wS89rnCI5QIDGFT9"
+              value: "XXXXXXXXXXXXXXXX"
               
             - name: EXTERNAL_SHARING_SERVICE_ENDPOINT
               value: "http://external-sharing-service.external-sharing-service.svc.cluster.local:80"
               
               # Following params are domains to be included in the network policy as allowed destinations from pods in the user namespace
             - name: MAIN_DOMAIN_NAME
-              value: "mininode.imaging.i3m.upv.es"
+              value: "eucaim-node.i3m.upv.es"
             - name: HARBOR_DOMAIN_NAME
               value: "harbor.eucaim-node.i3m.upv.es"
             
