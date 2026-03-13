@@ -15,7 +15,6 @@ metadata:
 spec:
   template:
     spec:
-      serviceAccountName: user-management-sa
       volumes:
         - name: dataset-service-data-volume
           persistentVolumeClaim:
@@ -47,10 +46,10 @@ spec:
             - name: TENANT_PROJECTS
               value: "__TENANT_PROJECTS__"
 
-            # - name: K8S_ENDPOINT
-            #   value: "__K8S_ENDPOINT__"
-            # - name: K8S_TOKEN
-            #   value: "__K8S_TOKEN__"
+            - name: K8S_ENDPOINT
+              value: "__K8S_ENDPOINT__"
+            - name: K8S_TOKEN
+              value: "__K8S_TOKEN__"
               
             - name: MOUNTED_DIR_PERSISTENT_HOMES
               value: "/mnt/homes"
@@ -69,7 +68,7 @@ spec:
               #     "realm-management/query-users", "realm-management/view-users", "realm-management/manage-users".
               value: "dataset-service"
             - name: KEYCLOAK_CLIENT_SECRET
-              value: "Wgq4kpBLa0Stjx6FtHoMoT1yBNd02ErT"
+              value: "__KEYCLOAK_CLIENT_SECRET__"
 
             - name: GUACAMOLE_ENDPOINT
               value: "http://guacamole-guacamole.guacamole.svc.cluster.local/guacamole/"
@@ -77,14 +76,14 @@ spec:
               # You must create that user in Guacamole
               value: "eucaim-user-creator"
             - name: GUACAMOLE_ADMIN_PASSWORD
-              value: "hCbsows1wS89rnCI5QIDGFT9"
+              value: "__GUACAMOLE_ADMIN_PASSWORD__"
               
             - name: EXTERNAL_SHARING_SERVICE_ENDPOINT
               value: "http://external-sharing-service.external-sharing-service.svc.cluster.local:80"
               
               # Following params are domains to be included in the network policy as allowed destinations from pods in the user namespace
             - name: MAIN_DOMAIN_NAME
-              value: "mininode.imaging.i3m.upv.es"
+              value: "__MAIN_DOMAIN_NAME__"
             - name: HARBOR_DOMAIN_NAME
               value: "harbor.eucaim-node.i3m.upv.es"
             
