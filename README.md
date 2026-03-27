@@ -47,6 +47,9 @@ Python packages repository:
    - URL (Platform internal only): http://devpi-service.package-repos-proxy:3141
    - Deployment details in the [devpi directory](/devpi/)
 
+Federated Computation:
+- FEM client: deployed using plain YAMLs. URL: not publicly accessible
+
 ## Deployment order
 First of all, go to the infrastructure recipes to create the infrastructure (a Kubernetes cluster) in a cloud provider
 and deploy some infrastructure core services: [infrastructure-recipes](/infrastructure-recipes/)  
@@ -72,6 +75,7 @@ Now the platform core services can be deployed in the following order to properl
  | DSWS K8s Operator                 | Depends on Keycloak, Harbor, Dataset-service, Guacamole            | [dsws-operator](/dsws-operator/)
  | Jobman-service                    | Depends on Keycloak, Harbor, DSWS K8s Operator                     |
  | Desktops-cleaner                  | Depends on Keycloak, Harbor, Guacamole                             | [desktops-cleaner directory](/desktops-cleaner/)
+ | FEM client                        | Depends on Keycloak, Harbor, Jobman                                | [fem-client](/fem-client/)
 
 Finally...
 [extra-configurations](/extra-configurations/)
