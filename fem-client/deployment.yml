@@ -1,10 +1,9 @@
-kind: Deployment
 apiVersion: apps/v1
+kind: Deployment
 metadata:
   name: fem-client
   namespace: eucaim-fed-computation
 spec:
-  replicas: 1
   selector:
     matchLabels:
       app: fem-client
@@ -13,70 +12,13 @@ spec:
       labels:
         app: fem-client
     spec:
-      volumes:
-        - name: homes
-          cephfs:
-            monitors:
-              - 192.168.10.230:6789
-              - 192.168.10.3:6789
-              - 192.168.10.4:6789
-            path: /homes/users/
-            user: fem-client
-            secretRef:
-              name: ceph-auth
-        - name: fem-client-vol
-          persistentVolumeClaim:
-            claimName: fem-client-pvc
-        - name: config-env
-          configMap:
-            name: fem-client-env
-            items:
-              - key: .env
-                path: .env
-            defaultMode: 420
-        - name: config
-          projected:
-            sources:
-              - secret:
-                  name: fem-client-secrets
-                  items:
-                    - key: UPV_client_cert.pem
-                      path: rabbitmq-certificates/UPV_client_cert.pem
-                    - key: UPV_client_csr.pem
-                      path: rabbitmq-certificates/UPV_client_csr.pem
-                    - key: UPV_client_key.pem
-                      path: rabbitmq-certificates/UPV_client_key.pem
-                    - key: rootCA_cert.pem
-                      path: rabbitmq-certificates/rootCA_cert.pem
-              - configMap:
-                  name: fem-client-launcher
-                  items:
-                    - key: launcher.json
-                      path: launcher.json
-              - configMap:
-                  name: fem-client-config
-                  items:
-                    - key: config.py
-                      path: config.py
-            defaultMode: 420
-      initContainers:
-        - name: set-volume-permissions
-          image: busybox:1.33
-          command: ['sh', '-c', 'chown -R 1000:1000 /app/data && chown 1000:1000 /app/logs']
-          volumeMounts:
-            - mountPath: /app/logs
-              name: fem-client-vol
-              subPath: logs/
-            - mountPath: /app/data
-              name: fem-client-vol
-              subPath: data/
       containers:
-        - name: fem-client
-          image: registry.gitlab.bsc.es/fl/fem-client:v2.3-test
-          command:
+        - command:
             - python
             - receiver.py
-          workingDir: /app
+          image: registry.gitlab.bsc.es/fl/fem-client:v2.3.1
+          imagePullPolicy: Always
+          name: fem-client
           resources:
             limits:
               cpu: '2'
@@ -85,21 +27,90 @@ spec:
               cpu: '2'
               memory: 8Gi
           volumeMounts:
-            - name: config-env
-              mountPath: /app/.env
+            - mountPath: /app/.env
+              name: config-env
               subPath: .env
-            - name: fem-client-vol
-              mountPath: /app/logs
+            - mountPath: /app/logs
+              name: fem-client-vol
               subPath: logs/
-            - name: fem-client-vol
-              mountPath: /app/data
+            - mountPath: /data
+              name: fem-client-vol
               subPath: data/
-            - name: homes
-              mountPath: /app/sandbox
-            - name: config
-              mountPath: /app/config
-          imagePullPolicy: Always
-      restartPolicy: Always
+            - mountPath: /sandbox
+              name: homes
+            - mountPath: /app/config
+              name: config
+          workingDir: /app
+      initContainers:
+        - command:
+            - sh
+            - '-c'
+            - chown -R 1000:1000 /data && chown 1000:1000 /app/logs
+          image: busybox:1.33
+          imagePullPolicy: IfNotPresent
+          volumeMounts:
+            - mountPath: /app/logs
+              name: fem-client-vol
+              subPath: logs/
+            - mountPath: /data
+              name: fem-client-vol
+              subPath: data/
       nodeSelector:
         chaimeleon.eu/target: core-services
       priorityClassName: core-applications
+      volumes:
+        - cephfs:
+            monitors:
+              - 192.168.10.230:6789
+              - 192.168.10.3:6789
+              - 192.168.10.4:6789
+            path: /homes/users/
+            secretRef:
+              name: ceph-auth
+            user: fem-client
+          name: homes
+        - name: fem-client-vol
+          persistentVolumeClaim:
+            claimName: fem-client-pvc
+        - configMap:
+            defaultMode: 420
+            items:
+              - key: .env
+                path: .env
+            name: fem-client-env
+          name: config-env
+        - name: config
+          projected:
+            defaultMode: 420
+            sources:
+              - secret:
+                  items:
+                    - key: EUCAIM_client_cert.pem
+                      path: rabbitmq-certificates/EUCAIM_client_cert.pem
+                    - key: EUCAIM_client_csr.pem
+                      path: rabbitmq-certificates/EUCAIM_client_csr.pem
+                    - key: EUCAIM_client_key.pem
+                      path: rabbitmq-certificates/EUCAIM_client_key.pem
+                    - key: rootCA_cert.pem
+                      path: rabbitmq-certificates/rootCA_cert.pem
+                  name: fem-client-secrets
+              - configMap:
+                  items:
+                    - key: launcher.json
+                      path: launcher.json
+                  name: fem-client-launcher
+              - configMap:
+                  items:
+                    - key: config.py
+                      path: config.py
+                  name: fem-client-config
+              - configMap:
+                  items:
+                    - key: token_rule.py
+                      path: token_rule.py
+                  name: fem-client-token-rule
+              - configMap:
+                  items:
+                    - key: sandbox_rule.py
+                      path: sandbox_rule.py
+                  name: fem-client-sandbox-rule
