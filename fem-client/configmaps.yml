@@ -1,20 +1,374 @@
-kind: ConfigMap
 apiVersion: v1
-metadata:
-  name: fem-client-env
-  namespace: eucaim-fed-computation
 data:
-  .env: |
-    LOG_FILE=/app/logs/out.log
-    SANDBOX_PATH=/app/sandbox/test-eucaim-computation/FEM
+  sandbox_rule.py: >-
+    import requests
+
+    import sys
+
+    import os
+
+    import warnings
+
+    import importlib, subprocess, site
+
+
+    # Make sure you install packages that might not be in FEM by default
+
+    def ensure_package(package_name, import_name=None):
+        import_name = import_name or package_name
+        try:
+            return importlib.import_module(import_name)
+        except ImportError:
+            subprocess.check_call([sys.executable, "-m", "pip", "install", "--user", package_name, "--quiet"],
+            stdout=sys.stderr,  # redirect pip stdout to stderr
+            stderr=sys.stderr)
+            # Add user site-packages to sys.path if not already there
+            user_site = site.getusersitepackages()
+            if user_site not in sys.path:
+                sys.path.insert(0, user_site)
+            
+            # Reload importlib to see new package
+            importlib.invalidate_caches()
+            
+            return importlib.import_module(import_name)
+
+    jwt = ensure_package("PyJWT", "jwt")
+
+
+    warnings.filterwarnings("ignore",
+    category=requests.packages.urllib3.exceptions.InsecureRequestWarning)
+
+
+    def log(msg):
+        print(msg, file=sys.stderr)
+
+    if len(sys.argv) < 2:
+        print("Usage: python3 script.py <token>")
+        sys.exit(1)
+
+    token = sys.argv[1]
+
+    decoded = jwt.decode(token, options={"verify_signature": False})
+
+
+    preferred_username = decoded.get("preferred_username")
+
+    if not preferred_username:
+        sys.stderr.write("Error: preferred_username not found in token.")
+        sys.exit(1)
+
+    # Base sandbox path 
+
+    base_sandbox = f"/sandbox/{preferred_username}"
+
+    # Check if user sandbox exists 
+
+    if not os.path.isdir(base_sandbox):
+        sys.stderr.write(f"Error: User sandbox does not exist: {base_sandbox}")
+        sys.exit(1)
+
+    # Check if FEM subdirectory exists, create if it doesn't 
+
+    fem_sandbox = os.path.join(base_sandbox, "FEM") 
+
+    if not os.path.isdir(fem_sandbox):
+        try:
+            os.makedirs(fem_sandbox)
+        except Exception as e:
+            sys.stderr.write(f"Error: Could not create FEM directory: {e}")
+            sys.exit(1)
+
+
+    # Print *only* the sandbox to stdout — everything else goes to stderr.
+
+    sys.stdout.write(fem_sandbox) 
+
+    sys.exit(0)
+kind: ConfigMap
+metadata:
+  name: fem-client-sandbox-rule
+  namespace: eucaim-fed-computation
+
 
 ---
 
-kind: ConfigMap
 apiVersion: v1
+data:
+  token_rule.py: >
+    import requests
+
+
+    import sys
+
+
+
+    import warnings
+
+
+
+    import json
+
+
+
+    import importlib, subprocess, site
+
+
+    # Make sure you install packages that might not be in FEM by default
+
+    def ensure_package(package_name, import_name=None):
+        import_name = import_name or package_name
+        try:
+            return importlib.import_module(import_name)
+        except ImportError:
+            subprocess.check_call([sys.executable, "-m", "pip", "install", "--user", package_name, "--quiet"],
+            stdout=sys.stderr,  # redirect pip stdout to stderr
+            stderr=sys.stderr)
+            # Add user site-packages to sys.path if not already there
+            user_site = site.getusersitepackages()
+            if user_site not in sys.path:
+                sys.path.insert(0, user_site)
+            
+            # Reload importlib to see new package
+            importlib.invalidate_caches()
+            
+            return importlib.import_module(import_name)
+
+
+    import config
+
+
+
+
+    jwt = ensure_package("PyJWT", "jwt")
+
+
+
+
+    # --- No warnings leak to stdout ---
+
+
+
+    warnings.filterwarnings("ignore",
+    category=requests.packages.urllib3.exceptions.InsecureRequestWarning)
+
+
+
+
+    # --- Prints go to stderr unless explicitly stated otherwise ---
+
+
+
+    def log(msg):
+        print(msg, file=sys.stderr, flush=True)
+
+    # Check that a token was provided
+
+
+
+    if len(sys.argv) < 2:
+        print("Usage: python3 script.py <token>")
+        sys.exit(1)
+
+    # Fetch token from command arguments
+
+
+
+    token = sys.argv[1]
+
+
+
+
+    # --- Try to decode token to inspect the issuer ---
+
+
+
+    try:
+        decoded = jwt.decode(token, options={"verify_signature": False})
+        issuer = decoded.get("iss", "")
+        log(f"Detected token issuer: {issuer}")
+    except Exception as e:
+        log(f"Failed to decode token: {e}")
+        issuer = ""
+
+    # --- Decide whether to do the first exchange ---
+
+
+
+    if issuer.startswith("https://login.aai.lifescience-ri.eu/oidc/"):
+        log("Token is already a LifeScience token; skipping first exchange.")
+        ls_token = token
+    else:
+        log("Performing first token exchange to obtain LifeScience token...")
+        url = f"{config.api_base_url}/token/ls_token"
+        headers = {
+            "accept": "application/json",
+            "Authorization": f"Bearer {token}"
+        }
+
+        try:
+            response = requests.post(url, headers=headers, verify=False, timeout=20)
+            if response.status_code != 200:
+                log(f"First exchange failed with status {response.status_code}: {response.text}")
+                sys.exit(1)
+
+            data = response.json()
+            ls_token = data.get("ls_token")
+
+            if not ls_token:
+                log(f"No ls_token found in response: {json.dumps(data, indent=2)}")
+                sys.exit(1)
+
+        except requests.exceptions.RequestException as e:
+            log(f"Request failed: {e}")
+            sys.exit(1)
+        except json.JSONDecodeError:
+            log(f"Response was not valid JSON: {response.text}")
+            sys.exit(1)
+
+    # --- Second token exchange (UPV) ---
+
+
+
+    url_2 =
+    "https://eucaim-node.i3m.upv.es/auth/realms/EUCAIM-NODE/protocol/openid-connect/token"
+
+
+
+
+    data_2 = {
+        "client_id": "fem-client",
+        "client_secret": "xxxxx",
+        "grant_type": "urn:ietf:params:oauth:grant-type:token-exchange",
+        "subject_token": ls_token,
+        "subject_issuer": "lifescience-ri-oidc",
+        "subject_token_type": "urn:ietf:params:oauth:token-type:access_token",
+        "audience": "jobman-service",
+        "scope": "openid"
+    }
+
+
+
+
+    try:
+        response_2 = requests.post(
+            url_2,
+            data=data_2,
+            headers={"Content-Type": "application/x-www-form-urlencoded"},
+            timeout=20
+        )
+
+        if response_2.status_code != 200:
+            log(f"Second exchange failed with status {response_2.status_code}: {response_2.text}")
+            sys.exit(1)
+
+        upv_token = response_2.json().get("access_token")
+        if not upv_token:
+            log(f"No access_token found in response: {response_2.text}")
+            sys.exit(1)
+
+        # Print *only* the token to stdout — everything else goes to stderr.
+        sys.stdout.write(upv_token.strip())
+        sys.stdout.flush()
+        sys.exit(0)
+
+    except requests.exceptions.RequestException as e:
+        log(f"Second request failed: {e}")
+        sys.exit(1)
+    except json.JSONDecodeError:
+        log(f"Second response not valid JSON: {response_2.text}")
+        sys.exit(1)
+kind: ConfigMap
 metadata:
-  name: fem-client-launcher
+  name: fem-client-token-rule
   namespace: eucaim-fed-computation
+
+
+---
+
+apiVersion: v1
+data:
+  config.py: >
+    #!/usr/bin/env python
+
+    import os
+
+
+    # ----------------------------------------------------------------
+
+    # REPLACE THE FOLLOWING VARIABLES WITH YOUR OWN
+
+    # ----------------------------------------------------------------
+
+    node_name = 'EUCAIM'
+
+
+    data_path = '/home/ds/datasets'
+
+    sandbox_path = '/home/ds/persistent-home/FEM'
+
+    node_user = 'EUCAIMrmq'
+
+    node_password = 'xxxx'
+
+    cert_phrase = 'xxxxx'
+
+
+    # ----------------------------------------------------------------
+
+    # DOCKER RELATIVE PATHS. KEEP UNMODIFIED
+
+    # ----------------------------------------------------------------
+
+    rabbitmq_folder='/app/config/rabbitmq-certificates'
+
+    json_launcher = '/app/config/launcher.json'
+
+
+    # ----------------------------------------------------------------
+
+    # KEEP THE FOLLOWING VARIABLES WITH THE PROJECT'S VALUES
+
+    # ----------------------------------------------------------------
+
+    ssl_active = True
+
+    ssl_central_server_port = 5671
+
+    ssl_cafile_path = f'{rabbitmq_folder}/rootCA_cert.pem'
+
+    ssl_client_cert_path = f'{rabbitmq_folder}/{node_name}_client_cert.pem'
+
+    ssl_client_keys_path = f'{rabbitmq_folder}/{node_name}_client_key.pem'
+
+
+    central_server_ip = 'fedcomp.eucaim.cancerimage.eu'
+
+    central_server_port = 5671
+
+    central_rabbitmq_vhost = 'rabbit_server'
+
+    api_base_url =
+    'https://fedcomp.eucaim.cancerimage.eu/orchestrator/eucaim-fem/API/v1'
+
+
+    # Map to DDBB's variables
+
+    task_info_vars = {
+      "MEMORY": "memory", 
+      "DOCKER_IMAGE_REPO": ["image", "repository"], 
+      "DOCKER_IMAGE_NAME": ["image", "name"], 
+      "DOCKER_IMAGE_TAG": ["image", "tag"],
+      "CONTAINER_ID": ["result", "container_id"]
+
+    }
+kind: ConfigMap
+metadata:
+  name: fem-client-config
+  namespace: eucaim-fed-computation
+
+---
+
+apiVersion: v1
 data:
   launcher.json: |
     {
@@ -26,20 +380,15 @@ data:
         ],
         "header" : [
           "Content-Type: application/json",
-          "Authorization: ApiToken <Jobman API token>"
+          "Authorization: Bearer %%token%%"
         ],
         "body" : {
           "jobName"      : "%%execution_id%%",
           "image"        : "%%DOCKER_IMAGE_NAME%%:%%DOCKER_IMAGE_TAG%%",
           "commandArgs"  : "%%TASK_COMMAND%%",
           "dryRun"       : false,
-          "datasetsList" : "<list of datatasets IDs separated by a single comma>",
-          "env": [
-              {
-                "name": "SANDBOX_PATH",
-                "value": "/home/chaimeleon/persistent-home/FEM"
-              }
-            ]
+          "resources"    : "medium-gpu",
+          "datasetsList" : "%%DATASET_ID%%"
         }
       },
       "cancel_run": {
@@ -51,90 +400,67 @@ data:
         ],
         "header" : [
           "Content-Type: application/json",
-          "Authorization: ApiToken <Jobman API token>"
+          "Authorization: Bearer %%token%%"
         ]
       },
       "run_status": {
         "method": "GET",
         "url"    : "https://eucaim-node.i3m.upv.es/jobman-service/api/v1/jobs/%%execution_id%%/logs",
         "cmd": [
-          "curl -X '{method}' -H '{header}'  '{url}' | tee >(jq -r '.stdOut' >  %%SANDBOX_PATH%%/%%user_id%%/%%execution_id%%/%%task_id%%.out) | jq '.stdOut | {\"container_id\": \"%%CONTAINER_ID%%\", \"logs\": .}'"
+          "curl -X '{method}' -H '{header}'  '{url}' 2>/dev/null | tee >(jq -r '.stdOut' >  %%sandbox_fem%%/%%user_id%%/%%execution_id%%/%%task_id%%.log) | jq '.stdOut | {\"container_id\": \"%%CONTAINER_ID%%\", \"logs\": .}'"
         ],
         "header" : [
           "Content-Type: application/json",
-          "Authorization: ApiToken <Jobman API token>"
+          "Authorization: Bearer %%token%%"
         ]
       },
       "run_report": {
         "method": "GET",
         "url"    : "https://eucaim-node.i3m.upv.es/jobman-service/api/v1/jobs/%%execution_id%%",
         "cmd": [
-          "curl -X '{method}' -H '{header}'  '{url}' | jq '. | .exit_code = .exitCode | .start_time = .startedAt | .stop_time = .finishedAt | .elapsed_time_sec = .executionDuration | .error = (if (.errors | length) > 0 then .errors else null end) | del(.exitCode, .startedAt, .finishedAt, .executionDuration, .errors)'"
+          "curl -X '{method}' -H '{header}'  '{url}' | jq '. | .exit_code = .exitCode | .start_time = .startedAt | .stop_time = .finishedAt | .elapsed_time_sec = .executionDuration | .error = (if (.errors | length) > 0 then .errors else null end) | .mounts = (.mounts // [] | map(\":\\(.mountPath):\\(.readOnly // \"\")\")) | del(.exitCode, .startedAt, .finishedAt, .executionDuration, .errors)'"
         ],
         "header" : [
           "Content-Type: application/json",
-          "Authorization: ApiToken <Jobman API token>"
+          "Authorization: Bearer %%token%%"
         ]
       },
       "print_images": {
         "method": "GET",
         "url"    : "https://eucaim-node.i3m.upv.es/jobman-service/api/v1/images/",
         "cmd": [
-          "curl -X '{method}' -H '{header}' '{url}' | jq '[.data[] | .name as $repo | .artifacts[] | {repository: $repo, tag: .tags[], image_id: \"<none>\", sha256_digest: .digest}]'"
+          "curl -X '{method}' -H '{header}' '{url}' | jq '[.data[] | .name as $repo | .artifacts[] | {repository: $repo, tag: .tags[], image_id: null, sha256_digest: .digest}]'"
         ],
         "header" : [
           "Content-Type: application/json",
-          "Authorization: ApiToken <Jobman API token>"
+          "Authorization: Bearer %%token%%"
         ]
       },
-      "task_info_vars" : {
-        "DOCKER_IMAGE_NAME" : ["image", "name"],
-        "DOCKER_IMAGE_REPO": ["image", "repository"],
-        "DOCKER_IMAGE_TAG": ["image", "tag"],
-        "CONTAINER_ID": ["result", "container_id"]
+      "token_rule": {
+        "cmd" : "python3 config/token_rule.py %%token%%"
+      },
+      "sandbox_rule": {
+        "cmd" : "python3 config/sandbox_rule.py %%token%%"
+      },
+        "site_vars": {
+        "DATASET_ID": "c2677037-3e1a-4cc2-90f0-e76cb677de17",
+        "API_TOKEN" : ""
       }
     }
+kind: ConfigMap
+metadata:
+  name: fem-client-launcher
+  namespace: eucaim-fed-computation
 
 ---
 
-kind: ConfigMap
 apiVersion: v1
-metadata:
-  name: fem-client-config
-  namespace: eucaim-fed-computation
 data:
-  config.py: |
-    #!/usr/bin/env python
-    import os
-
-    # ----------------------------------------------------------------
-    # REPLACE THE FOLLOWING VARIABLES WITH YOUR OWN
-    # ----------------------------------------------------------------
-    node_name = 'UPV'
-
-    data_path = '/app/data'
-    sandbox_path = '/home/chaimeleon/persistent-home/FEM/'
-    node_user = 'UPVrmq'
-    node_password = ''
-    cert_phrase = ''
-
-    # ----------------------------------------------------------------
-    # DOCKER RELATIVE PATHS. KEEP UNMODIFIED
-    # ----------------------------------------------------------------
-    rabbitmq_folder='/app/config/rabbitmq-certificates'
-    json_launcher = '/app/config/launcher.json'
-
-    # ----------------------------------------------------------------
-    # KEEP THE FOLLOWING VARIABLES WITH THE PROJECT'S VALUES
-    # ----------------------------------------------------------------
-    ssl_active = True
-    ssl_central_server_port = 5671
-    ssl_cafile_path = f'{rabbitmq_folder}/rootCA_cert.pem'
-    ssl_client_cert_path = f'{rabbitmq_folder}/{node_name}_client_cert.pem'
-    ssl_client_keys_path = f'{rabbitmq_folder}/{node_name}_client_key.pem'
-
-    central_server_ip = 'fl.bsc.es'
-    central_server_port = 5671
-    central_rabbitmq_vhost = 'eucaim_server'
-    api_base_url = 'https://fl.bsc.es/eucaim-fem/API/v1'
-
+  .env: |
+    LOG_FILE=/app/logs/out.log
+    SANDBOX_PATH=/sandbox
+    DATA_PATH=/data
+kind: ConfigMap
+metadata:
+  name: fem-client-env
+  namespace: eucaim-fed-computation
