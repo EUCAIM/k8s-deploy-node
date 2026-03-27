@@ -46,6 +46,9 @@ Package Repositories (like for Python's pip, or Java's maven):
    - URL (Platform internal only): http://devpi-service.package-repos-proxy:3141
    - Deployment details in the [devpi directory](/devpi/)
 
+Federated Computation:
+- FEM client: deployed using plain YAMLs. URL: not publicly accessible
+
 ## Deployment order
 First of all, go to the infrastructure recipes to create the infrastructure (a Kubernetes cluster) in a cloud provider
 and deploy some infrastructure core services: [infrastructure-recipes](/infrastructure-recipes/)  
@@ -70,6 +73,7 @@ Now the platform core services can be deployed in the following order to properl
  | QP-Insights                       | Depends on Keycloak, Harbor, (Dataset-service)                     | [qp-insights directory](/qp-insights/)
  | DSWS K8s Operator                 | Depends on Keycloak, Harbor, Dataset-service, Guacamole            | [dsws-operator](/dsws-operator/)
  | Jobman-service                    | Depends on Keycloak, Harbor, Chaimeleon K8s Operator               |
+ | FEM client                        | Depends on Keycloak, Harbor, Jobman                                | [fem-client](/fem-client/)
 
 Finally...
 [extra-configurations](/extra-configurations/)
