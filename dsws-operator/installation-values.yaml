@@ -42,7 +42,7 @@ operatorConfiguration:
       user_prefix: eucaim-user--
       jobman_service_execution_user: jobman-service-exec
       datasets_path: /
-      persistent_homes_path: /tmp/hostpath-provisioner/data/homes
+      persistent_homes_path: /tmp/hostpath-provisioner/data/homes/users
       persistent_shared_folder_path: /tmp/hostpath-provisioner/data/homes/shared-folder
     checks:
       allowed_repo: harbor.eucaim-node.i3m.upv.es
