@@ -50,6 +50,7 @@ spec:
           name: dataset-service-data-volume
         - mountPath: /mnt/datalake
           name: datalake-volume
+          subPath: storage_link
         - mountPath: /mnt/datasets
           name: datasets-volume
         env:
