@@ -38,9 +38,12 @@ operatorConfiguration:
     namespace_prefix: user-
     jobman_service_execution_namespace: jobman-service-exec
     volumes:
+      type: "hostPath"
       user_prefix: eucaim-user--
       jobman_service_execution_user: jobman-service-exec
-      persistent_homes_path: /homes/users
+      datasets_path: /
+      persistent_homes_path: /tmp/hostpath-provisioner/data/homes
+      persistent_shared_folder_path: /tmp/hostpath-provisioner/data/homes/shared-folder
     checks:
       allowed_repo: harbor.eucaim-node.i3m.upv.es
       not_allowed_repo_message: The image must be one of our internal repository 'harbor.eucaim-node.i3m.upv.es'.
