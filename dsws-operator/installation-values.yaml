@@ -41,7 +41,7 @@ operatorConfiguration:
       type: "hostPath"
       user_prefix: eucaim-user--
       jobman_service_execution_user: jobman-service-exec
-      datasets_path: /
+      datasets_path: /tmp/hostpath-provisioner/dataset-service/datasets
       persistent_homes_path: /tmp/hostpath-provisioner/data/homes/users
       persistent_shared_folder_path: /tmp/hostpath-provisioner/data/homes/shared-folder
     checks:
