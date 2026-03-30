@@ -1,0 +1,110 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fem-client
+  namespace: eucaim-fed-computation
+spec:
+  selector:
+    matchLabels:
+      app: fem-client
+  template:
+    metadata:
+      labels:
+        app: fem-client
+    spec:
+      containers:
+        - command:
+            - python
+            - receiver.py
+          image: registry.gitlab.bsc.es/fl/fem-client:v2.3.1
+          imagePullPolicy: Always
+          name: fem-client
+          resources:
+            limits:
+              cpu: '2'
+              memory: 8Gi
+            requests:
+              cpu: '2'
+              memory: 8Gi
+          volumeMounts:
+            - mountPath: /app/.env
+              name: config-env
+              subPath: .env
+            - mountPath: /app/logs
+              name: fem-client-vol
+              subPath: logs/
+            - mountPath: /data
+              name: fem-client-vol
+              subPath: data/
+            - mountPath: /sandbox
+              name: homes
+            - mountPath: /app/config
+              name: config
+          workingDir: /app
+      initContainers:
+        - command:
+            - sh
+            - '-c'
+            - chown -R 1000:1000 /data && chown 1000:1000 /app/logs
+          image: busybox:1.33
+          imagePullPolicy: IfNotPresent
+          volumeMounts:
+            - mountPath: /app/logs
+              name: fem-client-vol
+              subPath: logs/
+            - mountPath: /data
+              name: fem-client-vol
+              subPath: data/
+      nodeSelector:
+        chaimeleon.eu/target: core-services
+      priorityClassName: core-applications
+      volumes:
+        - name: homes
+          hostPath:
+            path: /var/hostpath-provisioner/data/homes/users
+            type: DirectoryOrCreate
+        - name: fem-client-vol
+          persistentVolumeClaim:
+            claimName: fem-client-pvc
+        - configMap:
+            defaultMode: 420
+            items:
+              - key: .env
+                path: .env
+            name: fem-client-env
+          name: config-env
+        - name: config
+          projected:
+            defaultMode: 420
+            sources:
+              - secret:
+                  items:
+                    - key: EUCAIM_client_cert.pem
+                      path: rabbitmq-certificates/EUCAIM_client_cert.pem
+                    - key: EUCAIM_client_csr.pem
+                      path: rabbitmq-certificates/EUCAIM_client_csr.pem
+                    - key: EUCAIM_client_key.pem
+                      path: rabbitmq-certificates/EUCAIM_client_key.pem
+                    - key: rootCA_cert.pem
+                      path: rabbitmq-certificates/rootCA_cert.pem
+                  name: fem-client-secrets
+              - configMap:
+                  items:
+                    - key: launcher.json
+                      path: launcher.json
+                  name: fem-client-launcher
+              - configMap:
+                  items:
+                    - key: config.py
+                      path: config.py
+                  name: fem-client-config
+              - configMap:
+                  items:
+                    - key: token_rule.py
+                      path: token_rule.py
+                  name: fem-client-token-rule
+              - configMap:
+                  items:
+                    - key: sandbox_rule.py
+                      path: sandbox_rule.py
+                  name: fem-client-sandbox-rule
