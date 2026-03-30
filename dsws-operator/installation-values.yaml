@@ -56,6 +56,44 @@ operatorConfiguration:
       datasets: []
       nfs_path: ''
       nfs_server: ''
+    resource_flavors:
+      jobs:
+        flavors:
+          - name: "small-gpu"
+            resources: { target_node: "small-gpu", cpu: "3", max_cpu: "6", memory_gb: 28,  gpu: false }
+          - name: "medium-gpu"
+            resources: { target_node: "medium-gpu", cpu: "7", max_cpu: "8", memory_gb: 60,  gpu: false }
+          - name: "large-gpu"
+            resources: { target_node: "large-gpu", cpu: "7", max_cpu: "8", memory_gb: 60,  gpu: false }
+          - name: "no-gpu"
+            resources: { target_node: "no-gpu", cpu: "7", max_cpu: "8", memory_gb: 60,  gpu: false }
+        default_flavor_name: "medium-gpu"
+      deployments:
+        flavors:
+          - name: "desktop"
+            tool_match: "desktop-tensorflow|desktop-pytorch|jupyter-tensorflow|jupyter-pytorch"
+            resources: { target_node: "desktops",  cpu: "900m",  max_cpu: "2",  memory_gb: 7,  gpu: false }
+          - name: "app-service-cpu300"
+            tool_match: "nifi"
+            name_match: "nifi-nifi"
+            # nifi has 4 deployments, the nifi-nifi needs more cpu
+            resources: { target_node: "desktops",  cpu: "300m",  max_cpu: "1",  memory_gb: 2,  gpu: false }
+          - name: "app-service-cpu200"
+            tool_match: "analytic-engine"
+            name_match: "ai-layer-ws|ai-layer-trino"
+            # analytical-engine has 7 deployments, the ws and trino needs more cpu
+            resources: { target_node: "desktops",  cpu: "200m",  max_cpu: "1",  memory_gb: 1,  gpu: false }
+          - name: "app-service-cpu100"
+            tool_match: "analytic-engine|nifi"
+            resources: { target_node: "desktops",  cpu: "100m",  max_cpu: "500m",  memory_gb: 1,  gpu: false }
+          - name: "app-service-cpu400"
+            tool_match: "chaimeleon-superset"
+            # superset has 1 deployment with 2 containers
+            resources: { target_node: "desktops",  cpu: "400m",  max_cpu: "1",  memory_gb: 3,  gpu: false }
+          - name: "other"
+            # This entry at the end match anything and assigns the minimum resources to any unknown deployment.
+            tool_match: ".*"
+            resources: { target_node: "desktops",  cpu: "100m",  max_cpu: "200m",  memory_gb: 1,  gpu: false }
 service:
   type: ClusterIP
   port: 443
