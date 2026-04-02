@@ -14,7 +14,7 @@ cp installation-values.yaml installation-values.private.yaml
 And finally add the repo to helm and deploy with:
 ```console
 helm repo add dsws-operator https://harbor.chaimeleon-eu.i3m.upv.es/chartrepo/chaimeleon-services
-helm install --namespace dsws-operator dsws-operator dsws-operator/chaimeleon-operator --version 1.3.1 -f installation-values.private.yaml
+helm install --namespace dsws-operator dsws-operator dsws-operator/chaimeleon-operator --version 1.3.2 -f installation-values.private.yaml
 ```
 
 Alternatively you can download the helm chart directly from source code repository (github) and install with:
@@ -54,7 +54,7 @@ and optionally a new user in guacamole.
 
 You can upgrade with the Kubeapps web interface or with the helm command:
 ```console
-helm upgrade --namespace dsws-operator dsws-operator ./k8s-chaimeleon-operator/chaimeleon-operator-chart -f installation-values.private.yml
+helm upgrade --namespace dsws-operator dsws-operator dsws-operator/chaimeleon-operator --version 1.3.2 -f installation-values.private.yaml
 ```
 
 

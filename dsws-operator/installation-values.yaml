@@ -44,6 +44,7 @@ operatorConfiguration:
     admins_group: "oidc:cloud-services-and-security-management"
     namespace_prefix: "user-"
     jobman_service_execution_namespace: "jobman-service-exec"
+    node_selection: true
 
     volumes:
       type: "hostPath"
@@ -66,18 +67,13 @@ operatorConfiguration:
       not_allowed_repo_message: "The image must be one of our internal repository 'harbor.eucaim-node.i3m.upv.es'."
 
       allowed_images_for_deployment: []
-      not_allowed_image_for_deployment_message: ""
 
       allowed_users_to_deploy: []
-      not_allowed_users_to_deploy_message: ""
 
       max_num_deployments_per_user: 5
       max_num_pods_per_user: 0
     
-    openchallenge:
-      datasets: []
-      nfs_path: ""
-      nfs_server: ""
+      protected_project: "library-batch-protected"
 
     resource_flavors:
       jobs:
@@ -98,8 +94,8 @@ operatorConfiguration:
             resources: { target_node: "desktops",  cpu: "900m",  max_cpu: "2",  memory_gb: 7,  gpu: false }
           - name: "app-service-cpu300"
             tool_match: "nifi"
-            name_match: "nifi-nifi"
-            # nifi has 4 deployments, the nifi-nifi needs more cpu
+            name_match: "nifi-nifi|nifi-desktop"
+            # nifi has 5 deployments, the nifi-nifi and nifi-desktop need more cpu
             resources: { target_node: "desktops",  cpu: "300m",  max_cpu: "1",  memory_gb: 2,  gpu: false }
           - name: "app-service-cpu200"
             tool_match: "analytic-engine"
@@ -108,6 +104,7 @@ operatorConfiguration:
             resources: { target_node: "desktops",  cpu: "200m",  max_cpu: "1",  memory_gb: 1,  gpu: false }
           - name: "app-service-cpu100"
             tool_match: "analytic-engine|nifi"
+            # the rest of deployments of these apps
             resources: { target_node: "desktops",  cpu: "100m",  max_cpu: "500m",  memory_gb: 1,  gpu: false }
           - name: "app-service-cpu400"
             tool_match: "chaimeleon-superset"
@@ -125,13 +122,12 @@ service:
 image:
   repository: "harbor.chaimeleon-eu.i3m.upv.es/chaimeleon-services/k8s-operator"
   pullPolicy: Always
-  # Overrides the image tag whose default is the chart appVersion.
-  #tag: "2.5.7-kopf1.36.2"
+  # Overrides the image tag whose default is the chart appVersion, uncomment and set only if you want to launch a specific version.
+  #tag: "X.X.X-kopfX.X.X"
 
 imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
-
 
 podAnnotations: {}
 
