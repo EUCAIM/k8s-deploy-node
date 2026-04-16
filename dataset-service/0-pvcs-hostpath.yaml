@@ -8,6 +8,9 @@ spec:
   accessModes:
     - ReadWriteMany
   persistentVolumeReclaimPolicy: Retain
+  claimRef:
+    namespace: dataset-service
+    name: postgres-data
   hostPath:
     path: /var/hostpath-provisioner/dataset-service/postgres-data
 ---
@@ -33,6 +36,9 @@ spec:
   accessModes:
     - ReadWriteMany
   persistentVolumeReclaimPolicy: Retain
+  claimRef:
+    namespace: dataset-service
+    name: dataset-service-data
   hostPath:
     path: /var/hostpath-provisioner/dataset-service/dataset-service-data
 ---
