@@ -76,6 +76,9 @@ spec:
   accessModes:
     - ReadWriteMany
   persistentVolumeReclaimPolicy: Retain
+  claimRef:
+  namespace: dataset-service
+  name: datasets-data
   hostPath:
     path: /var/hostpath-provisioner/dataset-service/datalake
 ---
