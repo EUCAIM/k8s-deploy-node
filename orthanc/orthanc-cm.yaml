@@ -9,9 +9,6 @@ data:
       "HttpServerPrefix": "/orthanc"
     }
 ---
-#Removed
-#"HttpServerPrefix": "/orthanc",
-#        "PathPrefix": "/orthanc",
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -30,6 +27,13 @@ data:
       "RegisteredUsers": {
         "admin": "admon"
       },
+      "StableAge": 5,
+      "UserMetadata" : {
+       "patientID-encrypted" : 1024
+      },
+      "LuaScripts": [
+        "/var/lib/orthanc/scripts/script.lua"
+      ],
       "Plugins" : [
         "/usr/share/orthanc/plugins/",
         "/usr/share/orthanc/plugins-available/libStorageLink_ChangeCallback.so"
@@ -38,15 +42,17 @@ data:
         "LinkDirectory": "/var/lib/orthanc/storage_link/"
       },
       "DicomWeb": {
-        "Enable": true,
         "Root": "/dicom-web/"
       },
       "OrthancExplorer2": {
-        "Enable": true,
         "Theme": "dark",
         "UiOptions": {
+          "EnableOidc": true,
           "EnableUpload": true,
           "EnableDeleteResources": false,
+          "EnableDownloadZip": false,
+          "EnableDownloadDicomDir": false,
+          "EnableDownloadDicomFile": false,
           "EnableAnonymization": false,
           "EnableModification": false,
           "EnableSendTo": false,
@@ -54,9 +60,9 @@ data:
           "EnableLinkToLegacyUi": false,
           "EnableEditLabels": false,
           "EnableAddSeries": true,
-          "EnableDownloadZip": false,
-          "EnableDownloadDicomDir": false,
-          "EnableDownloadDicomFile": false
+          "EnableApiViewMenu": false,
+          "CustomButtons": {}
         }
       }
     }
+---
