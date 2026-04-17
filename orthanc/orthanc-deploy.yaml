@@ -8,6 +8,8 @@ metadata:
     app: orthanc
 spec:
   replicas: 1 # Standard Orthanc (SQLite) does not support multiple replicas
+  strategy:
+    type: Recreate
   selector:
     matchLabels:
       app: orthanc
@@ -19,51 +21,35 @@ spec:
       containers:
       - name: orthanc
         image: harbor.eucaim.cancerimage.eu/library/orthanc/orthanc:26.1.0
-        #image: orthancteam/orthanc:24.2.0
         ports:
         - containerPort: 8042
           name: http-web
         - containerPort: 4242
           name: dicom
         env:
-        - name: ORTHANC_CONFIG
-          value: '/etc/orthanc/orthanc.json'
-          #        - name: ORTHANC_JSON
-          #          valueFrom:
-          #            configMapKeyRef:
-          #              name: orthanc-config
-          #              key: ORTHANC_JSON
+        - name: ORTHANC_JSON
+          valueFrom:
+            configMapKeyRef:
+              name: orthanc-config
+              key: ORTHANC_JSON
         - name: ORTHANC__DICOM_AET
           value: ORTHANC_K8S
         - name: DICOM_WEB_PLUGIN_ENABLED
           value: 'true'
         - name: OHIF_PLUGIN_ENABLED
           value: 'true'
+        - name: PATIENT_ID_ENCRYPTION_KEY
+          valueFrom:
+            secretKeyRef:
+              name: patient-id-encryption-key
+              key: patient-id-encryption-key
         volumeMounts:
         - name: storage
           mountPath: /var/lib/orthanc
-        - name: orthanc-config
-          mountPath: /etc/orthanc
-            #          mountPath: /etc/orthanc/orthanc.json
-            #       subPath: orthanc.json
-            #        - name: config-volume
-            #          mountPath: /etc/orthanc/prefix.json
-            #          subPath: prefix.json
       volumes:
       - name: storage
         persistentVolumeClaim:
           claimName: orthanc-storage-pvc
-          #          claimName: datalake-data
-          #namespace: dataset-service
-      - name: orthanc-config
-        configMap:
-          name: orthanc-config
-          items:
-          - key: ORTHANC_JSON
-            path: orthanc.json
-            #      - name: config-volume
-            #        configMap:
-            #          name: orthanc-extra-config
 ---
 apiVersion: v1
 kind: Service
