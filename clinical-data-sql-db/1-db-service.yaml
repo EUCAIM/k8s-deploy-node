@@ -1,0 +1,61 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: db
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: db
+  template:
+    metadata:
+      labels:
+        app: db
+    spec:
+      volumes:
+        - name: postgres-data-pv
+          persistentVolumeClaim:
+            claimName: postgres-data
+      containers:
+      - name: db
+        image: "harbor.eucaim-node.i3m.upv.es/dockerhub/library/postgres:18"
+        env:
+          - name: POSTGRES_DB
+            # initial default db created but not used
+            value: defaultdb
+          - name: POSTGRES_USER
+            value: pgadmin
+          - name: POSTGRES_PASSWORD
+            value: "XXXXXX"
+          #- name: POSTGRES_HOST_AUTH_METHOD
+          #  value: scram-sha-256
+        ports:
+          - containerPort: 5432
+            # standard postgres DB port
+            name: "dbport"
+        volumeMounts:
+          - mountPath: "/var/lib/postgresql"
+            name: postgres-data-pv
+        resources:
+          requests:
+            memory: "250Mi"
+            cpu: "250m"
+      priorityClassName: core-services
+      nodeSelector: 
+        chaimeleon.eu/target: core-services
+      restartPolicy: Always
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: db
+spec:
+  type: NodePort
+  selector:
+    app: db
+  ports:
+    - protocol: TCP
+      port: 5432
+      targetPort: 5432
+      nodePort: 5432
