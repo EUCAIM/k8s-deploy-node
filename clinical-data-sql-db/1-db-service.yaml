@@ -51,9 +51,7 @@ kind: Service
 metadata:
   name: db
 spec:
-  type: NodePort
-  selector:
-    app: db
+  type: ClusterIP
   ports:
     - protocol: TCP
       port: 5432
