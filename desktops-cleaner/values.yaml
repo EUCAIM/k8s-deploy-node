@@ -1,0 +1,84 @@
+# Default values for desktops-cleaner.
+# This is a YAML-formatted file.
+
+config:
+  authService:
+    # Parameters to access the authentication admin API (Keycloak) in order to get the email of users.
+    tokenEndpoint: "https://eucaim-node.i3m.upv.es/auth/realms/EUCAIM-NODE/protocol/openid-connect/token"
+    clientId: "desktops-cleaner" # Client ID of the service account created in Keycloak (see the README).
+    clientSecret: "XXXXXXXXXX"
+    adminApiEndpoint: "https://eucaim-node.i3m.upv.es/auth/admin/realms/EUCAIM-NODE/"
+
+  guacamoleService:
+    url: "https://eucaim-node.i3m.upv.es/guacamole/"
+    adminUser: "desktops-cleaner"
+    adminPassword: "XXXXXXXXXX"
+
+  emailNotifications:
+    smtp:
+      host: "smtp.upv.es"
+      port: 587
+      encryption: "StartTLS" # Options: "SSL" or "StartTLS"
+      user: "s-grycap@upv.es"
+      password: "XXXXXXXXXX"
+    senderEmailAddress: "no-reply@eucaim-node.i3m.upv.es"
+      # The email address which you want to appear as the sender of notifications.
+    mainWebLink: "https://eucaim-node.i3m.upv.es"
+      # Just the URL that can be added to the notification email with the variable {mainWebLink}.
+    notificationEmailTemplate:
+      # Variables that will be replaced:  
+      #   {username}, {connectionName}, {inactivityDays}, {daysOfGrace}, {guacamoleLink}, {mainWebLink}
+      text: |
+        There is a desktop created by user "{username}" which has not been used for {inactivityDays} days:
+          - {connectionName}
+        It will be removed to release resources in {daysOfGrace} days unless you access it.
+        {guacamoleLink}
+        If you don't need it, you can access now and close the session or simply do nothing and let it be removed.
+        Just remember, if you want to save your work, always write your files in the persistent-home directory.
+        And remember also you will be able to deploy again the desktop whenever you want:
+        {mainWebLink}
+      html: |
+        <html><head></head>
+        <body>
+          <p>There is a desktop created by user "{username}" which has not been used for {inactivityDays} days:</p>
+          <ul>
+              <li><a href="{guacamoleLink}">{connectionName}</a></li>
+          </ul>
+          <p>It will be removed to release resources in {daysOfGrace} days unless you access it.<br/>
+          If you don't need it, you can access now and close the session or simply do nothing and let it be removed.<br/>
+          Just remember, if you want to save your work, always write your files in the persistent-home directory.<br/>
+          And remember also you will be able to deploy again the desktop whenever you want: <br/>
+          <a href="{mainWebLink}">{mainWebLink}</a><br/>
+          </p>
+        </body>
+        </html>
+
+  userNamespacesPrefix: "user-"  # The prefix which is in all the namespaces from users, other namespaces will be skipped.
+  inactivityDaysToNotifyByEmail: 7 # Days of inactivity to notify users by email.
+  daysOfGraceUntilDelete: 2 # Grace period (in days of inactivity after the notification) to delete the desktop.
+  skipNamespaces: []
+    # example: ["user-testuser", "user-adminuser"]
+    # List of namespaces to skip.
+    # Useful to not remove desktops of special users.
+  onlyNamespaces: [] 
+    # example: ["user-testuser", "user-testuser2"]
+    # List of namespaces to watch, any other will be skipped. 
+    # Useful to test how desktops-cleaner works.
+    # Keep it empty to disable this filter.
+
+cronJob:
+  schedule: '0,30 23 * * *' # Launch every day at 23:00 and 23:30
+  suspend: false # Set suspend to true if you want to execute only manually regardless of schedule
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 2
+  image:
+    # Image parameters, usually don't have to change this
+    repository: "harbor.chaimeleon-eu.i3m.upv.es/chaimeleon-services/desktops-cleaner"
+    # Overrides the image tag whose default is the chart appVersion, set only if you want to launch a specific version.
+    #tag: "1.0.0"
+
+pvcName: "desktops-cleaner-data"
+
+priorityClassName: core-services
+nodeSelector:
+  chaimeleon.eu/target: core-services

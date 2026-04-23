@@ -36,6 +36,7 @@ Dataset administration and Traceability System:
    - Deployment details in the [dataset-service directory](/dataset-service/)
    - Source code: https://github.com/chaimeleon-eu/dataset-service
 - [DSWS K8s Operator](https://github.com/chaimeleon-eu/k8s-chaimeleon-operator): deployed using the Helm Chart. 
+- [Desktops-cleaner](https://github.com/chaimeleon-eu/desktops-cleaner): deployed using the Helm Chart.
 - [Tracer Service](https://github.com/chaimeleon-eu/tracer). 
 
 Authentication proxy:
@@ -62,14 +63,15 @@ Now the platform core services can be deployed in the following order to properl
  | Keycloak                          |                                                                    | [keycloak directory](/keycloak/)
  | Harbor                            | Depends on Keycloak                                                | [harbor directory](/harbor/)
  | Devpi                             | Depends on Harbor                                                  | [devpi directory](/devpi/)
- | Kubeapps                          | Depends on Keycloak, Harbor                                        | [kubeapps directory](/kubeapps/)
+ | Kubeapps                          | Depends on Keycloak, Harbor, (DSWS K8s Operator)                   | [kubeapps directory](/kubeapps/)
  | Access to K8s dashboard with OIDC | Depends on Keycloak, Kubeapps                                      | [kubernetes-dashboard-oidc-access directory](/kubernetes-dashboard-oidc-access/)
  | Tracer-service                    | Depends on Keycloak, Harbor                                        |
  | Guacamole                         | Depends on Keycloak, Harbor                                        | [guacamole directory](/guacamole/)
  | Dataset-service                   | Depends on Keycloak, Harbor, (Tracer), (Kubeapps), (Guacamole)     | [dataset-service directory](/dataset-service/)
  | QP-Insights                       | Depends on Keycloak, Harbor, (Dataset-service)                     | [qp-insights directory](/qp-insights/)
  | DSWS K8s Operator                 | Depends on Keycloak, Harbor, Dataset-service, Guacamole            | [dsws-operator](/dsws-operator/)
- | Jobman-service                    | Depends on Keycloak, Harbor, Chaimeleon K8s Operator               |
+ | Jobman-service                    | Depends on Keycloak, Harbor, DSWS K8s Operator                     |
+ | Desktops-cleaner                  | Depends on Keycloak, Harbor, Guacamole                             | [desktops-cleaner directory](/desktops-cleaner/)
 
 Finally...
 [extra-configurations](/extra-configurations/)
