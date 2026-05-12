@@ -1,0 +1,243 @@
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: orthanc-full-db
+  namespace: orthanc-full
+  labels:
+    app: orthanc-full-db
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: orthanc-full-db
+  template:
+    metadata:
+      labels:
+        app: orthanc-full-db
+    spec:
+      containers:
+      - name: postgres
+        image: postgres:14
+        env:
+        - name: POSTGRES_USER
+          value: "postgres"
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: orthanc-full-secrets
+              key: DB_ORTHANC_PASSWORD
+        ports:
+        - containerPort: 5432
+        volumeMounts:
+        - name: data
+          mountPath: /var/lib/postgresql/data
+      volumes:
+      - name: data
+        persistentVolumeClaim:
+          claimName: orthanc-full-db-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: orthanc-full-db
+  namespace: orthanc-full
+spec:
+  selector:
+    app: orthanc-full-db
+  ports:
+  - port: 5432
+    targetPort: 5432
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: orthanc-full-auth-service
+  namespace: orthanc-full
+  labels:
+    app: orthanc-full-auth-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: orthanc-full-auth-service
+  template:
+    metadata:
+      labels:
+        app: orthanc-full-auth-service
+    spec:
+      containers:
+      - name: auth-service
+        image: orthancteam/orthanc-auth-service:main
+        env:
+        - name: SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: orthanc-full-secrets
+              key: AUTH_SECRET_KEY
+        - name: ENABLE_KEYCLOAK
+          value: "true"
+        - name: KEYCLOAK_URI
+          value: "http://keycloak.keycloak.svc.cluster.local:8080/auth/realms/EUCAIM-NODE/"
+        - name: KEYCLOAK_CLIENT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: orthanc-full-secrets
+              key: KC_CLIENT_SECRET
+        - name: PUBLIC_ORTHANC_ROOT
+          value: "https://YOURDOMAIN/orthanc-full/"
+        - name: PUBLIC_LANDING_ROOT
+          value: "https://YOURDOMAIN/orthanc-full/ui/app/token-landing.html"
+        - name: PUBLIC_OHIF_ROOT
+          value: "https://YOURDOMAIN/ohif-full/"
+        - name: USERS
+          valueFrom:
+            secretKeyRef:
+              name: orthanc-full-secrets
+              key: SVC_INTERNAL_USERS_JSON
+        ports:
+        - containerPort: 8000
+        volumeMounts:
+        - name: permissions
+          mountPath: /orthanc_auth_service/permissions.json
+          subPath: permissions.json
+      volumes:
+      - name: permissions
+        configMap:
+          name: orthanc-full-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: orthanc-full-auth-service
+  namespace: orthanc-full
+spec:
+  selector:
+    app: orthanc-full-auth-service
+  ports:
+  - port: 8000
+    targetPort: 8000
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: orthanc-full
+  namespace: orthanc-full
+  labels:
+    app: orthanc-full
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: orthanc-full
+  template:
+    metadata:
+      labels:
+        app: orthanc-full
+    spec:
+      containers:
+      - name: orthanc
+        image: orthancteam/orthanc:latest
+        env:
+        - name: STONE_WEB_VIEWER_PLUGIN_ENABLED
+          value: "true"
+        - name: DICOM_WEB_PLUGIN_ENABLED
+          value: "true"
+        - name: STL_PLUGIN_ENABLED
+          value: "true"
+        - name: ORTHANC__POSTGRESQL__HOST
+          value: "orthanc-full-db"
+        - name: ORTHANC__POSTGRESQL__PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: orthanc-full-secrets
+              key: DB_ORTHANC_PASSWORD
+        - name: ORTHANC__POSTGRESQL__TRANSACTION_MODE
+          value: "ReadCommitted"
+        - name: VERBOSE_ENABLED
+          value: "true"
+        - name: ORTHANC_JSON
+          valueFrom:
+            configMapKeyRef:
+              name: orthanc-full-config
+              key: ORTHANC_JSON
+        - name: ORTHANC__AUTHORIZATION__WEBSERVICEUSERNAME
+          valueFrom:
+            secretKeyRef:
+              name: orthanc-full-secrets
+              key: SVC_INTERNAL_USER
+        - name: ORTHANC__AUTHORIZATION__WEBSERVICEPASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: orthanc-full-secrets
+              key: SVC_INTERNAL_PASSWORD
+        ports:
+        - containerPort: 8042
+          name: http-web
+        - containerPort: 4242
+          name: dicom
+        volumeMounts:
+        - name: storage
+          mountPath: /var/lib/orthanc/db
+          subPath: db
+        - name: storage
+          mountPath: /var/lib/orthanc/dicom
+          subPath: dicom
+      volumes:
+      - name: storage
+        persistentVolumeClaim:
+          claimName: orthanc-full-storage
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: orthanc-full-service
+  namespace: orthanc-full
+spec:
+  selector:
+    app: orthanc-full
+  ports:
+  - name: web-ui
+    port: 80
+    targetPort: 8042
+  - name: dicom-port
+    port: 4242
+    targetPort: 4242
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ohif
+  namespace: orthanc-full
+  labels:
+    app: ohif
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ohif
+  template:
+    metadata:
+      labels:
+        app: ohif
+    spec:
+      containers:
+      - name: ohif
+        image: orthancteam/ohif-v3:25.12.0
+        ports:
+        - containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ohif-service
+  namespace: orthanc-full
+spec:
+  selector:
+    app: ohif
+  ports:
+  - port: 80
+    targetPort: 80

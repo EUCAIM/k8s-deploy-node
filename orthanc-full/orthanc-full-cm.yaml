@@ -1,0 +1,77 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: orthanc-full-config
+  namespace: orthanc-full
+data:
+  ORTHANC_JSON: |
+    {
+      "Name": "Orthanc Production",
+      "RemoteAccessAllowed": true,
+      "AuthenticationEnabled": false,
+      "BehindReverseProxy": true,
+      "HttpRoot": "/orthanc-full/",
+      "DicomWeb": {
+        "Enable": true,
+        "Root": "/dicom-web-full/"
+      },
+      "OrthancExplorer2": {
+        "IsDefaultUI": true,
+        "UiOptions": {
+          "EnableShares": true,
+          "EnableOpenInOhifViewer3": true,
+          "OhifViewer3PublicRoot": "https://YOURDOMAIN/ohif-full/"
+        },
+        "Keycloak": {
+          "Enable": true,
+          "Url": "https://YOURDOMAIN/auth/",
+          "Realm": "EUCAIM-NODE",
+          "ClientId": "orthanc"
+        }
+      },
+      "Authorization": {
+        "WebServiceRootUrl": "http://orthanc-full-auth-service:8000/",
+        "StandardConfigurations": [
+          "osimis-web-viewer",
+          "stone-webviewer",
+          "orthanc-explorer-2",
+          "ohif",
+          "stl"
+        ],
+        "TokenHttpHeaders": ["api-key"],
+        "CheckedLevel": "studies"
+      }
+    }
+  permissions.json: |
+    {
+      "roles": {
+        "admin-role": {
+          "authorized-labels": ["*"],
+          "permissions": [
+            "anonymize",
+            "audit-logs",
+            "delete",
+            "download",
+            "modify",
+            "send",
+            "share",
+            "view",
+            "worklists",
+            "admin-permissions",
+            "edit-labels",
+            "q-r-remote-modalities",
+            "settings",
+            "upload"
+          ]
+        },
+        "doctor-role": {
+          "authorized-labels": ["*"],
+          "permissions": ["view", "download", "share", "send"]
+        },
+        "external-role": {
+          "authorized-labels": ["external", "Label3", "Label5"],
+          "permissions": ["view", "download"]
+        }
+      },
+      "available-labels": []
+    }
