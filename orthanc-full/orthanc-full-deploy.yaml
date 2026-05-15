@@ -1,4 +1,3 @@
-
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -79,18 +78,19 @@ spec:
         - name: ENABLE_KEYCLOAK
           value: "true"
         - name: KEYCLOAK_URI
-          value: "http://keycloak.keycloak.svc.cluster.local:8080/auth/realms/EUCAIM-NODE/"
+          value: "https://breastscan.imaging.i3m.upv.es/auth/realms/EUCAIM-NODE"
+          #  value: "http://keycloak.keycloak.svc.cluster.local:8080/keycloak/realms/EUCAIM-NODE/"
         - name: KEYCLOAK_CLIENT_SECRET
           valueFrom:
             secretKeyRef:
               name: orthanc-full-secrets
               key: KC_CLIENT_SECRET
         - name: PUBLIC_ORTHANC_ROOT
-          value: "https://YOURDOMAIN/orthanc-full/"
+          value: "https://breastscan.imaging.i3m.upv.es/orthanc-full/"
         - name: PUBLIC_LANDING_ROOT
-          value: "https://YOURDOMAIN/orthanc-full/ui/app/token-landing.html"
+          value: "https://breastscan.imaging.i3m.upv.es/orthanc-full/ui/app/token-landing.html"
         - name: PUBLIC_OHIF_ROOT
-          value: "https://YOURDOMAIN/ohif-full/"
+          value: "https://breastscan.imaging.i3m.upv.es/ohif-full/"
         - name: USERS
           valueFrom:
             secretKeyRef:
@@ -139,7 +139,7 @@ spec:
     spec:
       containers:
       - name: orthanc
-        image: orthancteam/orthanc:latest
+        image: harbor.eucaim.cancerimage.eu/library/orthanc/orthanc:26.1.0 
         env:
         - name: STONE_WEB_VIEWER_PLUGIN_ENABLED
           value: "true"
@@ -163,16 +163,22 @@ spec:
             configMapKeyRef:
               name: orthanc-full-config
               key: ORTHANC_JSON
-        - name: ORTHANC__AUTHORIZATION__WEBSERVICEUSERNAME
+        - name: SVC_INTERNAL_USER 
           valueFrom:
             secretKeyRef:
               name: orthanc-full-secrets
               key: SVC_INTERNAL_USER
-        - name: ORTHANC__AUTHORIZATION__WEBSERVICEPASSWORD
+        - name: SVC_INTERNAL_PASSWORD
           valueFrom:
             secretKeyRef:
               name: orthanc-full-secrets
               key: SVC_INTERNAL_PASSWORD
+        - name: PATIENT_ID_ENCRYPTION_KEY
+          valueFrom:
+            secretKeyRef:
+              name: orthanc-full-secrets
+              key: patient-id-encryption-key 
+
         ports:
         - containerPort: 8042
           name: http-web
@@ -180,11 +186,7 @@ spec:
           name: dicom
         volumeMounts:
         - name: storage
-          mountPath: /var/lib/orthanc/db
-          subPath: db
-        - name: storage
-          mountPath: /var/lib/orthanc/dicom
-          subPath: dicom
+          mountPath: /var/lib/orthanc
       volumes:
       - name: storage
         persistentVolumeClaim:
@@ -229,6 +231,14 @@ spec:
         image: orthancteam/ohif-v3:25.12.0
         ports:
         - containerPort: 80
+        volumeMounts:
+        - name: storage
+          mountPath: /var/lib/orthanc/db
+          subPath: db
+      volumes:
+      - name: storage
+        persistentVolumeClaim:
+          claimName: orthanc-full-storage
 ---
 apiVersion: v1
 kind: Service
