@@ -1,0 +1,51 @@
+csiConfig: 
+  - clusterID: "XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX"
+    monitors:
+     - "192.168.2.21"
+     - "192.168.2.22"
+     - "192.168.2.23"
+    cephFS:
+      subvolumeGroup: "csi"
+  
+profiling:
+  enable: true
+
+nodeplugin:
+  profiling:
+    enable: true
+
+provisioner:
+  profiling:
+    enabled: true
+
+storageClass:
+  # Specifies whether the Storage class should be created
+  create: true
+  name: cephfs
+  annotations:
+    storageclass.kubernetes.io/is-default-class: "true"
+  clusterID: "XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX"
+  fsName: eucaimnodek8s
+  volumeNamePrefix: "csi-vol-"
+  provisionerSecret: csi-cephfs-secret
+
+secret:
+  # Specifies whether the secret should be created
+  create: true
+  name: csi-cephfs-secret
+  # Key values correspond to a user name and its key, as defined in the
+  # ceph cluster. User ID should have required access to the 'pool'
+  # specified in the storage class
+  adminID: "XXXXXXX"
+  adminKey: "XXXXXXX"
+
+cephconf: |
+  [global]
+    auth_cluster_required = cephx
+    auth_service_required = cephx
+    auth_client_required = cephx
+
+    # ceph-fuse which uses libfuse2 by default has write buffer size of 2KiB
+    # adding 'fuse_big_writes = true' option by default to override this limit
+    # see https://github.com/ceph/ceph-csi/issues/1928
+    fuse_big_writes = true

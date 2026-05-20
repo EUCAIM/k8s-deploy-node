@@ -1,0 +1,522 @@
+
+description eucaim_node_kubernetes (
+    kind = 'main' and
+    short = 'Install and configure a cluster using the grycap.kubernetes ansible role.' and
+    content = 'The template installs the grycap.kubernetes ansible role. Initially the template creates as many working node hostnames as the sum of the values of feature "ec3_max_instances_max" in every system.
+
+Webpage: https://kubernetes.io/'
+)
+
+system front (
+    # Set that this instance will be used as the NAT router for a set of nodes (required in google cloud, not in OpenStack)
+    #nat_instance ='yes' and
+    # Set for each interface which network will be connected to
+    # (networks are declared on the ubuntu recipe)
+    net_interface.0.connection = 'public' and
+    net_interface.0.dns_name = 'kubeserverpublic' and
+    net_interface.1.connection = 'private' and
+    net_interface.1.dns_name = 'kubeserver' and
+    net_interface.2.connection = 'private-data' and
+    net_interface.2.dns_name = 'kubeserverdata' and
+    # Local resource management system (kubernetes, slurm, torque, nomad, mesos...). Used to select the plugin for clues.
+    queue_system = 'kubernetes' and
+    ec3_templates contains 'kubernetes' and
+    # Install all required ansible roles, which later will be launched within "configure" blocks
+    #disk.0.applications contains (name = 'ansible.modules.grycap.kubernetes') and
+    disk.0.applications contains (name = 'ansible.modules.grycap.kubernetes,new-cilium') and   # branch 'new-cilium' includes upgrade to cilium version 1.15.6
+    disk.0.applications contains (name = 'ansible.modules.grycap.docker')
+)
+
+system wn (
+    ec3_node_type = 'wn' and
+    # The WNs are connected only to the private networks
+    net_interface.0.dns_name = 'wn-#N#.localdomain' and
+    net_interface.0.connection = 'private' and
+    net_interface.1.connection = 'private-data' and
+    ec3_max_instances = 10 and    # maximum number of working nodes in the cluster
+    # According to internal count, the order of systems and ec3_max_instances=10: ec3 will create instances for this system from 1 to 10.
+    # And according to net_interface.0.dns_name, these instances will be named wn-1.localdomain to wn-10.localdomain.
+    # Then let's set the pattern that will be evaluated to locate this original system (wn) for each of the instances:
+    ec3_node_pattern = 'wn-\d+\.localdomain'
+)
+
+system wn-desktops (
+    ec3_node_type = 'wn' and
+    net_interface.0.dns_name = 'wn-#N#-desktops.localdomain' and
+    net_interface.0.connection = 'private' and
+    net_interface.1.connection = 'private-data' and
+    ec3_max_instances = 8 and
+    # According to internal count, the order of systems and ec3_max_instances=8: ec3 will create instances for this system from 11 to 18.
+    # And according to net_interface.0.dns_name, these instances will be named wn-11-desktops.localdomain to wn-18-desktops.localdomain.
+    # Then let's set the pattern that will be evaluated to locate this original system (wn-desktops) for each of the instances:
+    ec3_node_pattern = 'wn-\d+-desktops\.localdomain'
+)
+
+system wn-no-gpu (
+    ec3_node_type = 'wn' and
+    net_interface.0.dns_name = 'wn-#N#-no-gpu.localdomain' and
+    net_interface.0.connection = 'private' and
+    net_interface.1.connection = 'private-data' and
+    ec3_max_instances = 8 and
+    # According to internal count, the order of systems and ec3_max_instances=8: ec3 will create instances for this system from 19 to 26.
+    # And according to net_interface.0.dns_name, these instances will be named wn-19-no-gpu.localdomain to wn-26-no-gpu.localdomain.
+    # Then let's set the pattern that will be evaluated to locate this original system (wn-no-gpu) for each of the instances:
+    ec3_node_pattern = 'wn-\d+-no-gpu\.localdomain'
+)
+
+system wn-gpu-large (
+    ec3_node_type = 'wn' and
+    net_interface.0.dns_name = 'wn-#N#-gpu-large.localdomain' and
+    net_interface.0.connection = 'private' and
+    net_interface.1.connection = 'private-data' and
+    ec3_max_instances = 12 and
+    # According to internal count, the order of systems and ec3_max_instances=12: ec3 will create instances for this system from 27 to 38.
+    # And according to net_interface.0.dns_name, these instances will be named wn-27-gpu-large.localdomain to wn-38-gpu-large.localdomain.
+    # Then let's set the pattern that will be evaluated to locate this original system (wn-gpu-large) for each of the instances:
+    ec3_node_pattern = 'wn-\d+-gpu-large\.localdomain'
+)
+
+system wn-gpu-medium (
+    ec3_node_type = 'wn' and
+    net_interface.0.dns_name = 'wn-#N#-gpu-medium.localdomain' and
+    net_interface.0.connection = 'private' and
+    net_interface.1.connection = 'private-data' and
+    ec3_max_instances = 5 and
+    # According to internal count, the order of systems and ec3_max_instances=5: ec3 will create instances for this system from 39 to 43.
+    # And according to net_interface.0.dns_name, these instances will be named wn-39-gpu-medium.localdomain to wn-43-gpu-medium.localdomain.
+    # Then let's set the pattern that will be evaluated to locate this original system (wn-gpu-medium) for each of the instances:
+    ec3_node_pattern = 'wn-\d+-gpu-medium\.localdomain'
+)
+
+system wn-gpu-small (
+    ec3_node_type = 'wn' and
+    net_interface.0.dns_name = 'wn-#N#-gpu-small.localdomain' and
+    net_interface.0.connection = 'private' and
+    net_interface.1.connection = 'private-data' and
+    ec3_max_instances = 5 and
+    # According to internal count, the order of systems and ec3_max_instances=5: ec3 will create instances for this system from 44 to 48.
+    # And according to net_interface.0.dns_name, these instances will be named wn-44-gpu-small.localdomain to wn-48-gpu-small.localdomain.
+    # Then let's set the pattern that will be evaluated to locate this original system (wn-gpu-small) for each of the instances:
+    ec3_node_pattern = 'wn-\d+-gpu-small\.localdomain'
+)
+
+
+configure kubernetes_conf_front (
+@begin
+---
+  - vars:
+      _kubernetes_token: XXXXXXX
+
+      # Users to create in the frontend OS (they will be added also to sudoers group)
+      # They will be able to connect by SSH
+      grycap_users:
+        - { "name": "yourusername", "ssh_public_key": "ssh-rsa AAAAB3NzaC1yc2EAAAADAVzNGBBln6Xe/5TCEWpek= yourname@LAPTOP" }
+
+      _public_domain_name: eucaim-node.i3m.upv.es
+
+      # This is a param for "grycap.docker" role, a dependency of "grycap.kubernetes"
+      docker_containerd_root: '"/mnt/containerd"'
+
+    pre_tasks:
+      - name: Create containerd dir
+        command: "mkdir -p /mnt/containerd"
+        ignore_errors: true
+
+      - name: Create a directory if it does not exist
+        file: path=/etc/kubernetes/pki state=directory mode=0755
+
+      - name: Create auth data file with an admin user
+        copy: content='{{ _kubernetes_token }},kubeuser,100,"users,system:masters"' dest=/etc/kubernetes/pki/auth mode=600
+      
+      - name: Make sure we have a 'grycap' group
+        group:
+          name: grycap
+          state: present
+
+      - name: Allow 'grycap' group to have passwordless sudo
+        lineinfile:
+          dest: /etc/sudoers
+          state: present
+          regexp: '^%grycap'
+          line: '%grycap ALL=(ALL) NOPASSWD: ALL'
+          validate: 'visudo -cf %s'
+
+      - name: Create users adding them to 'grycap' group
+        user:
+          name: "{{ item.name }}"
+          groups: grycap
+          append: true
+          state: present
+          create_home: true
+          shell: "/bin/bash"
+        with_items:
+          - "{{ grycap_users }}"
+
+      - name: Set the ssh authorized key for each user
+        authorized_key:
+          user: "{{ item.name }}"
+          state: present
+          key: "{{ item.ssh_public_key }}"
+        with_items:
+          - "{{ grycap_users }}"     
+
+    roles:
+    - role: 'grycap.kubernetes'
+      kube_api_server: "{{ IM_NODE_PRIVATE_IP }}"
+      kube_wait_api_server_ip: "{{ IM_NODE_PRIVATE_IP }}"
+      kube_version: 1.29.6
+      # Set "kubeserver" host name previously assigned to the front (in system front)
+      kube_server: 'kubeserver'
+      kube_pod_network_cidr: 10.253.0.0/16
+      kube_apiserver_options: 
+       - {option: "--service-node-port-range", value: "80-32767"}
+       - {option: "--token-auth-file", value: "/etc/kubernetes/pki/auth"}
+       - {option: "--feature-gates", value: "RemoveSelfLink=true"}
+      
+      kube_install_helm: true
+      # Check the last version here https://github.com/helm/helm/releases and just put the last one, it should work
+      kube_install_helm_version: "v3.15.2"
+      
+      kube_public_dns_name: "{{ _public_domain_name }}"
+      kube_cri_runtime: containerd 
+      #kubelet_extra_args: "--node-labels=type=front"
+      kube_network: cilium
+      cilium_k8s_endpoint: "{{ IM_NODE_PRIVATE_IP }}"
+      cilium_nodeEncryption: false
+      cilium_hubble_enable: false
+      #cilium_hubble_certValidityDuration: 1825
+      #cilium_hubble_priorityClassName: ""
+      cilium_hubble_ui_enable: false
+      #cilium_hubble_ui_ingress_enable: false
+      #cilium_hubble_ui_ingress_host: "hubble.chaimeleon-eu.grycap.i3m.upv.es"
+      #cilium_hubble_ui_ingress_tls_host: "hubble.chaimeleon-eu.grycap.i3m.upv.es"
+      #cilium_hubble_ui_ingress_path: "/"
+      #cilium_hubble_ui_ingress_annotations: 
+      #  cert-manager.io/cluster-issuer: letsencrypt-prod
+      #  kubernetes.io/ingress.class: nginx        
+      #  nginx.ingress.kubernetes.io/auth-url: 'https://chaimeleon-eu.i3m.upv.es/oauth2p/auth?allowed_groups=cloud-services-and-security-management'
+      #  nginx.ingress.kubernetes.io/auth-signin: 'https://chaimeleon-eu.i3m.upv.es/oauth2p/start'
+      #  ingress.kubernetes.io/force-ssl-redirect: true
+      #  ingress.kubernetes.io/ssl-redirect: true
+      #  nginx.ingress.kubernetes.io/proxy-buffer-size: '16k'
+      
+      # The version of ingress installed by the role (helm chart 4.0.6) is not configurable and too old and not compatible with the new version of k8s (1.29), 
+      # so let's disable and install manually later
+      kube_install_ingress: false
+      
+      # The version (1.8) of cert-manager installed by the role is not configurable and is not compatible with the new version of k8s (1.29), 
+      # so let's disable and install manually later
+      kube_cert_manager: false
+      #kube_cert_user_email: youremail@email.com
+      
+      # The version (2.7) of dashboard installed by the role is not configurable and is too old, so let's disable and install manually later
+      kube_deploy_dashboard: false
+      
+      kube_install_nfs_client: false
+      
+      # Kubeapps requires other core services which we decided to install manually later
+      kube_install_kubeapps: false
+      ## KubeApps chart version to install (or latest)
+      #kube_kubeapps_chart_version: "8.1.10"
+      
+      # NVIDIA support is installed later in post_tasks
+      kube_nvidia_support: false
+
+    post_tasks:
+    #- name: Increase nginx-ingress resources
+    #  shell: |
+    #    kubectl patch -n ingress-nginx deployment ingress-nginx-controller --type='json' -p='[{"op": "replace", "path": "/spec/template/spec/containers/0/resources/requests/memory", "value":"320Mi"}]'
+
+    - name: Add NVIDIA Helm repo
+      shell: |
+        helm repo add nvidia https://helm.ngc.nvidia.com/nvidia
+        helm repo update
+
+    - name: Check if GPU Operator is installed
+      shell: helm -n gpu-operator list | wc -l
+      register: release_count
+
+    - name: Install GPU Operator with MIG enabled
+      shell: helm install --wait --generate-name -n gpu-operator --create-namespace nvidia/gpu-operator --set mig.strategy=single
+      when: release_count.stdout == "1"
+ 
+    - name: Install nfs-common and ceph-common
+      apt:
+        name:
+         - nfs-common
+         #- ceph-common
+        state: present
+    
+    # Default version of ceph-common in ubuntu22 is 17 (quincy), let's install 18 (reef)
+    - name: Check if the required version is installed
+      shell: ceph -v | grep reef
+      register: ceph_status
+      ignore_errors: yes
+      changed_when: false
+      
+    - block:
+        - name: Install cephadm script
+          get_url:
+            url: "https://github.com/ceph/ceph/raw/quincy/src/cephadm/cephadm"
+            dest: /tmp/cephadm
+            mode: '0777'
+
+        - name: Configure the ceph repository
+          command: "/tmp/cephadm add-repo --release reef"
+
+        - name: Install ceph-common
+          command: "/tmp/cephadm install ceph-common"
+      when: ceph_status.rc != 0
+    
+    - name: Freeze critical packages on the current node
+      # This is to avoid unexpected interruption of services because of auto-updates, 
+      # we will update this manually periodically
+      become: true
+      command: "apt-mark hold systemd"
+@end
+)
+
+configure kubernetes_wn (
+@begin
+---
+  - vars:      
+      # This is a param for "grycap.docker" role, a dependency of "grycap.kubernetes"
+      docker_containerd_root: '"/mnt/containerd"'
+      
+      _public_domain_name: eucaim-node.i3m.upv.es
+
+    pre_tasks:
+      - name: Create containerd dir
+        command: "mkdir -p /mnt/containerd"
+        ignore_errors: true
+        
+      - name: Check if the vm name contains gpu
+        shell: hostname | grep "gpu-" | wc -l
+        register: nvidia_gpu_check
+        
+    roles:
+    - role: 'NVIDIA.nvidia_driver'
+      nvidia_driver_branch: '525'
+      when: nvidia_gpu_check.stdout == "1"
+      
+    - role: 'grycap.kubernetes'
+      kube_type_of_node: 'wn'
+      kube_pod_network_cidr: 10.243.0.0/16
+      kube_server: 'kubeserver'
+      kube_version: 1.29.6
+      kube_cri_runtime: containerd 
+      #kube_docker_options:
+      #  data-root: /mnt/docker
+      #kubelet_extra_args: "--node-labels=type=wn"
+      kube_network: cilium
+      cilium_k8s_endpoint: "{{ IM_NODE_PRIVATE_IP }}"
+      kube_nvidia_support: false
+
+    post_tasks:
+      - name: Install nfs-common and ceph-common
+        apt:
+          name:
+           - nfs-common
+           #- ceph-common
+          state: present
+          
+      # Default version of ceph-common in ubuntu22 is 17 (quincy), let's install 18 (reef)
+      - name: Check if the required version is installed
+        shell: ceph -v | grep reef
+        register: ceph_status
+        ignore_errors: yes
+        changed_when: false
+        
+      - block:
+          - name: Install cephadm script
+            get_url:
+              url: "https://github.com/ceph/ceph/raw/quincy/src/cephadm/cephadm"
+              dest: /tmp/cephadm
+              mode: '0777'
+      
+          - name: Configure the ceph repository
+            command: "/tmp/cephadm add-repo --release reef"
+      
+          - name: Install ceph-common
+            command: "/tmp/cephadm install ceph-common"
+        when: ceph_status.rc != 0
+      
+      - name: Add the two public domains of the cluster in order to resolve with the internal IP
+        become: true
+        command: "sed -i 's/kubeserver\\r/kubeserver {{ _public_domain_name }} harbor.{{ _public_domain_name }}\\r/' /etc/hosts"
+
+      - name: Freeze critical packages on the current node
+        # This is to avoid unexpected interruption of services because of auto-updates, 
+        # we will update this manually periodically
+        become: true
+        command: "apt-mark hold systemd"
+
+      - name: Freeze Nvidia driver packages on the current node
+        # Again to avoid unexpected interruption of GPU availability
+        become: true
+        shell: "apt-mark hold $(apt list --installed | grep nvidia- | awk -F '/' '{print $1}')"
+        when: nvidia_gpu_check.stdout == "1"
+@end
+)
+
+configure cephfs_mountings (
+@begin
+- vars:
+      _ceph_monitor1: 192.168.2.21
+      _ceph_monitor2: 192.168.2.22
+      _ceph_monitor3: 192.168.2.23
+      _ceph_datavolume: eucaimnodedata
+      _ceph_fsid: XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX
+      _ceph_user: XXXXXXX
+      _ceph_key: XXXXXXX
+      
+  tasks:
+      - name: Create cephfs config file
+        copy: 
+            dest: /etc/ceph/ceph.conf
+            mode: 600
+            content: |
+              [global]
+                fsid = {{ _ceph_fsid }}
+                mon_host = [v2:{{ _ceph_monitor1 }}:3300/0,v1:{{ _ceph_monitor1 }}:6789/0] [v2:{{ _ceph_monitor2 }}:3300/0,v1:{{ _ceph_monitor2 }}:6789/0] [v2:{{ _ceph_monitor3 }}:3300/0,v1:{{ _ceph_monitor3 }}:6789/0]
+              [client.{{ _ceph_user }}]
+                key = {{ _ceph_key }}
+      
+      - name: Create dir for cephfs mounting
+        command: "mkdir -p /mnt/cephfs/data"
+      - name: Create cephfs mounting in fstab
+        become: true
+        # Option "_netdev" is required to mark as dependent on network, otherwise a dependency cycle is produced
+        # Option "x-systemd.requires-mounts-for=/mnt" is required to mark as dependent on the mounting of /mnt
+        shell: "grep -q '/mnt/cephfs/data ' /etc/fstab || printf '{{ _ceph_user }}@.{{ _ceph_datavolume }}=/  /mnt/cephfs/data  ceph  nouser,_netdev,x-systemd.requires-mounts-for=/mnt  0  2\n' >> /etc/fstab"
+      - name: Mount cephfs
+        become: true
+        shell: "mount | grep -q '/mnt/cephfs/data ' || mount /mnt/cephfs/data"
+      
+      - name: Create dir for datalake mounting
+        # It is required to mount here because study dirs in datasets are symlinks pointing to the real studies in this path.
+        command: "mkdir -p /mnt/datalake"
+      - name: Create datalake mounting in fstab
+        become: true
+        # Option "_netdev" is required to mark as dependent on network, otherwise a dependency cycle is produced
+        # Option "x-systemd.requires-mounts-for=/mnt" is required to mark as dependent on the mounting of /mnt
+        shell: "grep -q '/mnt/datalake ' /etc/fstab || printf '{{ _ceph_user }}@.{{ _ceph_datavolume }}=/datalake/  /mnt/datalake  ceph  nouser,_netdev,x-systemd.requires-mounts-for=/mnt,ro  0  2\n' >> /etc/fstab"
+        # Alternative way with bind with same final result:
+        #   shell: "grep -q '/mnt/datalake ' /etc/fstab || printf '/mnt/cephfs/data/datalake  /mnt/datalake  none  bind,nouser,ro  0  2\n' >> /etc/fstab"
+      - name: Mount datalake
+        become: true
+        shell: "mount | grep -q '/mnt/datalake ' || mount /mnt/datalake"
+
+      - name: Create dir for datalake-test mounting
+        command: "mkdir -p /mnt/datalake-test"
+      - name: Create datalake-test mounting in fstab
+        become: true
+        # Option "_netdev" is required to mark as dependent on network, otherwise a dependency cycle is produced
+        # Option "x-systemd.requires-mounts-for=/mnt" is required to mark as dependent on the mounting of /mnt
+        shell: "grep -q '/mnt/datalake-test ' /etc/fstab || printf '{{ _ceph_user }}@.{{ _ceph_datavolume }}=/datalake-test/  /mnt/datalake-test  ceph  nouser,_netdev,x-systemd.requires-mounts-for=/mnt,ro  0  2\n' >> /etc/fstab"
+        # Alternative way with bind with same final result:
+        #   shell: "grep -q '/mnt/datalake-test ' /etc/fstab || printf '/mnt/cephfs/data/datalake-test  /mnt/datalake-test  none  bind,nouser,ro  0  2\n' >> /etc/fstab"
+      - name: Mount datalake-test
+        become: true
+        shell: "mount | grep -q '/mnt/datalake-test ' || mount /mnt/datalake-test"
+
+      - name: Install bindfs
+        # bindfs.org
+        # It is required because provides the option --resolve-symlinks which can be combined with hostPath k8s volume 
+        # to make visible only the studies pointed by symlinks in the dataset to the end user.
+        apt:
+          name:
+           - bindfs
+          state: present
+
+      - name: Create dir for datasets mounting
+        command: "mkdir -p /mnt/datasets"
+      - name: Create datasets mounting in fstab
+        become: true
+        # Option "_netdev" is required to mark as dependent on network, otherwise a dependency cycle is produced
+        # Option "x-systemd.requires-mounts-for=/mnt/cephfs/data" is required to mark as dependent on the mounting of /mnt/cephfs/data
+        # "perms=o+rD" adds the permission of read to all files/directories and execute to directories (D) to others
+        shell: "grep -q '/mnt/datasets ' /etc/fstab || printf '/mnt/cephfs/data/datasets  /mnt/datasets  fuse.bindfs  nouser,_netdev,x-systemd.requires-mounts-for=/mnt/cephfs/data,ro,resolve-symlinks,perms=o+rD  0  2\n' >> /etc/fstab"
+      - name: Mount datasets
+        become: true
+        shell: "mount | grep -q '/mnt/datasets ' || mount /mnt/datasets"
+      
+      - name: Create dir for datasets-test mounting
+        command: "mkdir -p /mnt/datasets-test"
+      - name: Create datasets-test mounting in fstab
+        become: true
+        # Option "_netdev" is required to mark as dependent on network, otherwise a dependency cycle is produced
+        # Option "x-systemd.requires-mounts-for=/mnt/cephfs/data" is required to mark as dependent on the mounting of /mnt/cephfs/data
+        # "perms=o+rD" adds the permission of read to all files/directories and execute to directories (D) to others
+        shell: "grep -q '/mnt/datasets-test ' /etc/fstab || printf '/mnt/cephfs/data/datasets-test  /mnt/datasets-test  fuse.bindfs  nouser,_netdev,x-systemd.requires-mounts-for=/mnt/cephfs/data,ro,resolve-symlinks,perms=o+rD  0  2\n' >> /etc/fstab"
+      - name: Mount datasets-test
+        become: true
+        shell: "mount | grep -q '/mnt/datasets-test ' || mount /mnt/datasets-test"
+@end
+)
+
+configure k8s_labels_front (
+@begin
+- tasks:
+  - name: Insert core-services labels
+    ansible.builtin.shell: "kubectl label node wn-{{ item }}.localdomain chaimeleon.eu/target=core-services"
+    loop: "{{ range(1, 11)|list }}"
+    ignore_errors: true
+
+  - name: Insert desktops labels
+    ansible.builtin.shell: "kubectl label node wn-{{ item }}-desktops.localdomain chaimeleon.eu/target=desktops"
+    loop: "{{ range(11, 19)|list }}"
+    ignore_errors: true
+
+  - name: Insert no-gpu labels
+    ansible.builtin.shell: "kubectl label node wn-{{ item }}-no-gpu.localdomain chaimeleon.eu/target=no-gpu"
+    loop: "{{ range(19, 27)|list }}"
+    ignore_errors: true
+    
+  - name: Insert gpu-large labels
+    ansible.builtin.shell: "kubectl label node wn-{{ item }}-gpu-large.localdomain chaimeleon.eu/target=large-gpu"
+    loop: "{{ range(27, 39)|list }}"
+    ignore_errors: true
+
+  - name: Insert gpu-medium labels
+    ansible.builtin.shell: "kubectl label node wn-{{ item }}-gpu-medium.localdomain chaimeleon.eu/target=medium-gpu"
+    loop: "{{ range(39, 44)|list }}"
+    ignore_errors: true
+
+  - name: Insert gpu-small labels
+    ansible.builtin.shell: "kubectl label node wn-{{ item }}-gpu-small.localdomain chaimeleon.eu/target=small-gpu"
+    loop: "{{ range(44, 49)|list }}"
+    ignore_errors: true
+    
+  - name: Insert MIG labels gpu-medium
+    ansible.builtin.shell: kubectl label node wn-{{ item }}-gpu-medium.localdomain nvidia.com/mig.config=all-2g.12gb --overwrite
+    loop: "{{ range(39, 44)|list }}"
+    ignore_errors: true
+
+  - name: Insert MIG labels gpu-small
+    ansible.builtin.shell: kubectl label node wn-{{ item }}-gpu-small.localdomain nvidia.com/mig.config=all-1g.6gb --overwrite
+    loop: "{{ range(44, 49)|list }}"
+    ignore_errors: true
+@end
+)
+
+deploy front 1
+deploy wn 1
+
+contextualize 6000 (
+  system front configure kubernetes_conf_front step 5
+  system front configure im_front step 6
+  system front configure clues2_front step 7
+  system front configure k8s_labels_front step 7 
+  system wn configure kubernetes_wn step 6
+  system wn-desktops configure kubernetes_wn step 6 
+  system wn-no-gpu configure kubernetes_wn step 6
+  system wn-gpu-small configure kubernetes_wn step 6
+  system wn-gpu-medium configure kubernetes_wn step 6
+  system wn-gpu-large configure kubernetes_wn step 6
+  system wn-desktops configure cephfs_mountings step 7 
+  system wn-no-gpu configure cephfs_mountings step 7
+  system wn-gpu-small configure cephfs_mountings step 7
+  system wn-gpu-medium configure cephfs_mountings step 7
+  system wn-gpu-large configure cephfs_mountings step 7
+)

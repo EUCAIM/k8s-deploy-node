@@ -1,0 +1,19 @@
+
+controller:
+# config:
+# # Set to true if the load balancer of the cloud provider supports PROXY protocol
+# # to let the ingress controller see the real IP address of the clients.
+#   use-proxy-protocol: true
+
+  nodeSelector:
+    kubernetes.io/os: linux
+    chaimeleon.eu/target: core-services
+
+  replicaCount: 2
+
+  service:
+    nodePorts:
+      # -- Node port allocated for the external HTTP listener. If left empty, the service controller allocates one from the configured node port range.
+      http: "80"
+      # -- Node port allocated for the external HTTPS listener. If left empty, the service controller allocates one from the configured node port range.
+      https: "443"

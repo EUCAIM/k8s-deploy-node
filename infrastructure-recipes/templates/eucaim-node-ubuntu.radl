@@ -1,0 +1,106 @@
+description eucaim_node_ubuntu_imaging (
+    kind = 'images' and
+    short = 'Infrastructure with Ubuntu (in Front and WNs) on Imaging.' and
+    content = 'Infrastructure with Ubuntu (in Front and WNs) on imaging.i3m.upv.es (OpenStack).'
+)
+
+
+network public (
+  outbound = 'yes' and
+  # The ports that will be opened in the front to the public network
+  outports contains '22/tcp' and      # SSH
+  outports contains '8800/tcp' and    # IM service (REST API)
+  outports contains '8899/tcp' and    # IM service (XML-RPC API)
+  outports contains '80/tcp' and      # Kubernetes Ingress
+  outports contains '443/tcp' and     # Kubernetes Ingress
+  outports contains '30443/tcp'   # Kubernetes dashboard
+)
+
+network private (
+  create='yes' and
+  provider_id = 'eucaim-node' and     # name for the private network to create
+  cidr='192.168.*.0/24'     # wildcards means that IM will select the first option that is not used in the current Cloud provider
+)
+
+network private-data (
+  create='no' and
+  provider_id = 'datanet'     # name of the network already created
+  # it is already created with cidr='192.168.10.0/24'
+)
+
+
+system front (
+    instance_type = '2024.imaging.L.wn' and 
+    instance_tags = 'type=front,queue=kubernetes' and
+    availability_zone = 'nova' and
+    disk.0.os.name = 'linux' and
+    # disk.0.image.url = 'ost://imaging.i3m.upv.es/027476d6-ec08-4159-be1d-44339bedf6c9' and   # ubuntu 24
+    disk.0.image.url = 'ost://imaging.i3m.upv.es/5323263a-eba3-471d-994e-e653d1178309' and     # ubuntu 22
+    disk.0.os.credentials.username = 'ubuntu' and 
+    net_interface.0.ip = '158.42.106.140' and        # force to use this public IP
+    ec3_additional_vm = 'true'    # not managed by clues
+)
+
+system wn (
+    # gpu.count = 0 and
+    instance_type = '2024.imaging.L.wn' and
+    availability_zone = 'nova' and
+    disk.0.os.name='linux' and
+    # disk.0.image.url = 'ost://imaging.i3m.upv.es/027476d6-ec08-4159-be1d-44339bedf6c9' and   # ubuntu 24
+    disk.0.image.url = 'ost://imaging.i3m.upv.es/5323263a-eba3-471d-994e-e653d1178309' and     # ubuntu 22
+    disk.0.os.credentials.username = 'ubuntu'
+)
+
+system wn-desktops (
+    # gpu.count = 0 and
+    instance_type = '2024.imaging.L.desktop' and
+    availability_zone = 'nova' and
+    disk.0.os.name='linux' and
+    # disk.0.image.url = 'ost://imaging.i3m.upv.es/027476d6-ec08-4159-be1d-44339bedf6c9' and   # ubuntu 24
+    disk.0.image.url = 'ost://imaging.i3m.upv.es/5323263a-eba3-471d-994e-e653d1178309' and     # ubuntu 22
+    disk.0.os.credentials.username = 'ubuntu'
+)
+
+system wn-no-gpu (
+    # gpu.count = 0 and
+    instance_type = '2024.imaging.L.no-gpu' and
+    availability_zone = 'nova' and
+    disk.0.os.name='linux' and
+    # disk.0.image.url = 'ost://imaging.i3m.upv.es/027476d6-ec08-4159-be1d-44339bedf6c9' and   # ubuntu 24
+    disk.0.image.url = 'ost://imaging.i3m.upv.es/5323263a-eba3-471d-994e-e653d1178309' and     # ubuntu 22
+    disk.0.os.credentials.username = 'ubuntu'
+)
+
+system wn-gpu-large (
+    # gpu.count = 1 and       that info is already specified in the instance_type
+    # gpu.vendor = 'nvidia' and
+    instance_type = '2024.imaging.L.A30' and
+    availability_zone = 'nova' and
+    disk.0.os.name = 'linux' and
+    # disk.0.image.url = 'ost://imaging.i3m.upv.es/027476d6-ec08-4159-be1d-44339bedf6c9' and   # ubuntu 24
+    disk.0.image.url = 'ost://imaging.i3m.upv.es/5323263a-eba3-471d-994e-e653d1178309' and     # ubuntu 22
+    disk.0.os.credentials.username = 'ubuntu'
+)
+
+system wn-gpu-medium (
+    # gpu.count = 1 and       that info is already specified in the instance_type
+    # gpu.vendor = 'nvidia' and
+    instance_type = '2024.imaging.XL.A30' and
+    availability_zone = 'nova' and
+    disk.0.os.name = 'linux' and
+    # disk.0.image.url = 'ost://imaging.i3m.upv.es/027476d6-ec08-4159-be1d-44339bedf6c9' and   # ubuntu 24
+    disk.0.image.url = 'ost://imaging.i3m.upv.es/5323263a-eba3-471d-994e-e653d1178309' and     # ubuntu 22
+    disk.0.os.credentials.username = 'ubuntu'
+)
+
+system wn-gpu-small (
+    # gpu.count = 1 and       that info is already specified in the instance_type
+    # gpu.vendor = 'nvidia' and
+    instance_type = '2024.imaging.XL.A30-2' and
+    availability_zone = 'nova' and
+    disk.0.os.name = 'linux' and
+    # disk.0.image.url = 'ost://imaging.i3m.upv.es/027476d6-ec08-4159-be1d-44339bedf6c9' and   # ubuntu 24
+    disk.0.image.url = 'ost://imaging.i3m.upv.es/5323263a-eba3-471d-994e-e653d1178309' and     # ubuntu 22
+    disk.0.os.credentials.username = 'ubuntu'
+)
+

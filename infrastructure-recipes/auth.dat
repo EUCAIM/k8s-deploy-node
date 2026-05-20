@@ -1,0 +1,9 @@
+# This first auth line of type "InfrastructureManager" is mandatory.
+# When using EC3, the grycap IM is used for the first deployment of the infrastructure (this is the default config in the property "restapi_url" in ~/.ec3/config.yml)
+# But once deployed and its own IM service installed in the front-end, then the infrastructure is exported to it and that in-cluster IM service is used.
+# And whatever IM service used, the username and password are not related to any previously registered user, we can say the user is autoregistered the first time used.
+# So you can set wathever you want here (any username, any random password), 
+# just use always the same if you don't want to loose the infrastructure created with that user/password.
+id = im; type = InfrastructureManager; username = XXXXXX; password = XXXXXX
+# And also you should include here at least one cloud provider credentials:
+id = ostimaging; type = OpenStack; host = https://imaging.i3m.upv.es:5000; username = XXXXXX; password = XXXXXX; tenant = imaging; domain = Default; auth_version = 3.x_password; microversion = 2.65

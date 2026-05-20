@@ -1,0 +1,35 @@
+description eucaim_node_clues (
+    kind = 'main' and
+    short = 'Install CLUES for the project' and
+    content = 'Version= 1.0 
+
+Webpages: https://github.com/grycap/clues'
+)
+
+system front (
+  ec3_templates contains 'clues2' and
+  disk.0.applications contains (name = 'ansible.modules.grycap.clues')
+  #disk.0.applications contains (name = 'ansible.modules.git+https://github.com/Palollo/ansible-role-clues|grycap.clues')
+)
+
+configure clues2_front (
+@begin
+---
+  - vars:
+      AUTH:
+        ec3_xpath: /system/front/auth
+      QUEUE_SYSTEM:
+        ec3_xpath: /system/front/queue_system
+      SYSTEMS:
+        ec3_jpath: /system/*
+      NNODES: '{{ SYSTEMS | selectattr("ec3_max_instances_max", "defined") | sum(attribute="ec3_max_instances_max") }}'
+    roles:
+      - { role: 'grycap.clues', auth: '{{AUTH}}',
+                                clues_queue_system: '{{QUEUE_SYSTEM}}',
+                                max_number_of_nodes: '{{ NNODES }}',
+                                vnode_prefix: 'wn',
+                                KUBERNETES_TOKEN: "XXXXXXX",
+                                CUSTOM_KUBERNETES_SERVER: "https://{{ IM_NODE_PRIVATE_IP }}:6443"
+                                }
+@end
+)

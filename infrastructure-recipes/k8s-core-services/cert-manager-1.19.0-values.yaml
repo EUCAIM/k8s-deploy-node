@@ -1,0 +1,17 @@
+
+crds:
+  enabled: true
+
+nodeSelector:
+  kubernetes.io/os: linux
+  chaimeleon.eu/target: core-services
+
+webhook:
+  nodeSelector:
+    kubernetes.io/os: linux
+    chaimeleon.eu/target: core-services
+
+cainjector:
+  nodeSelector:
+    kubernetes.io/os: linux
+    chaimeleon.eu/target: core-services
