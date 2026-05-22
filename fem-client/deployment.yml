@@ -4,6 +4,7 @@ metadata:
   name: fem-client
   namespace: eucaim-fed-computation
 spec:
+  replicas: 1
   selector:
     matchLabels:
       app: fem-client
@@ -14,11 +15,18 @@ spec:
     spec:
       containers:
         - command:
-            - python
-            - receiver.py
-          image: registry.gitlab.bsc.es/fl/fem-client:v2.3.1
+            - bash
+            - /app/entrypoint-k8s.sh
+          image: registry.gitlab.bsc.es/fl/fem-client:v3.0.0
           imagePullPolicy: Always
           name: fem-client
+          env:
+            - name: UID
+              value: '1000'
+            - name: GID
+              value: '1000'
+            - name: USER_NAME
+              value: fem
           resources:
             limits:
               cpu: '2'
@@ -27,6 +35,9 @@ spec:
               cpu: '2'
               memory: 8Gi
           volumeMounts:
+            - name: config-entrypoint
+              mountPath: /app/entrypoint-k8s.sh
+              subPath: entrypoint-k8s.sh
             - mountPath: /app/.env
               name: config-env
               subPath: .env
@@ -47,6 +58,7 @@ spec:
             - '-c'
             - chown -R 1000:1000 /data && chown 1000:1000 /app/logs
           image: busybox:1.33
+          name: init-fem
           imagePullPolicy: IfNotPresent
           volumeMounts:
             - mountPath: /app/logs
@@ -79,6 +91,13 @@ spec:
                 path: .env
             name: fem-client-env
           name: config-env
+        - name: config-entrypoint
+          configMap:
+            name: fem-client-entrypoint
+            items:
+              - key: entrypoint-k8s.sh
+                path: entrypoint-k8s.sh
+            defaultMode: 422
         - name: config
           projected:
             defaultMode: 420
