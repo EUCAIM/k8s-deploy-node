@@ -16,9 +16,14 @@ spec:
         - name: postgres-data-pv
           persistentVolumeClaim:
             claimName: postgres-data
+        - name: shared-memory
+          emptyDir:
+            medium: Memory
+            sizeLimit: 256Mi
       containers:
       - name: db
         image: "harbor.eucaim-node.i3m.upv.es/dockerhub/library/postgres:18"
+        args: ["postgres", "-c", "shared_buffers=256", "-c", "max_connections=200"]
         env:
           - name: POSTGRES_DB
             # initial default db created but not used
@@ -36,6 +41,8 @@ spec:
         volumeMounts:
           - mountPath: "/var/lib/postgresql"
             name: postgres-data-pv
+          - mountPath: "/dev/shm"
+            name: shared-memory
         resources:
           requests:
             memory: "250Mi"
