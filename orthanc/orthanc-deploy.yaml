@@ -1,4 +1,125 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: orthanc-db
+  namespace: orthanc
+  labels:
+    app: orthanc-db
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: orthanc-db
+  template:
+    metadata:
+      labels:
+        app: orthanc-db
+    spec:
+      containers:
+      - name: postgres
+        image: postgres:14
+        env:
+        - name: POSTGRES_USER
+          value: "postgres"
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: orthanc-secrets
+              key: DB_ORTHANC_PASSWORD
+        ports:
+        - containerPort: 5432
+        volumeMounts:
+        - name: data
+          mountPath: /var/lib/postgresql/data
+      volumes:
+      - name: data
+        persistentVolumeClaim:
+          claimName: orthanc-db-pvc
 ---
+apiVersion: v1
+kind: Service
+metadata:
+  name: orthanc-db
+  namespace: orthanc
+spec:
+  selector:
+    app: orthanc-db
+  ports:
+  - port: 5432
+    targetPort: 5432
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: orthanc-auth-service
+  namespace: orthanc
+  labels:
+    app: orthanc-auth-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: orthanc-auth-service
+  template:
+    metadata:
+      labels:
+        app: orthanc-auth-service
+    spec:
+      containers:
+      - name: auth-service
+        image: orthancteam/orthanc-auth-service:main
+        env:
+        - name: SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: orthanc-secrets
+              key: AUTH_SECRET_KEY
+        - name: ENABLE_KEYCLOAK
+          value: "true"
+        - name: KEYCLOAK_URI
+          value: "https://YOURDOMAIN/auth/realms/EUCAIM-NODE"
+          #  value: "http://keycloak.keycloak.svc.cluster.local:8080/keycloak/realms/EUCAIM-NODE/"
+        - name: KEYCLOAK_CLIENT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: orthanc-secrets
+              key: KC_CLIENT_SECRET
+        - name: PUBLIC_ORTHANC_ROOT
+          value: "https://YOURDOMAIN/orthanc/"
+        - name: PUBLIC_LANDING_ROOT
+          value: "https://YOURDOMAIN/orthanc/ui/app/token-landing.html"
+        - name: PUBLIC_OHIF_ROOT
+          value: "https://YOURDOMAIN/ohif/"
+        - name: USERS
+          valueFrom:
+            secretKeyRef:
+              name: orthanc-secrets
+              key: SVC_INTERNAL_USERS_JSON
+        ports:
+        - containerPort: 8000
+        volumeMounts:
+        - name: permissions
+          mountPath: /orthanc_auth_service/permissions.json
+          subPath: permissions.json
+      volumes:
+      - name: permissions
+        configMap:
+          name: orthanc-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: orthanc-auth-service
+  namespace: orthanc
+spec:
+  selector:
+    app: orthanc-auth-service
+  ports:
+  - port: 8000
+    targetPort: 8000
+---
+
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -7,9 +128,7 @@ metadata:
   labels:
     app: orthanc
 spec:
-  replicas: 1 # Standard Orthanc (SQLite) does not support multiple replicas
-  strategy:
-    type: Recreate
+  replicas: 1
   selector:
     matchLabels:
       app: orthanc
@@ -21,35 +140,57 @@ spec:
       containers:
       - name: orthanc
         image: harbor.eucaim.cancerimage.eu/library/orthanc/orthanc:26.1.0
-        ports:
-        - containerPort: 8042
-          name: http-web
-        - containerPort: 4242
-          name: dicom
         env:
+        - name: STONE_WEB_VIEWER_PLUGIN_ENABLED
+          value: "true"
+        - name: DICOM_WEB_PLUGIN_ENABLED
+          value: "true"
+        - name: STL_PLUGIN_ENABLED
+          value: "true"
+        - name: ORTHANC__POSTGRESQL__HOST
+          value: "orthanc-db"
+        - name: ORTHANC__POSTGRESQL__PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: orthanc-secrets
+              key: DB_ORTHANC_PASSWORD
+        - name: ORTHANC__POSTGRESQL__TRANSACTION_MODE
+          value: "ReadCommitted"
+        - name: VERBOSE_ENABLED
+          value: "true"
         - name: ORTHANC_JSON
           valueFrom:
             configMapKeyRef:
               name: orthanc-config
               key: ORTHANC_JSON
-        - name: ORTHANC__DICOM_AET
-          value: ORTHANC_K8S
-        - name: DICOM_WEB_PLUGIN_ENABLED
-          value: 'true'
-        - name: OHIF_PLUGIN_ENABLED
-          value: 'true'
+        - name: SVC_INTERNAL_USER
+          valueFrom:
+            secretKeyRef:
+              name: orthanc-secrets
+              key: SVC_INTERNAL_USER
+        - name: SVC_INTERNAL_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: orthanc-secrets
+              key: SVC_INTERNAL_PASSWORD
         - name: PATIENT_ID_ENCRYPTION_KEY
           valueFrom:
             secretKeyRef:
-              name: patient-id-encryption-key
+              name: orthanc-secrets
               key: patient-id-encryption-key
+
+        ports:
+        - containerPort: 8042
+          name: http-web
+        - containerPort: 4242
+          name: dicom
         volumeMounts:
         - name: storage
           mountPath: /var/lib/orthanc
       volumes:
       - name: storage
         persistentVolumeClaim:
-          claimName: orthanc-storage-pvc
+          claimName: orthanc-storage
 ---
 apiVersion: v1
 kind: Service
@@ -57,16 +198,99 @@ metadata:
   name: orthanc-service
   namespace: orthanc
 spec:
-  type: ClusterIP
   selector:
     app: orthanc
   ports:
   - name: web-ui
-    protocol: TCP
     port: 80
     targetPort: 8042
   - name: dicom-port
-    protocol: TCP
     port: 4242
     targetPort: 4242
 ---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ohif
+  namespace: orthanc
+  labels:
+    app: ohif
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ohif
+  template:
+    metadata:
+      labels:
+        app: ohif
+    spec:
+      containers:
+      - name: ohif
+        image: orthancteam/ohif-v3:25.12.0
+        ports:
+        - containerPort: 80
+        volumeMounts:
+        - name: storage
+          mountPath: /var/lib/orthanc/db
+          subPath: db
+      volumes:
+      - name: storage
+        persistentVolumeClaim:
+          claimName: orthanc-storage
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ohif-service
+  namespace: orthanc
+spec:
+  selector:
+    app: ohif
+  ports:
+  - port: 80
+    targetPort: 80
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: orthanc-wrapper
+  namespace: orthanc
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: orthanc-wrapper
+  template:
+    metadata:
+      labels:
+        app: orthanc-wrapper
+    spec:
+      containers:
+        - name: orthanc-wrapper
+          image: harbor.eucaim.cancerimage.eu/library/orthanc/node:22.16.0
+          command:
+            - /node_data/init_node.sh
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+          volumeMounts:
+            - name: orthanc-wrapper
+              mountPath: /node_data
+      volumes:
+        - name: orthanc-wrapper
+          persistentVolumeClaim:
+            claimName: orthanc-wrapper-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: orthanc-wrapper-service
+  namespace: orthanc
+spec:
+  selector:
+    app: orthanc-wrapper
+  ports:
+  - port: 8080
+    targetPort: 8080

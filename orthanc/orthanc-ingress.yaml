@@ -1,38 +1,6 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: orthanc-add-ingress
-  namespace: orthanc
-  annotations:
-    nginx.ingress.kubernetes.io/use-regex: "true"
-    nginx.ingress.kubernetes.io/proxy-body-size: "0"
-    nginx.ingress.kubernetes.io/proxy-read-timeout: "600"
-    nginx.ingress.kubernetes.io/proxy-send-timeout: "600"
-    nginx.ingress.kubernetes.io/ssl-redirect: "false"
-spec:
-  ingressClassName: nginx
-  rules:
-  - host: ecr-demo.imaging.i3m.upv.es
-    http:
-      paths:
-      - path: /ohif
-        pathType: ImplementationSpecific
-        backend:
-          service:
-            name: orthanc-service
-            port:
-              number: 8042
-      - path: /dicom-web
-        pathType: ImplementationSpecific
-        backend:
-          service:
-            name: orthanc-service
-            port:
-              number: 8042
----
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
   name: orthanc-ingress
   namespace: orthanc
   annotations:
@@ -40,12 +8,12 @@ metadata:
     nginx.ingress.kubernetes.io/proxy-read-timeout: "600"
     nginx.ingress.kubernetes.io/proxy-send-timeout: "600"
     nginx.ingress.kubernetes.io/rewrite-target: /$2
-    nginx.ingress.kubernetes.io/ssl-redirect: "false"
     nginx.ingress.kubernetes.io/use-regex: "true"
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
 spec:
   ingressClassName: nginx
   rules:
-  - host: ecr-demo.imaging.i3m.upv.es
+  - host: YOURDOMAIN
     http:
       paths:
       - path: /orthanc(/|$)(.*)
@@ -54,4 +22,57 @@ spec:
           service:
             name: orthanc-service
             port:
-              number: 8042
+              number: 80
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: orthanc-ohif-ingress
+  namespace: orthanc
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: "0"
+    nginx.ingress.kubernetes.io/use-regex: "true"
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: YOURDOMAIN
+    http:
+      paths:
+      - path: /ohif
+        pathType: Prefix
+        backend:
+          service:
+            name: ohif-service
+            port:
+              number: 80
+      - path: /dicom-web
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: orthanc-service
+            port:
+              number: 80
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: orthanc-wrapper-ingress
+  namespace: orthanc
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: "0"
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    nginx.ingress.kubernetes.io/x-forwarded-prefix: "/wrapper"
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: YOURDOMAIN
+    http:
+      paths:
+      - path: /wrapper
+        pathType: Prefix
+        backend:
+          service:
+            name: orthanc-wrapper-service
+            port:
+              number: 8080

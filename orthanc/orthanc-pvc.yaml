@@ -1,28 +1,89 @@
----
+# --- orthanc main storage ---
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: pv-orthanc-storage
+  name: orthanc-storage-pv
 spec:
-  storageClassName: othanc-datalake
   capacity:
-    storage: 10Gi
+    storage: 20Gi
   accessModes:
-    - ReadWriteMany
+    - ReadWriteOnce
   persistentVolumeReclaimPolicy: Retain
+  storageClassName: standard
   hostPath:
-    path: /var/hostpath-provisioner/dataset-service/datalake
+    path: /var/hostpath-provisioner/orthanc/orthanc-storage
+    type: DirectoryOrCreate
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: orthanc-storage-pvc
+  name: orthanc-storage
   namespace: orthanc
 spec:
-  storageClassName: othanc-datalake
-  volumeName: pv-orthanc-storage  
   accessModes:
-    - ReadWriteMany
+    - ReadWriteOnce
+  storageClassName: standard
   resources:
     requests:
-      storage: 8Gi
+      storage: 20Gi
+  volumeName: orthanc-storage-pv
+---
+# --- orthanc-db (PostgreSQL) ---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: orthanc-db-pv
+spec:
+  capacity:
+    storage: 10Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: standard
+  hostPath:
+    path: /var/hostpath-provisioner/orthanc/orthanc-db
+    type: DirectoryOrCreate
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: orthanc-db-pvc
+  namespace: orthanc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: standard
+  resources:
+    requests:
+      storage: 10Gi
+  volumeName: orthanc-db-pv
+---
+
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: orthanc-wrapper-pv
+spec:
+  capacity:
+    storage: 500M
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: standard
+  hostPath:
+    path: /var/hostpath-provisioner/orthanc/orthanc-wrapper
+    type: DirectoryOrCreate
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: orthanc-wrapper-pvc
+  namespace: orthanc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: standard
+  resources:
+    requests:
+      storage: 500M
+  volumeName: orthanc-wrapper-pv
