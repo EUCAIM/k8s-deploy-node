@@ -1,0 +1,77 @@
+{
+  "format": "web-program-pre1",
+  "manifest": [
+    {
+      "path": "f9a568f3d044eece1026eb6a1c1bffc024206593.js",
+      "where": "client",
+      "type": "js",
+      "cacheable": true,
+      "url": "/f9a568f3d044eece1026eb6a1c1bffc024206593.js?meteor_js_resource=true",
+      "size": 753867,
+      "hash": "f9a568f3d044eece1026eb6a1c1bffc024206593",
+      "sri": "U92TG/EytPLUxGL3U0KBSfdMpOcj6YK+rYkDwiAS5oTD0MpgcLsX1ghfnK5+6zSBcTKY4/947wkVedEprq06WA=="
+    },
+    {
+      "path": "f9a568f3d044eece1026eb6a1c1bffc024206593.stats.json",
+      "where": "client",
+      "type": "json",
+      "cacheable": true,
+      "url": "/f9a568f3d044eece1026eb6a1c1bffc024206593.stats.json?meteor_js_resource=true",
+      "size": 31334,
+      "hash": "4fca45bc3f67941fb6e785ca58d981c6f7914155",
+      "sri": "uRNkeg6HFggWlc8godfL4lW9xeKSPzy3M6OWWMWD3PD1rMWNM7UqGqrGdp5dlb+6NN6nQt330auhKAfUHMAy5g=="
+    },
+    {
+      "path": "31abb36f2a7cdb8b79259f9b4a26182ae7c650af.css",
+      "where": "client",
+      "type": "css",
+      "cacheable": true,
+      "url": "/31abb36f2a7cdb8b79259f9b4a26182ae7c650af.css?meteor_css_resource=true",
+      "size": 63,
+      "hash": "31abb36f2a7cdb8b79259f9b4a26182ae7c650af",
+      "sri": "lpeXLaY6FIE5hGCbufYOqfgK/oKwQN7+1cgbGKdVa1n8UIa/xktl4+7dX43heHXmjgOlE+aTbu+pzsgHrNaSNw=="
+    },
+    {
+      "path": "packages/promise/promise.d.ts",
+      "where": "client",
+      "type": "asset",
+      "cacheable": false,
+      "url": "/packages/promise/promise.d.ts",
+      "size": 633,
+      "hash": "4aa461da7ad90c74a51ddfccc84b055fc0403119",
+      "sri": "6MVw86BmnkmTtXXlCxaH8k7xIUcMZK4O57Nnu82uI5MJT9Fbru7Yv71SuHx+giKUM9wkRs7WkpqPWjADS+U2qw=="
+    },
+    {
+      "path": "packages/tracker/tracker.d.ts",
+      "where": "client",
+      "type": "asset",
+      "cacheable": false,
+      "url": "/packages/tracker/tracker.d.ts",
+      "size": 6096,
+      "hash": "93ebe1d7d6aed2b029129079014e3ebfd5e8bb8c",
+      "sri": "D7pwjdFz5YPTxAyDXrqMNZ9v65eWU+XZ8ASp8aLJaTSkoBScGaLOCxlnSzLKyfsYugreqjaynnaiUGpNhW/ldw=="
+    },
+    {
+      "path": "app/silent-check-sso.html",
+      "where": "client",
+      "type": "asset",
+      "cacheable": false,
+      "url": "/silent-check-sso.html",
+      "size": 141,
+      "hash": "6768a52b8522cd0393881223e883cb4b4523e7e3",
+      "sri": null
+    },
+    {
+      "path": "head.html",
+      "where": "internal",
+      "type": "head",
+      "hash": "06c7a0837102fe86404f0a2d97a6024578970aff"
+    },
+    {
+      "path": "body.html",
+      "where": "internal",
+      "type": "body",
+      "hash": "33a76f2b4c30f6e44559d748578e1b43c573b579"
+    }
+  ]
+}
