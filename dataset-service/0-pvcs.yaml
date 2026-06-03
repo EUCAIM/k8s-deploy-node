@@ -97,4 +97,31 @@ spec:
   persistentVolumeReclaimPolicy: Retain
   hostPath:
     path: /var/hostpath-provisioner/dataset-service/datasets
-
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv-orthanc-storage-ds
+spec:
+  capacity:
+    storage: 20Gi
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: ""
+  hostPath:
+    path: /var/hostpath-provisioner/orthanc/orthanc-storage
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: orthanc-storage
+  namespace: dataset-service
+spec:
+  storageClassName: ""
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 20Gi
+  volumeName: pv-orthanc-storage-ds
