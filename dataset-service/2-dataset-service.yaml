@@ -23,6 +23,9 @@ spec:
       - name: datasets-volume
         persistentVolumeClaim:
           claimName: datasets-data
+      - name: datalake-orthanc
+        persistentVolumeClaim:
+          claimName: datalake-data-orthanc
       containers:
       - name: dataset-service-backend
         image: harbor.eucaim-node.i3m.upv.es/core-services/dataset-service-backend:3.22.3-test
@@ -53,6 +56,8 @@ spec:
           subPath: storage_link
         - mountPath: /mnt/datasets
           name: datasets-volume
+        - mountPath: /var/lib/orthanc
+          name: datalake-orthanc
         env:
         - name: DATASET_SERVICE_CONFIG
           value: "{\n  \"db\": {\n    \"host\": \"db\",\n    \"port\": 5432,\n   \
