@@ -25,7 +25,7 @@ spec:
           claimName: datasets-data
       - name: datalake-orthanc
         persistentVolumeClaim:
-          claimName: datalake-data-orthanc
+          claimName: orthanc-storage
       containers:
       - name: dataset-service-backend
         image: harbor.eucaim-node.i3m.upv.es/core-services/dataset-service-backend:3.22.3-test
