@@ -74,7 +74,7 @@ spec:
     - ReadWriteMany
   persistentVolumeReclaimPolicy: Retain
   hostPath:
-    path: /var/hostpath-provisioner/dataset-service/datalake
+    path: /var/hostpath-provisioner/orthanc/orthanc-storage
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
