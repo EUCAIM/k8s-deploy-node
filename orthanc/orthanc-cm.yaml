@@ -6,7 +6,7 @@ metadata:
 data:
   ORTHANC_JSON: |
     {
-      "Name": "Breast Scan",
+      "Name": "ORTHANC_NODE_NAME",
       "RemoteAccessAllowed": true,
       "AuthenticationEnabled": false,
       "BehindReverseProxy": true,
