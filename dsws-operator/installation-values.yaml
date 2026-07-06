@@ -60,11 +60,11 @@ operatorConfiguration:
       jobs:
         flavors:
           - name: "small-gpu"
-            resources: { target_node: "small-gpu", cpu: "3", max_cpu: "6", memory_gb: 28,  gpu: false }
+            resources: { target_node: "small-gpu", cpu: "3", max_cpu: "6", memory_gb: 28,  gpu: true }
           - name: "medium-gpu"
-            resources: { target_node: "medium-gpu", cpu: "7", max_cpu: "8", memory_gb: 60,  gpu: false }
+            resources: { target_node: "medium-gpu", cpu: "7", max_cpu: "8", memory_gb: 60,  gpu: true }
           - name: "large-gpu"
-            resources: { target_node: "large-gpu", cpu: "7", max_cpu: "8", memory_gb: 60,  gpu: false }
+            resources: { target_node: "large-gpu", cpu: "7", max_cpu: "8", memory_gb: 60,  gpu: true }
           - name: "no-gpu"
             resources: { target_node: "no-gpu", cpu: "7", max_cpu: "8", memory_gb: 60,  gpu: false }
         default_flavor_name: "medium-gpu"
