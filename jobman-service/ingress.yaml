@@ -1,0 +1,21 @@
+kind: Ingress
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: jobman-ingress
+  namespace: jobman-service
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/backend-protocol: HTTP
+    nginx.ingress.kubernetes.io/enable-cors: 'true'
+spec:
+  rules:
+    - host: <jobman_host>
+      http:
+        paths:
+          - path: /jobman-service/
+            pathType: Prefix
+            backend:
+              service:
+                name: jobman-service
+                port:
+                  number: 8080

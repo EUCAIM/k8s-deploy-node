@@ -1,0 +1,84 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  # annotations:
+  #   kubernetes.io/enforce-mountable-secrets: "true"
+  name: jobman-serviceaccount
+  namespace: jobman-service
+  annotations:
+    description: Service account to launch jobman under, needed to assign roles that allows access to resources in another namespace (where the jobs are actually launched)
+---
+
+kind: Role
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: role-jobman-serviceaccount
+  namespace: jobman-service-exec
+  annotations:
+    description: Role from the namespace where the jobs are acttually launched, allowing Jobman to manage the jobs and their related resources
+rules:
+- apiGroups:
+        - ""
+        - apps
+        - autoscaling
+        - batch
+        - extensions
+        - policy
+        - rbac.authorization.k8s.io
+  resources: ["jobs", "pods", "configmaps", "pods/log", "pods/status"]
+  verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+- apiGroups:
+    - ""
+  resources: ["events"]
+  verbs: ["get", "list", "watch"]
+
+---
+
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: role-binding-jobman-serviceaccount
+  namespace: jobman-service-exec
+  annotations:
+    description: Bind the Jobman's service account from its namespace to the role in the namespace where the jobs are launched
+subjects:
+- kind: ServiceAccount
+  name: jobman-serviceaccount
+  namespace: jobman-service
+roleRef:
+ kind: Role
+ name: role-jobman-serviceaccount
+ apiGroup: rbac.authorization.k8s.io
+
+---
+
+kind: Role
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: role-jobman-serviceaccount-configmap
+  namespace: jobman-service
+  annotations:
+    description: Allows Jobman's service account to access configmaps, needed to access the jobs' queue that is managed by a cron job not jobman itself
+rules:
+- apiGroups:
+        - ""
+  resources: ["configmaps"]
+  verbs: ["get"]
+
+---
+
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: role-binding-jobman-serviceaccount-configmap
+  namespace: jobman-service
+  annotations:
+    description: Bind Jobman's service account to the role giving it access to configmaps, needed to access the jobs' queue that is managed by a cron job not jobman itself
+subjects:
+- kind: ServiceAccount
+  name: jobman-serviceaccount
+  namespace: jobman-service
+roleRef:
+ kind: Role
+ name: role-jobman-serviceaccount-configmap
+ apiGroup: rbac.authorization.k8s.io
