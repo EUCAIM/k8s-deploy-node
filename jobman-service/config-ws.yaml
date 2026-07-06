@@ -137,10 +137,10 @@ data:
           ],
       "oidc": {
           "apiTokenAttributeName": "jobman_service_api_token",
-          "url": "https://eucaim-node.i3m.upv.es/auth",
+          "url": "https://PUBLIC_DOMAIN/auth",
           "realm": "EUCAIM-NODE",
           "clientId": "jobman-service",
-          "clientSecret": <client_secret_here>,
+          "clientSecret": "CLIENT_JOBMAN_SECRET",
           "audiences": [
               "jobman-service"
           ],
@@ -153,7 +153,7 @@ data:
           "prefix": "/jobman-service",
           "api": "/api/v1"
       },
-      "defaultKubeURL": "https://eucaim-node.i3m.upv.es/"
+      "defaultKubeURL": "https://PUBLIC_DOMAIN/"
     }
 kind: ConfigMap
 metadata:
