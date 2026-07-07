@@ -168,7 +168,12 @@ data:
           "prefix": "/jobman-service",
           "api": "/api/v1"
       },
-      "defaultKubeURL": "https://eucaim-node.i3m.upv.es/"
+      "defaultKubeURL": "https://eucaim-node.i3m.upv.es/",
+        "log": {
+            "directory": "/var/log/jobman",
+            "level": "info",
+            "fileName": "jobman-webservice.log"
+        }
     }
 kind: ConfigMap
 metadata:
