@@ -4,7 +4,7 @@ metadata:
   name: jobman-service-logs
   namespace: jobman-service
 spec:
-  storageClassName: managed-nfs-storage
+  storageClassName: standard
   accessModes:
     - ReadWriteMany
   resources:
