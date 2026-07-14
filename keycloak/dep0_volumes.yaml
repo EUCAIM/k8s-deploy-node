@@ -1,17 +1,48 @@
 
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv-postgres-data-keycloak
+spec:
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: standard
+  hostPath:
+    path: /var/hostpath-provisioner/keycloak/postgres-data
+    type: DirectoryOrCreate
+---
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: postgres-data
   namespace: keycloak
 spec:
-  storageClassName: cephfs
   accessModes:
     - ReadWriteMany
+  storageClassName: standard
   resources:
     requests:
       storage: 1Gi
-
+  volumeName: pv-postgres-data-keycloak
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv-themes-data
+spec:
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: standard
+  hostPath:
+    path: /var/hostpath-provisioner/keycloak/themes-data
+    type: DirectoryOrCreate
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -19,13 +50,28 @@ metadata:
   name: themes-data
   namespace: keycloak
 spec:
-  storageClassName: cephfs
   accessModes:
     - ReadWriteMany
+  storageClassName: standard
   resources:
     requests:
       storage: 1Gi
-
+  volumeName: pv-themes-data
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv-standalone-deployments
+spec:
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: standard
+  hostPath:
+    path: /var/hostpath-provisioner/keycloak/standalone-deployments
+    type: DirectoryOrCreate
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -33,9 +79,10 @@ metadata:
   name: standalone-deployments
   namespace: keycloak
 spec:
-  storageClassName: cephfs
   accessModes:
     - ReadWriteMany
+  storageClassName: standard
   resources:
     requests:
       storage: 1Gi
+  volumeName: pv-standalone-deployments
