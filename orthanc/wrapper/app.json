@@ -1,0 +1,20 @@
+// http://pm2.keymetrics.io/docs/usage/application-declaration
+{
+  "apps" : [{
+    "name"        : "Orthanc Wrapper",
+    "script"      : "bundle/main.js",
+    "error_file"  : "error.log",
+    "out_file"    : "out.log",
+    "env": {
+      "ROOT_URL": "https://node-demo.imaging.i3m.upv.es/wrapper",
+      "PORT": "8080",
+      "METEOR_SETTINGS": '{\
+        "public": {\
+          "domainURL": "https://node-demo.imaging.i3m.upv.es"\
+        },\
+        "private": {}\
+      }'
+    }
+  }]
+}
+
