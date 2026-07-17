@@ -98,7 +98,7 @@ spec:
             ,\n    \"datasets_mount_path\": \"/mnt/datasets\",\n    \"dataset_link_format\"\
             : \"https://mininode.imaging.i3m.upv.es/dataset-service/datasets/%s/details\"\
             ,\n    \"eucaim_search_token\": \"5prUSbfGMMtfu4VX\",\n    \"series_hash_cache_life_days\"\
-            : 30,\n    \"dataset_integrity_check_life_days\": 40\n  },\n  \"tracer\"\
+            : 30,\n    \"dataset_integrity_check_life_days\": 40,\n    \"skip_subproject_id_security_check\": \"true\"\n  },\n  \"tracer\"\
             : {\n    \"url\": \"\"\n  }\n}"
         resources:
           requests:
