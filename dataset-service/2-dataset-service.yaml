@@ -28,7 +28,7 @@ spec:
           claimName: orthanc-storage
       containers:
       - name: dataset-service-backend
-        image: harbor.eucaim-node.i3m.upv.es/core-services/dataset-service-backend:3.22.3-pr2
+        image: harbor.eucaim-node.i3m.upv.es/core-services/dataset-service-backend:3.23.3-pr2
         ports:
         - containerPort: 11000
           name: dssport
