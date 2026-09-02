@@ -1,5 +1,0 @@
-
-
-- Create pod priorities
-- Deploy keycloak
-- Enable OIDC in a Kubernetes cluster
