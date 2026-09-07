@@ -49,20 +49,21 @@ eucaim-node/    README.txt
 ```
 
 Also copy the [custom extensions](https://github.com/orgs/chaimeleon-eu/repositories?q=keycloak) to the PVC  ``standalone-deployments``.  
-Current download links (2025-04-29):
+Current download links (2026-08-28):
 ```
 # https://github.com/chaimeleon-eu/keycloak-event-listener-email-to-admin/releases/latest
-wget "https://github.com/chaimeleon-eu/keycloak-event-listener-email-to-admin/releases/download/v1.0.6/keycloak-event-listener-email-to-admin-1.0.6.jar"
+wget "https://github.com/chaimeleon-eu/keycloak-event-listener-email-to-admin/releases/download/v1.0.6/keycloak-event-listener-email-to-admin-1.0.7.jar"
 # https://github.com/chaimeleon-eu/keycloak-required-action-user-validated/releases/latest
-wget "https://github.com/chaimeleon-eu/keycloak-required-action-user-validated/releases/download/v1.0.5/keycloak-required-action-user-validated-1.0.5.jar"
+wget "https://github.com/chaimeleon-eu/keycloak-required-action-user-validated/releases/download/v1.0.5/keycloak-required-action-user-validated-1.0.6.jar"
 
+cp keycloak-*.jar /mnt/cephfs/k8s/volumes/csi/csi-vol-b160385f-cc38-429f-b282-39a800db248e/f3e8a254-8c91-408c-af06-d94379e33a9f/
 ```
 This files will be mounted on _providers_ directory of the keycloak working directory in the main service container, by default: ``/opt/keycloak/providers``. 
 The result in the container should be like that:
 ```console
 bash-4.4$ ls /opt/keycloak/providers/
-keycloak-event-listener-email-to-admin-1.0.6.jar
-keycloak-required-action-user-validated-1.0.5.jar
+keycloak-event-listener-email-to-admin-1.0.7.jar
+keycloak-required-action-user-validated-1.0.6.jar
 ```
 Now, you are able to deploy the database:
 ```console

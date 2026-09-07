@@ -144,6 +144,25 @@ Note you should:
  - or disable it with `update-rc.d cluesd disable` and stop it with `service cluesd stop`  
    and just run it when you need with `service cluesd restart`.
 
+### IM commands (advanced)
+EC3 is on top of IM, so you can go one level down using IM commands for troubleshoot or advanced operations.
+If you want to use im client instead of ec3, you can install and configure with:
+```
+pip install IM-client
+
+echo '
+[im_client]
+restapi_url=http://localhost:8800
+auth_file=auth.private.dat
+' > im_client.cfg
+```
+Note this is the config for accessing from within the front node where the IM service is running,
+but if you want to use from your own computer just change the url, for example:
+```
+restapi_url=http://eucaim-node.i3m.upv.es:8800
+```
+Also note it is HTTP protocol (not secure) so you should only access from a trusted network 
+or configure the TLS with a certificate in the IM service and change to `https://`.
 
 ## Some core services to deploy
 Let's install some core services on top of Kubernetes in the proper order.
@@ -223,7 +242,7 @@ You should confirm
 
 And install:
 ```
-helm repo add kubernetes-dashboard https://kubernetes.github.io/dashboard/
+helm repo add kubernetes-dashboard https://kubernetes-retired.github.io/dashboard/
 helm install kubernetes-dashboard kubernetes-dashboard/kubernetes-dashboard --version 7.5.0 \
              --namespace kubernetes-dashboard --create-namespace \
              -f k8s-core-services/kubernetes-dashboard-7.5.0-values.yaml

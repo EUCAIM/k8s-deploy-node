@@ -149,10 +149,13 @@ and put the link to it in the first entry of the "sources" section in the Chart.
 and cross the fingers for everything goes well.
 
 # Add the package repository as Helm Repository
-Go to Kubeapps web portal and then to the menú "Administration" -> "Package repositories".
+NOTE: this is currently included in the `values.yaml` as an initial repo (apprepository.initialRepos)
+to be automatically created when installing with helm, but the manual creation way is left below 
+as an example to create other repos later.
+Go to Kubeapps web portal and then to the menu "Administration" -> "Package repositories".
 You should add one in "Global repositories" with:
   Name: `node-apps`
-  URL: `http://eucaim-node.i3m.upv.es/dataset-service/output-files/`
+  URL: `http://eucaim-node.i3m.upv.es/dataset-service/output-files/charts/`
   Packaging format: Helm Charts
   Package Storage Type: Helm Repository
   Authentication: 

@@ -47,10 +47,24 @@ initContainers:
 {{- end -}}
 
 
-{{/* Print the URL to access MongoDB. */}}
+{{/* Print the URL to access mongo main DB. */}}
 {{- define "quibim-precision.MongoURL" }}
 {{- with .Values.mongodb }}
 {{- printf "mongodb://%s:%s@mongodb:%s/%s?authSource=admin" .username .password (.port | toString) .db }}
+{{- end }}
+{{- end }}
+
+{{/* Print the URL to access mongo master DB. */}}
+{{- define "quibim-precision.MongoMasterURL" }}
+{{- with .Values.mongodb }}
+{{- printf "mongodb://%s:%s@mongodb:%s/%s?authSource=admin" .username .password (.port | toString) .masterDB }}
+{{- end }}
+{{- end }}
+
+{{/* Print the URL to access mongo jobrunr DB. */}}
+{{- define "quibim-precision.MongoJobrunrURL" }}
+{{- with .Values.mongodb }}
+{{- printf "mongodb://%s:%s@mongodb:%s/%s?authSource=admin" .username .password (.port | toString) .jobrunrDB }}
 {{- end }}
 {{- end }}
 

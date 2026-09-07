@@ -27,7 +27,7 @@ spec:
             claimName: standalone-deployments
       containers:
       - name: keycloak
-        image: "quay.io/keycloak/keycloak:26.2.0"
+        image: "quay.io/keycloak/keycloak:26.2.5"
         args: ["start", "--http-relative-path=/auth", "--features=token-exchange", "--http-enabled=true", "--proxy-headers=xforwarded"]
         resources:
           requests:
@@ -41,12 +41,12 @@ spec:
             mountPath: "/opt/keycloak/themes/eucaim-node/"
             subPath: "eucaim-node"
           - name: vol-standalone-deployments
-            mountPath: "/opt/keycloak/providers/keycloak-event-listener-email-to-admin-1.0.6.jar"
-            subPath: "keycloak-event-listener-email-to-admin-1.0.6.jar"
+            mountPath: "/opt/keycloak/providers/keycloak-event-listener-email-to-admin-1.0.8.jar"
+            subPath: "keycloak-event-listener-email-to-admin-1.0.8.jar"
             readOnly: false
           - name: vol-standalone-deployments
-            mountPath: "/opt/keycloak/providers/keycloak-required-action-user-validated-1.0.5.jar"
-            subPath: "keycloak-required-action-user-validated-1.0.5.jar"
+            mountPath: "/opt/keycloak/providers/keycloak-required-action-user-validated-1.0.6.jar"
+            subPath: "keycloak-required-action-user-validated-1.0.6.jar"
             readOnly: false
         env:
         - name: KC_BOOTSTRAP_ADMIN_USERNAME

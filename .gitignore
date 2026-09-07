@@ -1,3 +1,4 @@
 *.mine.yaml
 *.private.yaml
+*.private.sh
 bak/

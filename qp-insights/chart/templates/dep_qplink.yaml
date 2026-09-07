@@ -68,11 +68,16 @@ spec:
           value: ""
         - name: KOS_INFO_ACTIVE
           value: "true"
+        - name: MASTER_DB_URL
+          valueFrom:
+            secretKeyRef:
+              name: quibim-secrets
+              key: MASTER_DB_URL
         - name: JOBRUNR_DATABASE_URL
           valueFrom:
             secretKeyRef:
               name: quibim-secrets
-              key: MONGO_URL
+              key: JOBRUNR_DATABASE_URL
 {{ include "quibim-precision.quibimValuesAsEnvItems" . | indent 8 }}
 
         ports:

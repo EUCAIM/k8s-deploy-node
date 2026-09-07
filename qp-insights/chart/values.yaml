@@ -48,6 +48,8 @@ mongodb:
   username: "quibim"
   password: "XXXXXX"
   db: "modb-qpinsights"
+  masterDB: "modb-clients-configuration"
+  jobrunrDB: "admin"
   resources:
     memory: "2Gi"
     cpu: "400m"

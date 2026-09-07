@@ -90,8 +90,14 @@ helm install guacamole ./helm-chart-guacamole --namespace guacamole -f guacamole
 As soon as Guacamole is running, it should be available at https://eucaim-node.i3m.upv.es/guacamole/.
 
 Initially there is only one user created in the database with the name indicated in the property "dbcreation.adminUsername", we set to "guacamole-admin" by default. 
-In order to enter with that user (with admin permissions) you must create a user in Keycloak with that same name.
+In order to enter with that user (with admin permissions) you must create a user in Keycloak with that same username.
+You can set your email, and any random first name and last name, and enable the "email verified" checkbox to avoid sending emails to verify it.
+
 Once you enter in the Guacamole configuration page with admin permissions you should create the admins group corresponding to the group defined in Keycloak (matching by name), 
-in our case is "cloud-services-and-security-management".
+in our case is "cloud-services-and-security-management". You should give all the permissions to it.
+
+Now you can delete the user "guacamole-admin" in keycloak (you may want to delete it if you need to use the email address for your own user account), 
+whenever you need to access guacamole with admin permissions you can use any user in the group "cloud-services-and-security-management". 
+
 Also you may want to create the user "platform-user-creator" (with permission "system admin") for the automatic creation of users and connection groups done by kube-authorizer.
 
