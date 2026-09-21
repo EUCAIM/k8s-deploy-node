@@ -7,6 +7,7 @@ metadata:
   namespace: jobman-service
   annotations:
     description: Service account to launch jobman under, needed to assign roles that allows access to resources in another namespace (where the jobs are actually launched)
+
 ---
 
 kind: Role
@@ -15,22 +16,25 @@ metadata:
   name: role-jobman-serviceaccount
   namespace: jobman-service-exec
   annotations:
-    description: Role from the namespace where the jobs are acttually launched, allowing Jobman to manage the jobs and their related resources
+    description: Role from the namespace where the jobs are actually launched, allowing Jobman to manage the jobs and their related resources
 rules:
-- apiGroups:
-        - ""
-        - apps
-        - autoscaling
-        - batch
-        - extensions
-        - policy
-        - rbac.authorization.k8s.io
-  resources: ["jobs", "pods", "configmaps", "pods/log", "pods/status"]
-  verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
-- apiGroups:
+  - apiGroups:
+    - batch
+    resources: ["jobs"]
+    verbs: ["get", "list", "create", "delete"]
+  - apiGroups:
     - ""
-  resources: ["events"]
-  verbs: ["get", "list", "watch"]
+    resources: ["pods"]
+    verbs: ["get", "list"]
+  - apiGroups:
+    - ""
+    resources: ["pods/log", "pods/status"]
+    verbs: ["get"]
+  - apiGroups:
+      - ""
+      - events.k8s.io
+    resources: ["events"]
+    verbs: ["get", "list"]
 
 ---
 
@@ -63,6 +67,8 @@ rules:
 - apiGroups:
         - ""
   resources: ["configmaps"]
+  # It must match the name in the configmap of the job, config-qp.yml data->QUEUE
+  resourceNames: ["jobman-queue-position"]
   verbs: ["get"]
 
 ---

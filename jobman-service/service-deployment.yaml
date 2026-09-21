@@ -36,16 +36,16 @@ spec:
       serviceAccountName: jobman-serviceaccount
       securityContext:
         runAsNonRoot: true
-        runAsUser: 1000
-        runAsGroup: 1000
-        fsGroup: 1000
+        runAsUser: 1001
+        runAsGroup: 1001
+        fsGroup: 2000
       containers:
-      - image: harbor.eucaim-node.i3m.upv.es/core-services/jobman-service:2.3.1
+      - image: harbor.eucaim-node.i3m.upv.es/core-services/jobman-service:2.2.10-BETA
         securityContext:
           allowPrivilegeEscalation: false
           capabilities:
             drop: ["ALL"]
-          readOnlyRootFilesystem: false
+          readOnlyRootFilesystem: true
         imagePullPolicy: Always
         name: jobman-service-deployment-container
         env:
@@ -62,15 +62,10 @@ spec:
         - containerPort: 8080
           name: api
         volumeMounts:
-          - name: logs
-            mountPath: /var/log/jobman
           - name: webservice-configmap
             mountPath: /opt/jobman/settings.json
             subPath: settings.json
       volumes:
-        - name: logs
-          persistentVolumeClaim:
-            claimName: jobman-service-logs
         - name: webservice-configmap
           configMap:
             defaultMode: 420
