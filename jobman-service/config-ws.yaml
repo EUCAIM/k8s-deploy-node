@@ -54,33 +54,16 @@ data:
                 {
                     "name": "small-gpu",
                     "description": "",
-                    "maxRunTime": 16,
-                    "resources": {
-                        "requests": {
-                            "cpu": "3000m",
-                            "memory": "28G",
-                            "nvidia.com/gpu": 1
-                        },
-                        "limits": {
-                            "cpu": "6000m",
-                            "memory": "28G",
-                            "nvidia.com/gpu": 1
-                        }
-                    }
-                },
-                {
-                    "name": "medium-gpu",
-                    "description": "",
                     "maxRunTime": 24,
                     "resources": {
                         "requests": {
-                            "cpu": "7000m",
-                            "memory": "60G",
+                            "cpu": "2",
+                            "memory": "4G",
                             "nvidia.com/gpu": 1
                         },
                         "limits": {
-                            "cpu": "8000m",
-                            "memory": "60G",
+                            "cpu": "4",
+                            "memory": "4G",
                             "nvidia.com/gpu": 1
                         }
                     }
@@ -91,13 +74,13 @@ data:
                     "maxRunTime": 24,
                     "resources": {
                         "requests": {
-                            "cpu": "7000m",
-                            "memory": "60G",
+                            "cpu": "4",
+                            "memory": "16G",
                             "nvidia.com/gpu": 1
                         },
                         "limits": {
-                            "cpu": "8000m",
-                            "memory": "60G",
+                            "cpu": "8",
+                            "memory": "16G",
                             "nvidia.com/gpu": 1
                         }
                     }
@@ -105,15 +88,15 @@ data:
                 {
                     "name": "no-gpu",
                     "description": "",
-                    "maxRunTime": 8,
+                    "maxRunTime": 24,
                     "resources": {
                         "requests": {
-                            "cpu": "7000m",
-                            "memory": "60G"
+                            "cpu": "2",
+                            "memory": "4G"
                         },
                         "limits": {
-                            "cpu": "8000m",
-                            "memory": "60G"
+                            "cpu": "4",
+                            "memory": "4G"
                         }
                     }
                 }
