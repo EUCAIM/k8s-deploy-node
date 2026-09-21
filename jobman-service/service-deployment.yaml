@@ -1,0 +1,73 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: jobman-service
+  namespace: jobman-service
+spec:
+  ports:
+  - port: 8080
+    targetPort: 8080
+    protocol: TCP
+    name: api
+  selector:
+    app: jobman-service-deployment
+  
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jobman-service-deployment
+  namespace: jobman-service
+spec:
+  selector:
+    matchLabels:
+      app: jobman-service-deployment
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: jobman-service-deployment
+    spec:
+      priorityClassName: core-services
+      nodeSelector:
+        chaimeleon.eu/target: core-services
+      serviceAccountName: jobman-serviceaccount
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1001
+        runAsGroup: 1001
+        fsGroup: 2000
+      containers:
+      - image: harbor.eucaim-node.i3m.upv.es/core-services/jobman-service:2.2.10-BETA
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop: ["ALL"]
+          readOnlyRootFilesystem: true
+        imagePullPolicy: Always
+        name: jobman-service-deployment-container
+        env:
+        - name: SETTINGS_FILE
+          value: /opt/jobman/settings.json
+        resources:
+          requests:
+            memory: "4Gi"
+            cpu: "500m"
+          limits:
+            memory: "4Gi"
+            cpu: "2"
+        ports:
+        - containerPort: 8080
+          name: api
+        volumeMounts:
+          - name: webservice-configmap
+            mountPath: /opt/jobman/settings.json
+            subPath: settings.json
+      volumes:
+        - name: webservice-configmap
+          configMap:
+            defaultMode: 420
+            name: webservice-config
+
