@@ -52,7 +52,7 @@ Federated Computation:
 
 Job management:
 - Jobman service: deployed using plain YAMLs
-   - URL: https://eucaim-node.i3m.upv.es/jobman-service
+   - URL (Platform internal only): http://jobman-service.jobman-service:8080
    - Deployment details in the [jobman-service directory](/jobman-service/)
    - Source code: [https://github.com/EUCAIM/jobman](https://github.com/EUCAIM/jobman)
 
