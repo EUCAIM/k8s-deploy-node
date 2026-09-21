@@ -141,12 +141,7 @@ data:
           "realm": "EUCAIM-NODE",
           "clientId": "jobman-service",
           "clientSecret": "CLIENT_JOBMAN_SECRET",
-          "audiences": [
-              "jobman-service"
-          ],
-          "resourceAccessRoles": [
-              "manage-own-jobs"
-          ]
+          "audience": "jobman-service"
       },
       "port": 8080,
       "path": {

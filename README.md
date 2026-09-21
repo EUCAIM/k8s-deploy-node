@@ -48,7 +48,7 @@ Package Repositories (like for Python's pip, or Java's maven):
 
 Job management:
 - Jobman service: deployed using plain YAMLs
-   - URL: https://eucaim-node.i3m.upv.es/jobman-service
+   - URL (Platform internal only): http://jobman-service.jobman-service:8080/jobman-service/api/v1
    - Deployment details in the [jobman-service directory](/jobman-service/)
    - Source code: [https://github.com/EUCAIM/jobman](https://github.com/EUCAIM/jobman)
 

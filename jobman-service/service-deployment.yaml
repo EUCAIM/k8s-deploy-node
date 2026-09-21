@@ -34,8 +34,18 @@ spec:
       nodeSelector:
         chaimeleon.eu/target: core-services
       serviceAccountName: jobman-serviceaccount
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1001
+        runAsGroup: 1001
+        fsGroup: 2000
       containers:
-      - image: jobman-service:2.2.7
+      - image: harbor.eucaim-node.i3m.upv.es/core-services/jobman-service:2.2.10-BETA
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop: ["ALL"]
+          readOnlyRootFilesystem: true
         imagePullPolicy: Always
         name: jobman-service-deployment-container
         env:
@@ -44,25 +54,21 @@ spec:
         resources:
           requests:
             memory: "4Gi"
-            cpu: "1"
+            cpu: "500m"
           limits:
             memory: "4Gi"
-            cpu: "1"
+            cpu: "2"
         ports:
         - containerPort: 8080
           name: api
         volumeMounts:
-          - name: logs
-            mountPath: /var/log/jobman
           - name: webservice-configmap
             mountPath: /opt/jobman/settings.json
             subPath: settings.json
       volumes:
-        - name: logs
-          persistentVolumeClaim:
-            claimName: jobman-service-logs
         - name: webservice-configmap
           configMap:
             defaultMode: 420
             name: webservice-config
+
 

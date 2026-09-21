@@ -65,15 +65,6 @@ Deploy with:
 
 ```kubectl apply -f config-queue-position.yaml -n jobman-service```
 
-### PVC
-
-#### Web service (WS)
-
-If you want to store the logs in a non-volatile place, you need a PVC deployed like:
-
-```kubectl apply -f pvc.yaml -n jobman-service```
-
-If you don't don't foget to adapt the deployment of the WS
 
 ### Service and deployment
 
@@ -91,16 +82,3 @@ Deploy the cron job:
 
 ```kubectl apply -f cron-job.yaml -n jobman-service```
 
-### Ingress
-
-#### Web service (WS)
-
-Make a copy of the ingress file:
-
-```cp ingress.yaml ingress.private.yaml```
-
-and set the host (__spec.rules.host__) according to your needs, in our case eucaim-node.i3m.upv.es
-
-Create an ingress (default __<host>/jobman-service__) if you want the service to be accessible from the outside:
-
-```kubectl apply -f ingress.yaml -n jobman-service```
