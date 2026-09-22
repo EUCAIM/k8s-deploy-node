@@ -11,7 +11,7 @@ spec:
   restartPolicy: Never
   containers:
   - name: init-volumes
-    image: "quay.io/keycloak/keycloak:13.0.1"
+    image: "quay.io/keycloak/keycloak:26.2.5"
 #   imagePullPolicy: Always
 #   args: ["tail", "-f", "/dev/null"]
     securityContext:
@@ -21,7 +21,7 @@ spec:
     - 'sh'
     - '-c'
     - >-
-      chown jboss /tmp/themes
+      chown 1000 /tmp/themes
       && chmod 771 /tmp/themes
 #     && cp -rp /opt/keycloak/themes/* /tmp/themes/
     volumeMounts:

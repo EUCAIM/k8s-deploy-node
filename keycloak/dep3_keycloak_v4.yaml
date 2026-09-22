@@ -27,7 +27,7 @@ spec:
             claimName: standalone-deployments
       containers:
       - name: keycloak
-        image: "quay.io/keycloak/keycloak:26.2.0"
+        image: "quay.io/keycloak/keycloak:26.2.5"
         args: ["start", "--http-relative-path=/auth", "--features=token-exchange", "--http-enabled=true", "--proxy-headers=xforwarded"]
         resources:
           requests:
