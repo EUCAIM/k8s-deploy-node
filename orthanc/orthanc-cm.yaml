@@ -86,6 +86,10 @@ data:
   permissions.json: |
     {
       "roles": {
+        "admin": {
+          "authorized-labels": ["*"],
+          "permissions": ["all"]
+        },
         "admin-role": {
           "authorized-labels": ["*"],
           "permissions": [
