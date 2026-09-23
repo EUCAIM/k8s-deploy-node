@@ -6,11 +6,11 @@
     "error_file"  : "error.log",
     "out_file"    : "out.log",
     "env": {
-      "ROOT_URL": "https://node-demo.imaging.i3m.upv.es/wrapper",
+      "ROOT_URL": "https:///wrapper",
       "PORT": "8080",
       "METEOR_SETTINGS": '{\
         "public": {\
-          "domainURL": "https://node-demo.imaging.i3m.upv.es"\
+          "domainURL": "https://"\
         },\
         "private": {}\
       }'
