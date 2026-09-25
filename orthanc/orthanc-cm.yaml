@@ -90,6 +90,14 @@ data:
           "authorized-labels": ["*"],
           "permissions": ["all"]
         },
+        "data-uploader": {
+          "authorized-labels": ["*"],
+          "permissions": ["view", "upload"]
+        },
+        "dataset-manager": {
+          "authorized-labels": ["*"],
+          "permissions": ["view"]
+        },
         "admin-role": {
           "authorized-labels": ["*"],
           "permissions": [
