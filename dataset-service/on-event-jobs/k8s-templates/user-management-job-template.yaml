@@ -15,6 +15,7 @@ metadata:
 spec:
   template:
     spec:
+      serviceAccountName: user-management-sa
       volumes:
         - name: dataset-service-data-volume
           persistentVolumeClaim:
@@ -31,7 +32,7 @@ spec:
               name: user-management-jobs-ceph-secret
       containers:
         - name: user-management
-          image: harbor.eucaim-node.i3m.upv.es/core-services/dataset-service-on-event-jobs:1.0-1
+          image: harbor.eucaim-node.i3m.upv.es/core-services/dataset-service-on-event-jobs:1.1-1
           #imagePullPolicy: Always
           workingDir: "/home/ubuntu/scripts"
           command: ["/bin/bash"]
@@ -52,10 +53,10 @@ spec:
             - name: TENANT_PROJECTS
               value: "__TENANT_PROJECTS__"
 
-            - name: K8S_ENDPOINT
-              value: "https://eucaim-node.i3m.upv.es:6443"
-            - name: K8S_TOKEN
-              value: "XXXXXXXXXXXXXXXX"
+            #- name: K8S_ENDPOINT
+            #  value: "https://eucaim-node.i3m.upv.es:6443"
+            #- name: K8S_TOKEN
+            #  value: "XXXXXXXXXXXXXXXX"
               
             - name: CEPH_HOST
               value: "[v2:192.168.10.230:3300/0,v1:192.168.10.230:6789/0] [v2:192.168.10.3:3300/0,v1:192.168.10.3:6789/0] [v2:192.168.10.4:3300/0,v1:192.168.10.4:6789/0]"
@@ -137,11 +138,15 @@ spec:
             - name: EXTERNAL_SHARING_SERVICE_ENDPOINT
               value: "http://external-sharing-service.external-sharing-service.svc.cluster.local:80"
               
-              # Following params are domains to be included in the network policy as allowed destinations from pods in the user namespace
+              # Following params are domains and IP addresses to be included in the network policy as allowed destinations from pods in the user namespace
             - name: MAIN_DOMAIN_NAME
               value: "eucaim-node.i3m.upv.es"
             - name: HARBOR_DOMAIN_NAME
               value: "harbor.eucaim-node.i3m.upv.es"
+            - name: FRONT_NODE_PUBLIC_IP
+              value: "158.42.106.140"
+            - name: FRONT_NODE_LOCAL_IP
+              value: "192.168.1.162"
             
       restartPolicy: Never  # no restart container if fails
       nodeSelector: 

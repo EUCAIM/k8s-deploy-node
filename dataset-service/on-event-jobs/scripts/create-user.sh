@@ -11,9 +11,6 @@ set -e
 #   TENANT_SITE
 #   TENANT_PROJECTS
 
-#   K8S_ENDPOINT
-#   K8S_TOKEN
-
 #   CEPH_HOST
 #   CEPH_ADMIN_USER
 #   CEPH_ADMIN_KEY
@@ -44,6 +41,8 @@ set -e
 
 #   MAIN_DOMAIN_NAME
 #   HARBOR_DOMAIN_NAME
+#   FRONT_NODE_PUBLIC_IP
+#   FRONT_NODE_LOCAL_IP
 
 
 echo "$(date -Iseconds) - Running scripts to create the user '${TENANT_NAME}'."
@@ -69,7 +68,8 @@ python3 manage_qpinsights_account.py "${KEYCLOAK_TOKEN_ENDPOINT}" ${QPI_ADMIN_CL
 
 if echo ${TENANT_ROLES} | grep -i "data-scientist" > /dev/null; then
     echo -e "\n##############################################################################"
-    KUBECTL_CMD="kubectl --server ${K8S_ENDPOINT} --insecure-skip-tls-verify=true --token=${K8S_TOKEN}"
+    #KUBECTL_CMD="kubectl --server ${K8S_ENDPOINT} --insecure-skip-tls-verify=true --token=${K8S_TOKEN}"
+    KUBECTL_CMD="kubectl"
     export TENANT_NAMESPACE="user-${TENANT_NAME}"
     echo "NAMESPACE=${TENANT_NAMESPACE}"
 
@@ -132,13 +132,14 @@ if echo ${TENANT_ROLES} | grep -i "data-scientist" > /dev/null; then
 
     echo -e "\n##############################################################################"
     echo "=============== Create ceph secret in k8s"
+    resource=ceph-secret.yml
     # replacing TENANT_NAMESPACE, _NEW_USER_CEPH_KEY
-    tpl -e templates/ceph-secret.yml.tpl > /tmp/${CEPH_NEW_USER}-secret.yml
-    echo "/tmp/${CEPH_NEW_USER}-secret.yml:"
-    cat /tmp/${CEPH_NEW_USER}-secret.yml
+    tpl -e templates/${resource}.tpl > /tmp/${resource}
+    echo "/tmp/${resource}:"
+    cat /tmp/${resource}
     echo "---------------------------------------------------------------"
     echo "Creating the ceph-auth secret ..."
-    ${KUBECTL_CMD} apply -f /tmp/${CEPH_NEW_USER}-secret.yml
+    ${KUBECTL_CMD} apply -f /tmp/${resource}
 
     # That is currently not needed because now this script is called by dataset-service, the GID can be included in the call.
     # echo -e "\n##############################################################################"
@@ -225,33 +226,36 @@ if echo ${TENANT_ROLES} | grep -i "data-scientist" > /dev/null; then
         if ${KUBECTL_CMD} get secret guacamole-api-auth -n ${TENANT_NAMESPACE}; then 
             echo "And the secret in k8s also exists, so we don't have to change it."
         else
-            echo "But the secret in k8s not exists! Please delete de guacamole user and connection group and run the script again."
+            echo "But the secret in k8s not exists! Please delete the guacamole user and connection group and run the script again."
             exit 1
         fi
     else
         # Store the credentials in a secret
+        resource=guacamole-api-user-secret.yml
         # replacing TENANT_NAMESPACE, TENANT_NAME, GUACAMOLE_PASSWORD
-        tpl -e templates/guacamole-secret.yml.tpl > /tmp/guacamole-api-user-${TENANT_NAME}-secret.yml
-        echo "/tmp/guacamole-api-user-${TENANT_NAME}-secret.yml: "
-        cat /tmp/guacamole-api-user-${TENANT_NAME}-secret.yml
+        tpl -e templates/${resource}.tpl > /tmp/${resource}
+        echo "/tmp/${resource}: "
+        cat /tmp/${resource}
         echo "---------------------------------------------------------------"
         echo "Creating the guacamole-secret ... "
-        ${KUBECTL_CMD} apply -f /tmp/guacamole-api-user-${TENANT_NAME}-secret.yml
+        ${KUBECTL_CMD} apply -f /tmp/${resource}
     fi
 
     echo -e "\n##############################################################################"
-    echo "=============== CILIUM NETWORK POLICIES "
-    # **************************** 
-    # Deny Egress traffic
-    # **************************** 
-    # replacing TENANT_NAME, TENANT_NAMESPACE, MAIN_DOMAIN_NAME, HARBOR_DOMAIN_NAME
-    tpl -e templates/ciliumNetworkPolicy-deny-egress.yml.tpl > /tmp/ciliumNetworkPolicy-deny-egress.yml
-    echo "/tmp/ciliumNetworkPolicy-deny-egress.yml:"
-    cat /tmp/ciliumNetworkPolicy-deny-egress.yml
+    echo "=============== NETWORK POLICIES "
+    #resource=ciliumNetworkPolicy.yml
+    resource=networkPolicy.yml
+    # replacing TENANT_NAME, TENANT_NAMESPACE, MAIN_DOMAIN_NAME, HARBOR_DOMAIN_NAME, FRONT_NODE_PUBLIC_IP, FRONT_NODE_LOCAL_IP
+    tpl -e templates/${resource}.tpl > /tmp/${resource}
+    echo "/tmp/${resource}:"
+    cat /tmp/${resource}
     echo "---------------------------------------------------------------"
-    echo "Creating the Cilium Network Policy [Deny Egress traffic]..."
-    ${KUBECTL_CMD} apply -f /tmp/ciliumNetworkPolicy-deny-egress.yml
+    echo "Creating the Network Policy..."
+    ${KUBECTL_CMD} apply -f /tmp/${resource}
 
+    echo "Deleting any previous ciliumNetworkPolicy..."
+    ${KUBECTL_CMD} delete --all ciliumNetworkPolicy -n ${TENANT_NAMESPACE}
+    
 
     # That binding is not required because the binding is done for the group "oidc:data-scientists".
     # echo -e "\n##############################################################################"

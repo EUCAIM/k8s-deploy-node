@@ -1,0 +1,67 @@
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: restrict-tenant-traffic
+  namespace: {{ TENANT_NAMESPACE }}
+spec:
+  endpointSelector: {}   # This policy applies to all pods in this namespace
+  # All traffic is blocked just defining the sections ingress/egress 
+  # except the traffic allowed by the rules defined in each section.
+
+  ingress: # Inbound exception rules (white list)
+
+    - fromEndpoints:
+        - {}             # From any pod in the same namespace
+
+    - fromEndpoints:
+        - matchLabels:
+            # From Guacamole service to VNC/RDP service
+            io.kubernetes.pod.namespace: guacamole
+
+  egress: # Outbound exception rules (white list)
+
+    #- toEntities:
+    #    - cluster     # To any pod in the cluster
+
+    - toEndpoints:
+        - {}        # To any pod in the same namespace
+
+        - matchLabels:    # For uploading modified images to the datalake (e.g. after segmentation or armonisation)
+            io.kubernetes.pod.namespace: orthanc
+
+    - toServices:
+        - k8sService:   # For the command jobman to work
+            namespace: jobman-service
+            serviceName: jobman-service
+        - k8sService:    # For the command pip to work
+            namespace: package-repos-proxy
+            serviceName: devpi-service
+        - k8sService:    # For the ETL app to work
+            namespace: clinical-data-sql-db
+            serviceName: db
+
+    - toFQDNs:   # For connecting to any of the services exposed in the public domain through ingress-nginx.
+                 # It is particularly required for accessing datasets-service web 
+                 # for creating new versions of dataset (e.g. after the ETL process).
+        - matchName: {{ MAIN_DOMAIN_NAME }}    # for creating new versions of dataset (e.g. ETL results)
+        - matchName: {{ HARBOR_DOMAIN_NAME }}    # for eventually pulling images to launch with udocker
+      toPorts:
+        - ports:
+            - port: "443"
+            - port: "80"
+            # Note port 6443 is not included to avoid connections to kube-apiserver
+
+    # Explicitly allow DNS traffic to CoreDNS in kube-system
+    - toEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: kube-system
+            k8s-app: kube-dns
+      toPorts:
+        - ports:
+            - port: "53"
+              protocol: UDP
+            - port: "53"
+              protocol: TCP
+          rules:
+            dns:
+              - matchPattern: "*"

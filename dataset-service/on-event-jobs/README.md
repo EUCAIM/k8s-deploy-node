@@ -17,9 +17,10 @@ cp subproject-management-job-template.yaml subproject-management-job-template.pr
 vim subproject-management-job-template.private.yaml
 ```
 
-The job-template will be read and applied by Dataset-service but the ceph-secret must be applied by you:
+The job-template will be read and applied by Dataset-service but the ceph-secret and service-account must be applied by you:
 ```
 kubectl apply -n dataset-service -f k8s-templates/user-management-ceph-secret.private.yaml
+kubectl apply -n dataset-service -f k8s-templates/user-management-service-account.yaml
 ```
 
 And the scripts to be executed are in "scripts" directory. You can change them according to your needs.
@@ -40,6 +41,7 @@ Download the Dockerfile from the Dataset-service source code repository:
 ```
 curl -LO https://github.com/chaimeleon-eu/dataset-service/raw/refs/heads/main/on-event-jobs/Dockerfile
 ```
+Update the file "Dockerfile_version" if new requirements are added.
 And build your container image and upload to the platform repository:
 (the files "requirements-apt.txt" and "requirements-pip.txt" will be taken for the building)
 ```

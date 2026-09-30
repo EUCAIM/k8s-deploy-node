@@ -17,7 +17,7 @@ spec:
             claimName: dataset-service-data
       containers:
         - name: site-management
-          image: harbor.eucaim-node.i3m.upv.es/core-services/dataset-service-on-event-jobs:1.0-1
+          image: harbor.eucaim-node.i3m.upv.es/core-services/dataset-service-on-event-jobs:1.1-1
           #imagePullPolicy: Always
           workingDir: "/home/ubuntu/scripts"
           command: ["/bin/bash"]
@@ -47,7 +47,7 @@ spec:
             - name: QPI_ADMIN_CLIENT_ID
               value: "qpinsights"
             - name: QPI_ADMIN_USERNAME
-			  # This user should be created specially for that purpose in the auth service and QP-Insights, see the user-management-job-template for more details.
+              # This user should be created specially for that purpose in the auth service and QP-Insights, see the user-management-job-template for more details.
               value: "qpi-user-creator"
             - name: QPI_ADMIN_PASSWORD
               value: "XXXXXXXXXXXXXXXX"

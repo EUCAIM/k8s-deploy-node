@@ -17,7 +17,7 @@ spec:
             claimName: dataset-service-data
       containers:
         - name: subproject-management
-          image: harbor.eucaim-node.i3m.upv.es/core-services/dataset-service-on-event-jobs:1.0-1
+          image: harbor.eucaim-node.i3m.upv.es/core-services/dataset-service-on-event-jobs:1.1-1
           #imagePullPolicy: Always
           workingDir: "/home/ubuntu/scripts"
           command: ["/bin/bash"]
@@ -57,8 +57,8 @@ spec:
               value: "https://eucaim-node.i3m.upv.es/dataset-service/api/"
             - name: DS_CLIENT_ID
               value: "dataset-explorer"
-			  # Here the same QPI_ADMIN_USERNAME and QPI_ADMIN_PASSWORD previously defined is used to access also to the dataset-service
-			  # In this case (for subprojects management) you must assign also to this user the role dataset-service:admin_projects.
+            # Here the same QPI_ADMIN_USERNAME and QPI_ADMIN_PASSWORD previously defined is used to access also to the dataset-service
+            # In this case (for subprojects management) you must assign also to this user the role dataset-service:admin_projects.
             
       restartPolicy: Never  # no restart container if fails
       nodeSelector: 

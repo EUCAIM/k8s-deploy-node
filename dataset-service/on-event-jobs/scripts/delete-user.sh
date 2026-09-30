@@ -8,8 +8,6 @@ set -e
 # Environmental variables required:
 #   TENANT_NAME
 #   TENANT_ROLES
-#   K8S_ENDPOINT
-#   K8S_TOKEN
 
 #   MOUNTED_DIR_PERSISTENT_HOMES
 #   CEPH_HOST
@@ -25,7 +23,8 @@ echo "$(date -Iseconds) - Running scripts to delete the user '${TENANT_NAME}'."
 echo "ROLES=${TENANT_ROLES}"
 
 if echo ${TENANT_ROLES} | grep -i "data-scientist" > /dev/null; then
-    KUBECTL_CMD="kubectl --server ${K8S_ENDPOINT} --insecure-skip-tls-verify=true --token=${K8S_TOKEN}"
+    #KUBECTL_CMD="kubectl --server ${K8S_ENDPOINT} --insecure-skip-tls-verify=true --token=${K8S_TOKEN}"
+    KUBECTL_CMD="kubectl"
     export TENANT_NAMESPACE="user-${TENANT_NAME}"
     echo "NAMESPACE=${TENANT_NAMESPACE}"
     
@@ -114,17 +113,13 @@ if echo ${TENANT_ROLES} | grep -i "data-scientist" > /dev/null; then
     #     echo CiliumNetworkPolicy deny-egress-${TENANT_NAME} does not exist in namespace ${TENANT_NAMESPACE};
     # fi
 
-    # That binding was not created because the binding is done for the group "oidc:data-scientists".
     # echo -e "\n##############################################################################"
     # echo "=============== Delete the cluster role binding"
-    # python3 delete_clusterrolebinding.py ${K8S_ENDPOINT} ${K8S_TOKEN} ${TENANT_TYPE} oidc:${TENANT_NAME} chaimeleon-users-role-cluster
+    # That binding was not created because the binding is done for the group "oidc:data-scientists".
 
     # The entire user namespace will be deleted, so this block is not really needed.
     # echo -e "\n##############################################################################"
     # echo "=============== Delete the namespaced role bindings"
-    # #  python3 delete_rolebinding.py ${K8S_ENDPOINT} ${K8S_TOKEN} ${TENANT_TYPE} oidc:${TENANT_NAME} ${TENANT_NAMESPACE} chaimeleon-users-role-namespace
-    # #That method to remove is dangerous because some rolebinding for this user can include other users.
-    # #It is better to delete de rolebinding by name:
     # if ${KUBECTL_CMD} -n ${TENANT_NAMESPACE} get rolebinding oidc:${TENANT_NAME}; then
     #     ${KUBECTL_CMD} -n ${TENANT_NAMESPACE} delete rolebinding oidc:${TENANT_NAME};
     # else
