@@ -47,8 +47,14 @@ Python packages repository:
    - URL (Platform internal only): http://devpi-service.package-repos-proxy:3141
    - Deployment details in the [devpi directory](/devpi/)
 
+Job management:
+- Jobman service: deployed using plain YAMLs
+   - URL (Platform internal only): http://jobman-service.jobman-service:8080
+   - Deployment details in the [jobman-service directory](/jobman-service/)
+   - Source code: [https://github.com/EUCAIM/jobman](https://github.com/EUCAIM/jobman)
+
 Federated Computation:
-- FEM client: deployed using plain YAMLs. URL: not publicly accessible
+- FEM client: deployed using plain YAMLs.
 
 ## Deployment order
 First of all, go to the infrastructure recipes to create the infrastructure (a Kubernetes cluster) in a cloud provider
@@ -73,9 +79,9 @@ Now the platform core services can be deployed in the following order to properl
  | Dataset-service                   | Depends on Keycloak, Harbor, (Tracer), (Kubeapps), (Guacamole)     | [dataset-service directory](/dataset-service/)
  | QP-Insights                       | Depends on Keycloak, Harbor, (Dataset-service)                     | [qp-insights directory](/qp-insights/)
  | DSWS K8s Operator                 | Depends on Keycloak, Harbor, Dataset-service, Guacamole            | [dsws-operator](/dsws-operator/)
- | Jobman-service                    | Depends on Keycloak, Harbor, DSWS K8s Operator                     |
+ | Jobman-service                    | Depends on Keycloak, Harbor, DSWS K8s Operator                     | [jobman-service](/jobman-service/)
  | Desktops-cleaner                  | Depends on Keycloak, Harbor, Guacamole                             | [desktops-cleaner directory](/desktops-cleaner/)
- | FEM client                        | Depends on Keycloak, Harbor, Jobman                                | [fem-client](/fem-client/)
+ | FEM client                        | Depends on Keycloak, Harbor, Jobman-service                        | [fem-client](/fem-client/)
 
 Finally...
 [extra-configurations](/extra-configurations/)

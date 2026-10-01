@@ -1,0 +1,88 @@
+# apiVersion: cilium.io/v2
+# kind: CiliumNetworkPolicy
+# metadata:
+#   name: deny-all-default
+#   namespace: jobman-service
+# spec:
+#   endpointSelector: {}
+#   ingress: []
+#   egress: []
+
+# ---
+
+apiVersion: "cilium.io/v2"
+kind: CiliumNetworkPolicy
+metadata:
+  name: jobman-queue-position
+  namespace: jobman-service
+spec:
+  endpointSelector:
+    matchLabels:
+      app: jobman-queue-position
+  egress: 
+    - toEntities:
+      - "kube-apiserver"
+  ingress: []
+
+---
+
+apiVersion: "cilium.io/v2"
+kind: CiliumNetworkPolicy
+metadata:
+  name: jobman-service
+  namespace: jobman-service
+spec:
+  endpointSelector:
+    matchLabels:
+      app: jobman-service-deployment
+  # TODO: User namespaces need labels, or a different mechanism to filter
+  # ingress:
+  #   - fromEndpoints:
+  #     - matchLabels:
+  #         io.kubernetes.pod.namespace: eucaim-fed-computation
+  #     toPorts:
+  #     - ports:
+  #       - port: "8080"
+  #         protocol: TCP
+  #   - fromEndpoints:
+  #     - matchLabels:
+  #         io.cilium.k8s.namespace.labels/jobman-access: "true"
+  #     toPorts:
+  #     - ports:
+  #       - port: "8080"
+  #         protocol: TCP
+  egress:
+    - toEntities:
+      - "kube-apiserver"
+    - toFQDNs:
+      - matchName: "eucaim-node.i3m.upv.es"
+      toPorts:
+      - ports:
+        - port: "443"
+          protocol: TCP
+        rules:
+          http:
+          - method: "GET"
+            path: "/auth/.*"
+          - method: "POST"
+            path: "/auth/.*"
+    - toFQDNs:
+      - matchName: "harbor.eucaim-node.i3m.upv.es"
+      toPorts:
+      - ports:
+        - port: "443"
+          protocol: TCP
+        - port: "5000"
+          protocol: TCP
+    - toEndpoints:
+      - matchLabels:
+          io.kubernetes.pod.namespace: kube-system
+          k8s-app: kube-dns
+      toPorts:
+      - ports:
+        - port: "53"
+          protocol: TCP
+        - port: "53"
+          protocol: UDP
+
+
