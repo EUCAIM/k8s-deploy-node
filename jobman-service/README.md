@@ -94,10 +94,11 @@ Create the cron job:
 kubectl apply -f cron-job.yaml
 ```
 
-### Network Policies (only for Cilium)
+### Network Policies
+
+#### jobman-service (only for Cilium)
 
 Apply the following network policies:
-
 - jobman-queue-position
 - jobman-service
 
@@ -105,3 +106,15 @@ Default deny everything ingress/egress disabled until the ingress rules in the _
 ```
 kubectl apply -f network-policies-cilium.yaml
 ```
+
+#### jobman-service-exec (jobs)
+
+Apply the network policy __restrict-job-traffic__ for the jobs created in the `jobman-service-exec` namespace, to 
+ - isolate jobs (pods) between them (deny all inbound traffic)
+ - deny all traffic to outside and inside cluster except to some internal services (pip proxy, shared-sql-db, dns).
+
+```
+kubectl apply -f network-policy-restrict-job-traffic.yaml
+```
+Note it is the same network policy applied to user namespaces but adjusted for jobs in a shared namespace (uneeded ingress/egress exceptions are commented out). 
+An alternative version for cilium is left in `network-policy-restrict-job-traffic-cilium.yaml` but is not intended to be applied.

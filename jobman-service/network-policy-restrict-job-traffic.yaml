@@ -1,0 +1,61 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: restrict-job-traffic
+  namespace: jobman-service-exec
+spec:
+  podSelector: {}   # Empty selector: this policy applies to all pods in this namespace
+
+  # All traffic (from/to a pod) is blocked just defining the sections ingress/egress 
+  # except the traffic allowed by the rules defined in each section.
+  policyTypes:
+    - Ingress
+    - Egress
+
+  ingress: [] # Inbound exception rules (white list)
+    # With ingress empty rule all ingress traffic is denied, 
+    # even from one to each other in this namespace
+
+  egress: # Outbound exception rules (white list)
+
+#   - to:
+#       - namespaceSelector: {}   # To any pod in the cluster
+
+    - to:
+        - namespaceSelector:   # To pods in the listed namespaces
+            matchExpressions:
+              - key: kubernetes.io/metadata.name
+                operator: In
+                values:
+#                 - {{ TENANT_NAMESPACE }}   # To any pod in the same namespace
+#                 - jobman-service    # For the command jobman to work
+                  - package-repos-proxy   # For the command pip to work
+                  - clinical-data-sql-db   # For the ETL app to work
+#                 - orthanc    # For uploading modified images to the datalake (e.g. after segmentation or armonisation)
+
+#   - to:   # For connecting to any of the services exposed in the public domain through ingress-nginx.
+#           # Depending on the CoreDNS configuration, internal connections to this public domain may be resolved
+#           # to the public IP address or to the local IP address. In case of doubt put both.
+#           # It is particularly required for accessing datasets-service web 
+#           # for creating new versions of dataset (e.g. after the ETL process).
+#       - ipBlock:
+#           cidr: {{ FRONT_NODE_PUBLIC_IP }}/32
+#       - ipBlock:
+#           cidr: {{ FRONT_NODE_LOCAL_IP }}/32
+#     ports:
+#       - port: 443
+#       - port: 80
+#       # Note port 6443 is not included to avoid connections to kube-apiserver
+
+    - to:   # Explicitly allow DNS traffic to CoreDNS in kube-system
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: kube-system
+          podSelector:
+            matchLabels:
+              k8s-app: kube-dns
+      ports:
+        - protocol: UDP
+          port: 53
+        - protocol: TCP
+          port: 53
