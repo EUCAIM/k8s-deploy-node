@@ -1,8 +1,93 @@
 
+## Prerequisites
 
-You can find herein the instructions needed to deploy Jobman service and its Queue Position cron job on the EUCAIM-NODE cluster.
+### Ceph user account
+
+Jobman-service will launch jobs on behalf of users, and that job must be able to access the user home, the datalake, datasets and shared-folder.  
+Thus, a ceph user for jobman must be created.
+```
+ceph --user imagingadmin fs authorize data client.jobman-service-exec /datasets r /datasets-test r \
+                                                                      /datalake r /datalake-test r \
+                                                                      /homes/users rw /homes/shared-folder rw
+```
+Security notes:  
+  - That user can access to all the user homes, but only a specific home is mounted by the dsws-operator in the pod where the user algorithm runs.
+  - That user also can access to all datalake and datasets, but the access in this case is controled by the permissions in the file system with the GID of the user,
+    which is set in the context environment of the pod by the dsws-operator. The same applies to the shared-folder.
+
+Then you shoud make a private copy of the secret and set the key obtained before:  
+```
+cp ceph-secret.yaml ceph-secret.private.yaml
+vim ceph-secret.private.yaml
+```
+And apply:
+```
+kubectl apply -f ceph-secret.private.yaml
+```
+
+### Registry credentials secret for protected apps
+
+There is a private project in the Harbor registry which contains the protected applications. 
+So you must create the secret with the credentials to access, it will be used by k8s to pull the images for the jobs.  
+You should make your private copy of the script, put your password and execute the script:
+```
+cp protected-regcred.sh protected-regcred.private.sh
+vim protected-regcred.private.sh
+sh protected-regcred.private.sh
+```
+Note a "robot" user is used to access Harbor that must be created there to obtain the password.
+
+### Auth client
+
+The Jobman-service accepts two types of authentication:
+ - An API-Token: created for each user an left in the user namespace to be used by desktops (i.e. by jobman-cli command within desktops).
+ - A JWT-Token: issued by Keycloak and used by other applications in the platform who want launch jobs for the user (e.g the FEM Client).
+
+In order to validate both of them you have to create a client in Keycloak:
+ - Type: `OIDC`
+ - Client ID: `jobman-service`
+ - Client authentication: `true`
+ - Authentication flow: `Service account roles`
+ - Root URL: `https://eucaim-node.i3m.upv.es/jobman-service/`
+ - Home URL: `https://eucaim-node.i3m.upv.es/jobman-service/`
+ 
+In the "Roles" tab, create the role "manage-own-jobs".
+In the "Client scopes" tab, go to the dedicated scope, change to "Scope" tab and 
+ - disable "full scope allowed"
+ - and assign the roles: 
+    - `realm-management:view-users`
+    - `realm-management:query-users`
+ 
+In the "Service account roles" tab add also the same previous roles.
+
+Finally, go to the "Realm roles" general section and add the role `jobman-service:manage-own-jobs` to the role "data-scientists".
+
+#### (Optional) Test client
+
+Only for testing/developing purposes you can create another client (to generate tokens to access the Jobman-service):
+ - Type: `OIDC`
+ - Client ID: `jobman-client-test`
+ - Client authentication: `false`  (it's a public client)
+ - Authentication flow: `Standard flow` and `Direct access grants` (to allow developers to get tokens with curl to call directly to the backend API)
+ - Root URL: ``
+ - Home URL: ``
+ - Valid redirect URIs: ``
+ - Valid post logout redirect URIs: ``
+ - Web origins: `https://eucaim-node.i3m.upv.es`
+
+In the "Client scopes" tab, go to the dedicated scope, change to "Scope" tab and
+ - disable "full scope allowed"
+ - assign the role `jobman-service:manage-own-jobs`
+Now change to "Mappers" tab, "Configure a new mapper", type "Audience":
+ - Name: `aud jobman-service`
+ - Included Client Audience: select `jobman-service`
+ - Add to access token: true
+That last configuration is required because keycloak does not include the `aud` claim if the user have not any client role assigned.
+
 
 ## Deployment
+
+You can find herein the instructions needed to deploy Jobman service and its Queue Position cron job on the EUCAIM-NODE cluster.
 
 ### Namespace
 
