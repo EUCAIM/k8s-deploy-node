@@ -1,0 +1,132 @@
+annotateK8sNode: true
+bpf:
+  masquerade: true
+debug:
+  enabled: true
+dnsProxy:
+  dnsRejectResponseCode: nameError
+encryption:
+  enabled: false
+  ipsec:
+    interface: ""
+    keyFile: keys
+    mountPath: /etc/ipsec
+    secretName: cilium-ipsec-keys
+  type: ipsec
+endpointRoutes:
+  enabled: true
+envoy:
+  enabled: false
+  nodeSelector:
+    kubernetes.io/os: linux
+  priorityClassName: network
+  rollOutPods: true
+hubble:
+  enabled: false
+  metrics:
+    enabled:
+    - dns
+    - drop
+    - flow
+    - http
+    - icmp
+    - port-distribution
+    - tcp
+    port: 9965
+  relay:
+    enabled: false
+    nodeSelector:
+      kubernetes.io/os: linux
+    priorityClassName: null
+    rollOutPods: true
+    tls:
+      client:
+        cert: ""
+        key: ""
+      server:
+        cert: ""
+        enabled: false
+        extraDnsNames: []
+        extraIpAddresses: []
+        key: ""
+  tls:
+    auto:
+      certManagerIssuerRef: {}
+      certValidityDuration: 1095
+      enabled: true
+      method: helm
+      schedule: 0 0 1 */4 *
+    enabled: true
+    server:
+      cert: ""
+      extraDnsNames: []
+      extraIpAddresses: []
+      key: ""
+  ui:
+    baseUrl: /
+    enabled: false
+    ingress:
+      annotations: {}
+      className: ""
+      enabled: true
+      hosts:
+      - chart-example.local
+      tls:
+      - hosts:
+        - chart-example.local
+        secretName: null
+    nodeSelector:
+      kubernetes.io/os: linux
+    priorityClassName: null
+    rollOutPods: true
+    service:
+      nodePort: 31235
+      type: ClusterIP
+    tls:
+      client:
+        cert: ""
+        key: ""
+ipam:
+  mode: cluster-pool
+  operator:
+    clusterPoolIPv4MaskSize: 24
+    clusterPoolIPv4PodCIDRList:
+    - 10.253.0.0/16
+    clusterPoolIPv6MaskSize: 120
+    clusterPoolIPv6PodCIDRList:
+    - fd00::/104
+k8sNetworkPolicy:
+  enabled: true
+k8sServiceHost: X.X.X.X
+k8sServicePort: 6443
+monitor:
+  enabled: true
+nodePort:
+  autoProtectPortRange: true
+  bindProtection: true
+  enableHealthCheck: true
+  enabled: true
+nodeSelector:
+  kubernetes.io/os: linux
+operator:
+  enabled: true
+  nodeSelector:
+    kubernetes.io/os: linux
+  priorityClassName: network
+  replicas: 2
+  rollOutPods: true
+# This is required to allow specifying an IP of a node in CIDR-based selectors (ipBlock) within k8s networkPolicies.
+# It is particularly relevant to allow connection to the kube-apiserver (listening on front node, local IP, port 6443 by default)
+# when using k8s networkPolicies (not required for ciliumNetworkPolicies because the kube-apiserver entity can be used).
+# REF: https://docs.cilium.io/en/stable/security/policy/layer3/#selecting-pods-or-nodes-with-cidr-ipblock
+policyCIDRMatchMode: "nodes"
+priorityClassName: network
+rollOutCiliumPods: true
+socketLB:
+  enabled: true
+tls:
+  ca:
+    cert: ""
+    certValidityDuration: 1095
+    key: ""
+  secretsBackend: k8s

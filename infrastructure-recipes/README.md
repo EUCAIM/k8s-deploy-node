@@ -278,7 +278,7 @@ NOTE: The next version 3.13 requires k8s 1.31+, so is not compatible with our k8
 
 ## cilium
 Whenever a new cilium patch is published we can upgrade our deployment.  
-This is for patch upgrades (1.15.x -> 1.15.y).  
+This is safe for patch upgrades (1.15.x -> 1.15.y).  
 For minor version upgrade see documentation: https://docs.cilium.io/en/v1.15/operations/upgrade/
 
 First time we installed cilium with ansible role, so we don't have the values file (temporary generated during the deployment).  
@@ -293,16 +293,40 @@ So we can get it with:
 helm -n kube-system get values cilium  > cilium-values-1.15.6.yaml
 # discard the first line
 cat cilium-values-1.15.6.yaml | tail +2 > cilium-values-1.15.6.yaml.tmp
-mv cilium-values-1.15.6.yaml.tmp cilium-values-1.15.6.yaml
+mv cilium-values-1.15.6.yaml.tmp k8s-core-services/cilium-values-1.15.6.yaml
 ```
 Now you should go to the helm chart web page, download default values file of the current and the new version, and check differences:  
 `diff cilium-default-values-1.15.6.yaml cilium-default-values-1.15.10.yaml`
 And update the current values file according to the changes between versions.
 ```
-cp cilium-values-1.15.6.yaml cilium-values-1.15.10.yaml
-vim cilium-values-1.15.10.yaml
+cp k8s-core-services/cilium-values-1.15.6.yaml k8s-core-services/cilium-values-1.15.10.yaml
+vim k8s-core-services/cilium-values-1.15.10.yaml
 ```
+
+Ensure to add or change this line in the values file:
+```
+policyCIDRMatchMode: "nodes"
+```
+It is required to allow specifying an IP of a node in CIDR-based selectors (ipBlock) within k8s networkPolicies.
+It is particularly relevant to allow connection to the kube-apiserver (listening on front node, local IP, port 6443 by default)
+when using k8s networkPolicies (not required for ciliumNetworkPolicies because the kube-apiserver entity can be used).  
+REF: https://docs.cilium.io/en/stable/security/policy/layer3/#selecting-pods-or-nodes-with-cidr-ipblock
+
+
 And finally upgrade with:
 ```
-helm -n kube-system upgrade cilium cilium/cilium --version 1.15.10 -f cilium-values-1.15.10.yaml
+# upgrade the repo to acquire the new version of chart
+helm repo update cilium
+# upgrade the "cilium" application to the new version
+helm -n kube-system upgrade cilium cilium/cilium --version 1.15.10 -f k8s-core-services/cilium-values-1.15.10.yaml
 ```
+
+We left here the values file for the last version we tried (it's safe upgrading to 1.19.x, with our configuration):
+```
+cp k8s-core-services/cilium-values-1.19.8.yaml k8s-core-services/cilium-values-1.19.8.private.yaml
+vim k8s-core-services/cilium-values-1.19.8.private.yaml
+```
+You have to set the value for `k8sServiceHost` to the local IP of the front node. 
+You can get it from your current values or with `kubectl get node kubeserverpublic.localdomain -o yaml | grep "address: 192.168"`.
+It should be an IP address in the network `192.168.*.0/24` (as specified in `templates/eucaim-node-ubuntu.radl` for the network "private") e.g. 192.168.1.112.
+
