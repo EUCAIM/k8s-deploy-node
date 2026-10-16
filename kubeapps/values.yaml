@@ -5,7 +5,7 @@ postgresql:
     repository: bitnami/postgresql
   auth:
     username: postgres
-    password: lHmXy1aTD66zkCWh
+    password: XXXXXXXXXXXXX
   architecture: standalone
   primary:
     persistence:
@@ -45,8 +45,8 @@ authProxy:
   skipKubeappsLoginPage: false
   provider: oidc
   clientID: kubernetes
-  clientSecret: llOqmNpqaXcsVvifWCfV4sNQGI699utI
-  cookieSecret: qfvutCl11omGgsc42aMpUQ==
+  clientSecret: XXXXXXXXXXXXX
+  cookieSecret: XXXXXXXXXXXXX
   extraFlags:
     - "--oidc-issuer-url=https://eucaim-node.i3m.upv.es/auth/realms/EUCAIM-NODE"
     - "--proxy-prefix=/apps/oauth2"
