@@ -17,7 +17,7 @@ operatorConfiguration:
   auth:
     url: https://mininode.imaging.i3m.upv.es/auth/realms/EUCAIM-NODE/protocol/openid-connect/token
     client_id: kubernetes-operator
-    client_secret: ugVKIjwNQFwajethJsRDQ3Vf2FUx9P8W
+    client_secret: XXXXXXXXXXXXXXXX
     max_retries: 10
   dataset_service:
     url: http://dataset-service-backend-service.dataset-service.svc.cluster.local:11000/
