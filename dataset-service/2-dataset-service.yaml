@@ -71,7 +71,7 @@ spec:
             : \"ADMINS-PROJECT-\"\n    },\n    \"client\": {\n      \"auth_url\":\
             \ \"https://mininode.imaging.i3m.upv.es/auth/realms/EUCAIM-NODE/protocol/openid-connect/token\"\
             ,\n      \"client_id\": \"dataset-service\",\n      \"client_secret\"\
-            : \"Wgq4kpBLa0Stjx6FtHoMoT1yBNd02ErT\"\n    },\n    \"admin_api\": {\n\
+            : \"yoursecret\"\n    },\n    \"admin_api\": {\n\
             \      \"url\": \"https://mininode.imaging.i3m.upv.es/auth/admin/realms/EUCAIM-NODE/\"\
             ,\n      \"client_id_to_request_user_tokens\": \"dataset-explorer\",\n\
             \      \"parent_group_of_project_groups\": \"/PROJECTS\"\n    },\n   \
