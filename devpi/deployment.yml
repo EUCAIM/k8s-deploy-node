@@ -20,6 +20,7 @@ spec:
         chaimeleon.eu/target: core-services
       containers:
       - image: harbor.eucaim-node.i3m.upv.es/core-services/devpi:6.15.0
+        args: ["--restrict-modify=root"]
         imagePullPolicy: IfNotPresent
         name: devpi
         resources:
