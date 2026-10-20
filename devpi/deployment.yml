@@ -14,7 +14,6 @@ spec:
       labels:
         app: devpi
     spec:
-      replicas: 1
       priorityClassName: core-services
       nodeSelector:
         chaimeleon.eu/target: core-services
