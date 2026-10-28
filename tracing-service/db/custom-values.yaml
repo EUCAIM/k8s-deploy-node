@@ -1,0 +1,154 @@
+# Default values for immudb.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+replicaCount: 1
+
+image:
+  repository: codenotary/immudb
+  pullPolicy: IfNotPresent
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: "1.11.2-bullseye-slim"
+
+imagePullSecrets: []
+nameOverride: "tracing-db"
+fullnameOverride: "tracing-db"
+volume:
+  class: ceph
+  size: 10Gi
+adminPassword: ""
+
+# ImmuDB Configuration Options
+# You can configure immudb using three methods:
+# 1. Environment variables (env)
+# 2. Configuration file (config)
+# 3. Command line arguments (args)
+
+# Environment variables for immudb
+# All immudb configuration can be set via environment variables by prefixing with "IMMUDB_"
+# Examples:
+# - IMMUDB_PORT=3323
+# - IMMUDB_ADDRESS=0.0.0.0
+# - IMMUDB_DEVMODE=false
+env: 
+  - name: IMMUDB_WEB_SERVER
+    value: "false"
+  - name: IMMUDB_SWAGGERUI
+    value: "false"
+  - name: IMMUDB_METRICS_SERVER
+    value: "false"
+  - name: IMMUDB_DEVMODE
+    value: "false"
+  # - name: IMMUDB_PORT
+  #   value: "3323"
+  # - name: IMMUDB_DEVMODE
+  #   value: "false"
+  - name: IMMUDB_PGSQL_SERVER
+    value: "true"
+  # - name: IMMUDB_S3_STORAGE
+  #   value: "true"
+  # - name: IMMUDB_S3_BUCKET_NAME
+  #   value: "my-immudb-bucket"
+
+# Configuration file for immudb
+# If enabled, creates a ConfigMap with immudb.toml configuration file
+# This will be mounted to /etc/immudb/immudb.toml
+config:
+  enabled: false
+  # Configuration in TOML format
+  # See https://docs.immudb.io/master/running/configuration.html for all options
+  data: |
+    dir = "/var/lib/immudb"
+    network = "tcp"
+    address = "0.0.0.0"
+    port = 3322
+    dbname = "immudb"
+    auth = true
+    devmode = false
+    pgsql-server = true
+    pgsql-server-port = 5432
+    metrics-server = true
+    metrics-server-port = 9497
+    web-server = true
+    web-server-port = 8080
+    # S3 configuration example:
+    # s3-storage = true
+    # s3-bucket-name = "my-immudb-bucket"
+    # s3-endpoint = "s3.amazonaws.com"
+    # s3-location = "us-east-1"
+
+# Command line arguments for immudb
+# These will be passed directly to the immudb command
+# See `immudb --help` for all available options
+args: []
+  # - "--devmode"
+  # - "--pgsql-server=false"
+  # - "--s3-storage"
+  # - "--s3-bucket-name=my-immudb-bucket"
+
+podAnnotations: {}
+
+podSecurityContext:
+   runAsNonRoot: true
+   runAsUser: 3322
+   runAsGroup: 3322
+   fsGroup: 3322
+   fsGroupChangePolicy: "OnRootMismatch"
+
+securityContext:
+   readOnlyRootFilesystem: true
+   capabilities:
+     drop:
+     - ALL
+
+service:
+  type: ClusterIP
+  ports:
+    # - name: grpc
+    #   value: 3322
+    # - name: metrics
+    #   value: 9497
+    - name: http
+      value: 8080
+    - name: pgsql
+      value: 5432
+
+ingress:
+  enabled: false
+  className: ""
+  annotations: {}
+    # kubernetes.io/ingress.class: nginx
+    # kubernetes.io/tls-acme: "true"
+  hostname: immudb-example.localhost
+  tls:
+    enabled: false
+    secretName: immudb-tls
+
+resources: {}
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  # limits:
+  #   cpu: 100m
+  #   memory: 128Mi
+  # requests:
+  #   cpu: 100m
+  #   memory: 128Mi
+
+nodeSelector:
+  chaimeleon.eu/target: "core-services"
+
+priorityClassName: "core-services"
+
+tolerations: []
+
+affinity: {}
+
+# We can now use a subdirectory inside the volume so that if you are mounting volumes
+# that have a `/lost+found` directory (i.e., ext4), immudb don't get confused assuming that
+# is a database. Enable this in case you are using a ext4 block-based volume provider,
+# like DigitalOcean or EBS. Disable if you already have some data in the volume root.
+volumeSubPath:
+  enabled: true # or false
+  path: immudb

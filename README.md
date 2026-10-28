@@ -37,7 +37,7 @@ Dataset administration and Traceability System:
    - Source code: https://github.com/chaimeleon-eu/dataset-service
 - [DSWS K8s Operator](https://github.com/chaimeleon-eu/k8s-chaimeleon-operator): deployed using the Helm Chart. 
 - [Desktops-cleaner](https://github.com/chaimeleon-eu/desktops-cleaner): deployed using the Helm Chart.
-- [Tracer Service](https://github.com/chaimeleon-eu/tracer). 
+- [Tracing service](https://github.com/EUCAIM/tracing-service): deployed using plain YAMLs and Helm Chart. 
 
 Authentication proxy:
 - OAuth2-proxy: deployed using the helm chart. URL: https://eucaim-node.i3m.upv.es/oauth2p/
@@ -46,6 +46,7 @@ Python packages repository:
 - Devpi: deployed using plain YAMLs
    - URL (Platform internal only): http://devpi-service.package-repos-proxy:3141
    - Deployment details in the [devpi directory](/devpi/)
+
 
 Federated Computation:
 - FEM client: deployed using plain YAMLs. URL: not publicly accessible
@@ -68,7 +69,7 @@ Now the platform core services can be deployed in the following order to properl
  | Devpi                             | Depends on Harbor                                                  | [devpi directory](/devpi/)
  | Kubeapps                          | Depends on Keycloak, Harbor, (DSWS K8s Operator)                   | [kubeapps directory](/kubeapps/)
  | Access to K8s dashboard with OIDC | Depends on Keycloak, Kubeapps                                      | [kubernetes-dashboard-oidc-access directory](/kubernetes-dashboard-oidc-access/)
- | Tracer-service                    | Depends on Keycloak, Harbor                                        |
+ | Tracng-service                    | Depends on Keycloak, Harbor                                        | [tracing-service directory](/tracing-service/)
  | Guacamole                         | Depends on Keycloak, Harbor                                        | [guacamole directory](/guacamole/)
  | Dataset-service                   | Depends on Keycloak, Harbor, (Tracer), (Kubeapps), (Guacamole)     | [dataset-service directory](/dataset-service/)
  | QP-Insights                       | Depends on Keycloak, Harbor, (Dataset-service)                     | [qp-insights directory](/qp-insights/)
