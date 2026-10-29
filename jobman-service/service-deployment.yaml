@@ -47,7 +47,6 @@ spec:
           capabilities:
             drop: ["ALL"]
           readOnlyRootFilesystem: true
-        name: jobman-service-deployment-container
         env:
         - name: SETTINGS_FILE
           value: /opt/jobman/settings.json
