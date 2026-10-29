@@ -7,7 +7,7 @@ spec:
   schedule: "*/3 * * * *"
   concurrencyPolicy: Forbid
   successfulJobsHistoryLimit: 1
-  failedJobsHistoryLimit: 10
+  failedJobsHistoryLimit: 4
   jobTemplate:
     spec:
       backoffLimit: 0
@@ -55,8 +55,8 @@ spec:
                   && rm ~/*.json"
               resources:
                 requests:
-                  cpu: 1
+                  cpu: "250m"
                   memory: "512M"
                 limits:
-                  cpu: 1
+                  cpu: "250m"
                   memory: "512M"

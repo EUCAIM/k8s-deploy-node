@@ -40,13 +40,13 @@ spec:
         runAsGroup: 1001
         fsGroup: 2000
       containers:
-      - image: harbor.eucaim-node.i3m.upv.es/core-services/jobman-service:2.2.10-BETA
+      - name: jobman-service-deployment-container
+        image: harbor.eucaim-node.i3m.upv.es/core-services/jobman-service:2.2.10-BETA
         securityContext:
           allowPrivilegeEscalation: false
           capabilities:
             drop: ["ALL"]
           readOnlyRootFilesystem: true
-        imagePullPolicy: Always
         name: jobman-service-deployment-container
         env:
         - name: SETTINGS_FILE
