@@ -38,7 +38,7 @@ spec:
             secretName: tracing-service-secrets
       containers:
         - name: webservice
-          image: harbor.eucaim-node.i3m.upv.es/core-services/tracing-service:1.0.3-alpha
+          image: harbor.eucaim-node.i3m.upv.es/core-services/tracing-service:1.0.5-beta
           imagePullPolicy: IfNotPresent
           volumeMounts:
             - name: tracing-service-config

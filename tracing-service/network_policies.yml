@@ -69,16 +69,19 @@ spec:
       ports:
         - protocol: TCP
           port: 5432
-    - to:
-        - namespaceSelector:
-            matchLabels:
-              kubernetes.io/metadata.name: keycloak
-          podSelector:
-            matchLabels:
-              app: keycloak
+    - to:   # For connecting to any of the services exposed in the public domain through ingress-nginx.
+            # Depending on the CoreDNS configuration, internal connections to this public domain may be resolved
+            # to the public IP address or to the local IP address. In case of doubt put both.
+            # It is particularly required for accessing datasets-service web 
+            # for creating new versions of dataset (e.g. after the ETL process).
+        - ipBlock:
+            cidr: 192.168.1.162/32
+        - ipBlock:
+            cidr: 158.42.106.140/32
       ports:
-        - protocol: TCP
-          port: 8080
+        - port: 443
+        # - port: 80
+        # Note port 6443 is not included to avoid connections to kube-apiserver
 
     - to:
         - namespaceSelector:

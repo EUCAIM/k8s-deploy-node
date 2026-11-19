@@ -38,7 +38,7 @@ You can now continue with the next sub-chapters of the ImmuDB setup.
 
 Make a copy of the file found at  __db/custom-values.yaml__:
 ```
-   cp db/custom-values.yaml db/custom-values.private.yaml
+   cp k8s-deploy-node/tracing-service/db/custom-values.yaml k8s-deploy-node/tracing-service/db/custom-values.private.yaml
 ```
 One of the values you have to change is the admin password for the ImmuDB instance.
 Generate a strong password and set the value of the **adminPassword** property.
@@ -52,9 +52,14 @@ First, we need to clone the EUCAIM fork of ImmuDB containing the updated helm ch
    git clone -b feat/helm-support-version-1.11 --single-branch https://github.com/EUCAIM/immudb
 ```
 
-We can now install ImmuDB with Helm:
+Assuming that both this repo and the __k8s-deploy-node__ are in the same root folder, you can issue the follosing helm command to install the chart:
 ```
-   helm install tracing-db immudb/helm --namespace tracing-service --values ./custom-values.private.yaml
+   helm install tracing-db immudb/helm --namespace tracing-service --values k8s-deploy-node/tracing-service/db/custom-values.private.yaml
+```
+
+If you need to uninstall the current Helm deployment:
+```
+   helm uninstall tracing-db --namespace tracing-service
 ```
 
 ## Init the database (if not done already)

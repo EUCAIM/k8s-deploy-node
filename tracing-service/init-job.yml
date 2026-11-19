@@ -8,6 +8,9 @@ spec:
   backoffLimit: 0
   template:
     spec:
+      priorityClassName: core-services
+      nodeSelector:
+        chaimeleon.eu/target: core-services
       restartPolicy: Never
       securityContext:        
         runAsUser: 1000
@@ -19,7 +22,7 @@ spec:
           env:
             - name: TRACING_DB_ADMIN_NAME
               value: immudb
-          image: harbor.eucaim-node.i3m.upv.es/core-services/tracing-service-init:1.0.3-alpha
+          image: harbor.eucaim-node.i3m.upv.es/core-services/tracing-service-init:1.0.5-beta
           volumeMounts:
             - name: tracing-service-config
               mountPath: /opt/tracing/settings.yml

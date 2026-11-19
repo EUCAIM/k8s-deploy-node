@@ -14,7 +14,7 @@ data:
         min_size: 3
         max_size: 3
     oidc:
-      url: http://keycloak.keycloak:8080
+      url: https://eucaim-node.i3m.upv.es/auth
       realm: EUCAIM-NODE
       client: tracing-service
       audiences: [
